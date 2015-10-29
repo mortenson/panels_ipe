@@ -1,0 +1,26 @@
+<?php
+
+/**
+ * @file
+ * Contains panels_ipe.module.
+ */
+
+use Drupal\Core\Routing\RouteMatchInterface;
+
+/**
+ * Implements hook_help().
+ */
+function panels_ipe_help($route_name, RouteMatchInterface $route_match) {
+  switch ($route_name) {
+    // Main module help for the panels_ipe module.
+    case 'help.page.panels_ipe':
+      $output = '';
+      $output .= '<h3>' . t('About') . '</h3>';
+      $output .= '<p>' . t('Panels In-place editor.') . '</p>';
+      // @todo: Add useful help text for Panels In-place editor.
+      return $output;
+
+    default:
+  }
+}
+

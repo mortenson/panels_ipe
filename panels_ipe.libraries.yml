@@ -1,0 +1,27 @@
+panels_ipe:
+  version: VERSION
+  js:
+    # Core.
+    js/panels_ipe.js: {}
+    # Models.
+    js/models/AppModel.js: {}
+    js/models/BlockModel.js: {}
+    js/models/RegionModel.js: {}
+    # Views.
+    js/views/AppView.js: {}
+    js/views/BlockView.js: {}
+    js/views/RegionView.js: {}
+  dependencies:
+    - core/jquery
+    - core/jquery.once
+    - core/underscore
+    - core/backbone
+    - core/jquery.form
+    - core/jquery.ui.position
+    - core/drupal
+    - core/drupal.displace
+    - core/drupal.form
+    - core/drupal.ajax
+    - core/drupal.debounce
+    - core/drupalSettings
+    - core/drupal.dialog
