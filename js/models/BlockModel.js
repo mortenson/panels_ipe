@@ -27,6 +27,12 @@
        * @type {string}
        */
       state: 'none'
+    },
+
+    url: '/books',
+
+    parse: function(data) {
+      return data.books;
     }
 
   });

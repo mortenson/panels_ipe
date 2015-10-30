@@ -7,8 +7,9 @@
 
 namespace Drupal\panels_ipe\Plugin\DisplayBuilder;
 
-use Drupal\panels\Plugin\DisplayBuilder\StandardDisplayBuilder;
 use Drupal\Component\Utility\Html;
+use Drupal\layout_plugin\Plugin\Layout\LayoutInterface;
+use Drupal\panels\Plugin\DisplayBuilder\StandardDisplayBuilder;
 
 /**
  * The In-place editor display builder for viewing and editing a 
@@ -22,20 +23,73 @@ use Drupal\Component\Utility\Html;
 class InPlaceEditorDisplayBuilder extends StandardDisplayBuilder {
 
   /**
-   * Build render arrays for each of the regions.
+   * Compiles settings needed for the IPE to function.
    *
    * @param array $regions
    *   The render array representing regions.
-   * @param array $contexts
-   *   The array of context objects.
    *
    * @return array
-   *   An associative array, keyed by region ID, containing the render arrays
-   *   representing the content of each region.
+   *   An associative array representing the contents of drupalSettings.
    */
-  protected function buildRegions(array $regions, array $contexts) {
-    $build = parent::buildRegions($regions, $contexts);
+  protected function getDrupalSettings(array $regions, array $contexts, LayoutInterface $layout = NULL) {
+    /** @var \Drupal\Core\Entity\EntityInterface $entity */
+    $entity = \Drupal::request()->attributes->get('_entity');
 
+    $settings = [
+      'regions' => [],
+    ];
+
+    // Add current block IDs to settings sorted by region.
+    foreach ($regions as $region => $blocks) {
+      $settings['regions'][$region]  = [
+        'id' => $region,
+        'blocks' => []
+      ];
+
+      if (!$blocks) {
+        continue;
+      }
+
+      /** @var \Drupal\Core\Block\BlockPluginInterface[] $blocks */
+      foreach ($blocks as $block_uuid => $block) {
+        $settings['regions'][$region]['blocks'][$block_uuid] = [
+          'uuid' => $block_uuid,
+          'label' => $block->label(),
+          'id' => $block->getPluginId()
+        ];
+      }
+    }
+
+    // Add the layout information.
+    if ($layout) {
+      $layout_definition = $layout->getPluginDefinition();
+      $settings['layout'] = [
+        'id' => $layout->getPluginId(),
+        'label' => $layout_definition['label']
+      ];
+    }
+
+    // Explicitly support Page Manger, as we need to have a reference for where
+    // to save the display.
+    if ($entity->getEntityTypeId() == 'page') {
+      /** @var \Drupal\page_manager\Entity\Page $entity */
+      $variant = $entity->getExecutable()->selectDisplayVariant();
+      $configuration = $variant->getConfiguration();
+      $settings['display_variant'] = [
+        'id' => $configuration['id'],
+        'label' => $configuration['label'],
+        'uuid' => $configuration['uuid'],
+      ];
+    }
+
+    return ['panels_ipe' => $settings];
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function build(array $regions, array $contexts, LayoutInterface $layout = NULL) {
+    $build = parent::build($regions, $contexts, $layout);
     // Attach the Panels In-place editor library based on permissions.
     if ($this->account->hasPermission('access panels in-place editing')) {
       foreach ($regions as $region => $blocks) {
@@ -51,9 +105,14 @@ class InPlaceEditorDisplayBuilder extends StandardDisplayBuilder {
             $build[$region][$block_id]['#attributes']['data-block-id'] = $block_id;
           }
         }
+
+        // Attach the required settings and IPE.
+        $build['#attached'] = [
+          'library' => ['panels_ipe/panels_ipe'],
+          'drupalSettings' => $this->getDrupalSettings($regions, $contexts, $layout)
+        ];
       }
     }
-
     return $build;
   }
 

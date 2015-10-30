@@ -20,13 +20,12 @@
      *   An object with the following keys:
      * @param {Drupal.panels_ipe.AppModel} options.model
      *   The application state model.
-     * @param {Drupal.panels_ipe.RegionCollection} options.regionsCollection
+     * @param {Drupal.panels_ipe.RegionCollection} options.regionCollection
      *   All on-page regions.
-     * @param {Drupal.panels_ipe.BlockCollection} options.blocksCollection
-     *   All on-page blocks.
      */
     initialize: function (options) {
-
+      this.model = options.model;
+      this.regionCollection = options.regionCollection;
     }
 
   });

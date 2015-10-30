@@ -22,7 +22,7 @@
      *   The block state model.
      */
     initialize: function (options) {
-
+      this.model = options.model;
     }
 
   });
