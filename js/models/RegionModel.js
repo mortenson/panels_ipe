@@ -1,6 +1,9 @@
 /**
  * @file
  * Base Backbone model for a Region.
+ *
+ * @todo Support sync operations to refresh a region, even if we don't have
+ * a use case for that yet.
  */
 
 (function (_, $, Backbone, Drupal) {
@@ -35,7 +38,14 @@
        *
        * @see Drupal.panels_ipe.BlockCollection
        */
-      blocks: null
+      blocks: null,
+
+      /**
+       * The HTML content of the region.
+       *
+       * @type {string}
+       */
+      html: null
     }
 
   });
