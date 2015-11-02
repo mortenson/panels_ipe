@@ -32,9 +32,6 @@ class InPlaceEditorDisplayBuilder extends StandardDisplayBuilder {
    *   An associative array representing the contents of drupalSettings.
    */
   protected function getDrupalSettings(array $regions, array $contexts, LayoutInterface $layout = NULL) {
-    /** @var \Drupal\Core\Entity\EntityInterface $entity */
-    $entity = \Drupal::request()->attributes->get('_entity');
-
     $settings = [
       'regions' => [],
     ];
@@ -72,23 +69,23 @@ class InPlaceEditorDisplayBuilder extends StandardDisplayBuilder {
 
     // Explicitly support Page Manger, as we need to have a reference for where
     // to save the display.
-    if ($entity->getEntityTypeId() == 'page') {
-      /** @var \Drupal\page_manager\Entity\Page $entity */
+    /** @var \Drupal\page_manager\Entity\Page $page */
+    $page = \Drupal::request()->attributes->get('page_manager_page');
+    /** @var \Drupal\page_manager\Entity\PageVariant $variant */
+    $variant = \Drupal::request()->attributes->get('page_manager_page_variant');
+    if ($page && $variant) {
       // Add the display variant's config.
-      $variant = $entity->getExecutable()->selectDisplayVariant();
-      $configuration = $variant->getConfiguration();
       $settings['display_variant'] = [
-        'id' => $configuration['id'],
-        'label' => $configuration['label'],
-        'uuid' => $configuration['uuid'],
+        'label' => $variant->label(),
+        'id' => $variant->id(),
+        'uuid' => $variant->uuid(),
       ];
 
       // Add the entity information so the proper JSON callback is used.
-      $settings['entity'] = [
-        'label' => $entity->label(),
-        'id' => $entity->id(),
-        'uuid' => $entity->uuid(),
-        'type' => 'page'
+      $settings['page'] = [
+        'label' => $page->label(),
+        'id' => $page->id(),
+        'uuid' => $page->uuid()
       ];
     }
 

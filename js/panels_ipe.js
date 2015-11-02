@@ -49,6 +49,11 @@
 
             var region = new Drupal.panels_ipe.RegionModel();
             region.set(settings.panels_ipe.regions[i]);
+            var region_view = new Drupal.panels_ipe.RegionView({
+                'model': region,
+                'name': settings.panels_ipe.regions[i].name
+            });
+            region_view.render(true);
             region_collection.add(region);
         }
 
@@ -63,7 +68,7 @@
      * Returns the urlRoot for all callbacks
      */
     Drupal.panels_ipe.urlRoot = function(settings) {
-        return '/admin/panels_ipe/' + settings.panels_ipe.entity.type + '/' + settings.panels_ipe.entity.id + '/variant/' + settings.panels_ipe.display_variant.uuid;
+        return '/admin/panels_ipe/page/' + settings.panels_ipe.page.id + '/variant/' + settings.panels_ipe.display_variant.id;
     };
 
 })(jQuery, _, Backbone, Drupal, drupalSettings, window.JSON, window.sessionStorage);
