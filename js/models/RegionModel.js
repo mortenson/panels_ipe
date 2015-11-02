@@ -35,14 +35,7 @@
        *
        * @see Drupal.panels_ipe.BlockCollection
        */
-      blocks: null,
-
-      /**
-       * The current state of the region.
-       *
-       * @type {string}
-       */
-      state: 'none'
+      blocks: null
     }
 
   });

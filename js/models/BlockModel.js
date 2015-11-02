@@ -3,7 +3,7 @@
  * Base Backbone model for a Block.
  */
 
-(function (_, $, Backbone, Drupal) {
+(function (_, $, Backbone, Drupal, drupalSettings) {
 
   'use strict';
 
@@ -15,24 +15,39 @@
     defaults: /** @lends Drupal.panels_ipe.BlockModel# */{
 
       /**
-       * The unique ID of the block.
+       * The ID of the block.
        *
        * @type {string}
        */
       id: null,
 
       /**
-       * The current state of the block.
+       * The unique ID of the block.
        *
        * @type {string}
        */
-      state: 'none'
+      uuid: null,
+
+      /**
+       * The label of the block.
+       *
+       * @type {string}
+       */
+      label: null,
+
+      /**
+       * The HTML content of the block. This is stored in the model as the
+       * IPE doesn't actually care what the block's content is, the functional
+       * elements of the model are the metadata. The BlockView renders this
+       * wrapped inside IPE elements.
+       *
+       * @type {string}
+       */
+      html: null
     },
 
-    url: '/books',
-
-    parse: function(data) {
-      return data.books;
+    url: function() {
+      return Drupal.panels_ipe.urlRoot(drupalSettings) + '/block/' + this.get('uuid');
     }
 
   });
@@ -50,4 +65,4 @@
     model: Drupal.panels_ipe.BlockModel
   });
 
-}(_, jQuery, Backbone, Drupal));
+}(_, jQuery, Backbone, Drupal, drupalSettings));

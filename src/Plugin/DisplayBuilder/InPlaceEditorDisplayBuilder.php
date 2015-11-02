@@ -42,7 +42,8 @@ class InPlaceEditorDisplayBuilder extends StandardDisplayBuilder {
     // Add current block IDs to settings sorted by region.
     foreach ($regions as $region => $blocks) {
       $settings['regions'][$region]  = [
-        'id' => $region,
+        'name' => $region,
+        'label' => '',
         'blocks' => []
       ];
 
@@ -73,12 +74,21 @@ class InPlaceEditorDisplayBuilder extends StandardDisplayBuilder {
     // to save the display.
     if ($entity->getEntityTypeId() == 'page') {
       /** @var \Drupal\page_manager\Entity\Page $entity */
+      // Add the display variant's config.
       $variant = $entity->getExecutable()->selectDisplayVariant();
       $configuration = $variant->getConfiguration();
       $settings['display_variant'] = [
         'id' => $configuration['id'],
         'label' => $configuration['label'],
         'uuid' => $configuration['uuid'],
+      ];
+
+      // Add the entity information so the proper JSON callback is used.
+      $settings['entity'] = [
+        'label' => $entity->label(),
+        'id' => $entity->id(),
+        'uuid' => $entity->uuid(),
+        'type' => 'page'
       ];
     }
 

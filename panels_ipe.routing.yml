@@ -1,0 +1,7 @@
+panels_ipe.block:
+  path: '/admin/panels_ipe/page/{page}/variant/{variant_id}/block/{block_id}'
+  defaults:
+      _controller: '\Drupal\panels_ipe\Controller\PanelsIPEPageController::getBlock'
+  requirements:
+    _permission: 'access panels in-place editing'
+    _entity_access: page.view

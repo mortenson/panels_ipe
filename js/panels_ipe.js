@@ -36,9 +36,14 @@
         var region_collection = new Drupal.panels_ipe.RegionCollection();
         for (var i in settings.panels_ipe.regions) {
             var block_collection = new Drupal.panels_ipe.BlockCollection();
-            for (var j in settings.panels_ipe.regions[i]) {
+            for (var j in settings.panels_ipe.regions[i].blocks) {
                 var block = new Drupal.panels_ipe.BlockModel();
-                block.set(settings.panels_ipe.regions[i][j]);
+                block.set(settings.panels_ipe.regions[i].blocks[j]);
+                var block_view = new Drupal.panels_ipe.BlockView({
+                    'model': block,
+                    'uuid': settings.panels_ipe.regions[i].blocks[j].uuid
+                });
+                block_view.render(true);
                 block_collection.add(block);
             }
 
@@ -52,6 +57,13 @@
             model: new Drupal.quickedit.AppModel(),
             regionCollection: region_collection
         });
+    };
+
+    /**
+     * Returns the urlRoot for all callbacks
+     */
+    Drupal.panels_ipe.urlRoot = function(settings) {
+        return '/admin/panels_ipe/' + settings.panels_ipe.entity.type + '/' + settings.panels_ipe.entity.id + '/variant/' + settings.panels_ipe.display_variant.uuid;
     };
 
 })(jQuery, _, Backbone, Drupal, drupalSettings, window.JSON, window.sessionStorage);
