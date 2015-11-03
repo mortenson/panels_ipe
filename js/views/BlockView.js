@@ -25,15 +25,15 @@
      *   An object with the following keys:
      * @param {Drupal.panels_ipe.BlockModel} options.model
      *   The block state model.
-     * @param {string} options.uuid
-     *   An optional UUID if an existing element is already on screen.
+     * @param {string} options.el
+     *   An optional selector if an existing element is already on screen.
      */
     initialize: function (options) {
       this.model = options.model;
-      if (options.uuid) {
-        this.setElement("[data-block-id='" + options.uuid + "']");
+      if (options.el) {
         this.model.set({html: this.$el.html()});
       }
+      this.$el.draggable();
     },
 
     /**
@@ -47,7 +47,6 @@
         this.model.sync('read', this.model);
       }
       this.$el.html(this.template(this.model.toJSON()));
-      return this;
     }
 
   });

@@ -25,13 +25,12 @@
      *   An object with the following keys:
      * @param {Drupal.panels_ipe.RegionModel} options.model
      *   The region state model.
-     * @param {string} options.name
-     *   An optional region name if an existing element is already on screen.
+     * @param {string} options.el
+     *   An optional selector name if an existing element is already on screen.
      */
     initialize: function (options) {
       this.model = options.model;
-      if (options.name) {
-        this.setElement("[data-region-name='" + options.name + "']");
+      if (options.el) {
         this.model.set({html: this.$el.html()});
       }
     },

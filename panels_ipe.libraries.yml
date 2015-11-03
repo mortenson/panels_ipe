@@ -14,10 +14,11 @@ panels_ipe:
   dependencies:
     - core/jquery
     - core/jquery.once
+    - core/jquery.ui
+    - core/jquery.ui.draggable
+    - core/jquery.form
     - core/underscore
     - core/backbone
-    - core/jquery.form
-    - core/jquery.ui.position
     - core/drupal
     - core/drupal.displace
     - core/drupal.form

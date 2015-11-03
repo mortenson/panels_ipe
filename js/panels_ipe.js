@@ -4,7 +4,7 @@
  *
  */
 
-(function ($, _, Backbone, Drupal, drupalSettings, JSON, storage) {
+(function ($, _, Backbone, Drupal) {
 
     'use strict';
 
@@ -35,26 +35,29 @@
         // Assemble the region and block collections.
         var region_collection = new Drupal.panels_ipe.RegionCollection();
         for (var i in settings.panels_ipe.regions) {
-            var block_collection = new Drupal.panels_ipe.BlockCollection();
-            for (var j in settings.panels_ipe.regions[i].blocks) {
-                var block = new Drupal.panels_ipe.BlockModel();
-                block.set(settings.panels_ipe.regions[i].blocks[j]);
-                var block_view = new Drupal.panels_ipe.BlockView({
-                    'model': block,
-                    'uuid': settings.panels_ipe.regions[i].blocks[j].uuid
-                });
-                block_view.render(true);
-                block_collection.add(block);
-            }
-
             var region = new Drupal.panels_ipe.RegionModel();
             region.set(settings.panels_ipe.regions[i]);
             var region_view = new Drupal.panels_ipe.RegionView({
                 'model': region,
-                'name': settings.panels_ipe.regions[i].name
+                'el': "[data-region-name='" + settings.panels_ipe.regions[i].name + "']"
             });
             region_view.render(true);
             region_collection.add(region);
+
+            var block_collection = new Drupal.panels_ipe.BlockCollection();
+            for (var j in settings.panels_ipe.regions[i].blocks) {
+                // Add a new block model.
+                var block = new Drupal.panels_ipe.BlockModel();
+                block.set(settings.panels_ipe.regions[i].blocks[j]);
+                block_collection.add(block);
+
+                // Attach the new block model to a view.
+                var block_view = new Drupal.panels_ipe.BlockView({
+                    'model': block,
+                    'el': "[data-block-id='" + settings.panels_ipe.regions[i].blocks[j].uuid + "']"
+                });
+                block_view.render(true);
+            }
         }
 
         // Create our app.
@@ -71,4 +74,4 @@
         return '/admin/panels_ipe/page/' + settings.panels_ipe.page.id + '/variant/' + settings.panels_ipe.display_variant.id;
     };
 
-})(jQuery, _, Backbone, Drupal, drupalSettings, window.JSON, window.sessionStorage);
+}(jQuery, _, Backbone, Drupal));
