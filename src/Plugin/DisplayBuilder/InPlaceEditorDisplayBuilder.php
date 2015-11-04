@@ -105,20 +105,21 @@ class InPlaceEditorDisplayBuilder extends StandardDisplayBuilder {
         $build[$region]['#prefix'] = '<div class="' . $region_name . '" data-region-name="' . $region . '">';
         $build[$region]['#suffix'] = '</div>';
 
-        // Add the UUID of each block to the data-block-id attribute.
-        $build[$region]['#attributes']['data-region-name'] = $region;
         if ($blocks) {
           foreach ($blocks as $block_id => $block) {
             $build[$region][$block_id]['#attributes']['data-block-id'] = $block_id;
           }
         }
-
-        // Attach the required settings and IPE.
-        $build['#attached'] = [
-          'library' => ['panels_ipe/panels_ipe'],
-          'drupalSettings' => $this->getDrupalSettings($regions, $contexts, $layout)
-        ];
       }
+
+      // Attach the required settings and IPE.
+      $build['#attached'] = [
+        'library' => ['panels_ipe/panels_ipe'],
+        'drupalSettings' => $this->getDrupalSettings($regions, $contexts, $layout)
+      ];
+
+      // Add our custom tray to the build.
+      $build['#suffix'] = '<div id="panels-ipe-tray"></div>';
     }
     return $build;
   }

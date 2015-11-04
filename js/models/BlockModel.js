@@ -15,6 +15,13 @@
     defaults: /** @lends Drupal.panels_ipe.BlockModel# */{
 
       /**
+       * The block state.
+       *
+       * @type {string}
+       */
+      state: null,
+
+      /**
        * The ID of the block.
        *
        * @type {string}

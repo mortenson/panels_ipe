@@ -12,9 +12,9 @@
   Drupal.panels_ipe.BlockView = Backbone.View.extend(/** @lends Drupal.panels_ipe.BlockView# */{
 
     /**
-     * @type {string}
+     * @type {function}
      */
-    template: _.template('<div class="panels-ipe-block"><h5>Block: <%= label %></h5><%= html %></div>'),
+    template: _.template('<div class="panels-ipe-header"><h5>Block: <%= label %></h5></div><%= html %>'),
 
     /**
      * @constructs
@@ -33,20 +33,20 @@
       if (options.el) {
         this.model.set({html: this.$el.html()});
       }
-      this.$el.draggable();
+      this.listenTo(this.model, 'change:state', this.render);
     },
 
     /**
      * Renders the wrapping elements and refreshes a block model.
-     *
-     *  @param {bool} nosync
-     *   An optional flag to skip syncing from the server before render.
      */
-    render: function(nosync){
-      if (!nosync) {
-        this.model.sync('read', this.model);
+    render: function() {
+      if (this.model.get('state') == 'active') {
+        this.$el.html(this.template(this.model.toJSON()));
       }
-      this.$el.html(this.template(this.model.toJSON()));
+      else {
+        this.$el.html(this.model.get('html'));
+      }
+      return this;
     }
 
   });

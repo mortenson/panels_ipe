@@ -25,11 +25,18 @@
     defaults: /** @lends Drupal.quickedit.AppModel# */{
 
       /**
+       * The application state.
+       *
+       * @type {string}
+       */
+      state: null,
+
+      /**
        * The currently active block.
        *
        * @type {Drupal.panels_ipe.BlockModel}
        *
-       * @see Drupal.panels_ipe.BlockModel.states
+       * @see Drupal.panels_ipe.BlockModel
        */
       activeBlock: null,
 
@@ -38,9 +45,18 @@
        *
        * @type {Drupal.panels_ipe.RegionModel}
        *
-       * @see Drupal.panels_ipe.RegionModel.states
+       * @see Drupal.panels_ipe.RegionModel
        */
-      activeRegion: null
+      activeRegion: null,
+
+      /**
+       * A collection of all regions on screen.
+       *
+       * @type {Drupal.panels_ipe.RegionCollection}
+       *
+       * @see Drupal.panels_ipe.RegionCollection
+       */
+      regionCollection: null
     }
 
   });

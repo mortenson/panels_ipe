@@ -18,6 +18,13 @@
     defaults: /** @lends Drupal.panels_ipe.RegionModel# */{
 
       /**
+       * The region state.
+       *
+       * @type {string}
+       */
+      state: null,
+
+      /**
        * The machine name of the region.
        *
        * @type {string}
@@ -38,7 +45,7 @@
        *
        * @see Drupal.panels_ipe.BlockCollection
        */
-      blocks: null,
+      blockCollection: null,
 
       /**
        * The HTML content of the region.

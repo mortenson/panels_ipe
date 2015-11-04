@@ -32,17 +32,19 @@
      * Setups up our initial Collection and Views based on the current settings.
      */
     Drupal.panels_ipe.init = function(settings) {
-        // Assemble the region and block collections.
+        // Create our app.
+        Drupal.panels_ipe.app = new Drupal.panels_ipe.AppModel();
+        var app_view = new Drupal.panels_ipe.AppView({
+            model: Drupal.panels_ipe.app,
+            'el': '#panels-ipe-tray'
+        });
+        app_view.render();
+
+        // Assemble the initial region and block collections.
         var region_collection = new Drupal.panels_ipe.RegionCollection();
         for (var i in settings.panels_ipe.regions) {
             var region = new Drupal.panels_ipe.RegionModel();
             region.set(settings.panels_ipe.regions[i]);
-            var region_view = new Drupal.panels_ipe.RegionView({
-                'model': region,
-                'el': "[data-region-name='" + settings.panels_ipe.regions[i].name + "']"
-            });
-            region_view.render(true);
-            region_collection.add(region);
 
             var block_collection = new Drupal.panels_ipe.BlockCollection();
             for (var j in settings.panels_ipe.regions[i].blocks) {
@@ -56,15 +58,20 @@
                     'model': block,
                     'el': "[data-block-id='" + settings.panels_ipe.regions[i].blocks[j].uuid + "']"
                 });
-                block_view.render(true);
+                block_view.render();
             }
+
+            region.set({'blockCollection': block_collection});
+
+            var region_view = new Drupal.panels_ipe.RegionView({
+                'model': region,
+                'el': "[data-region-name='" + settings.panels_ipe.regions[i].name + "']"
+            });
+            region_view.render();
+            region_collection.add(region);
         }
 
-        // Create our app.
-        Drupal.panels_ipe.app = new Drupal.panels_ipe.AppView({
-            model: new Drupal.quickedit.AppModel(),
-            regionCollection: region_collection
-        });
+        Drupal.panels_ipe.app.set({'regionCollection': region_collection});
     };
 
     /**

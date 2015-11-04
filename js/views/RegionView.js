@@ -12,9 +12,9 @@
   Drupal.panels_ipe.RegionView = Backbone.View.extend(/** @lends Drupal.panels_ipe.RegionView# */{
 
     /**
-     * @type {string}
+     * @type {function}
      */
-    template: _.template('<div class="panels-ipe-region"><h5>Region: <%= name %></h5><%= html %></div>'),
+    template: _.template('<div class="panels-ipe-header"><h5>Region: <%= name %></h5></div>'),
 
     /**
      * @constructs
@@ -26,21 +26,33 @@
      * @param {Drupal.panels_ipe.RegionModel} options.model
      *   The region state model.
      * @param {string} options.el
-     *   An optional selector name if an existing element is already on screen.
+     *   An optional selector if an existing element is already on screen.
      */
     initialize: function (options) {
       this.model = options.model;
       if (options.el) {
         this.model.set({html: this.$el.html()});
       }
+      this.listenTo(this.model, 'change:state', this.changeState);
     },
 
     /**
      * Renders the wrapping elements and refreshes a block model.
      */
-    render: function(){
-      this.$el.html(this.template(this.model.toJSON()));
+    render: function() {
+      this.$('.panels-ipe-header').remove();
+      if (this.model.get('state') == 'active') {
+        this.$el.prepend(this.template(this.model.toJSON()));
+      }
       return this;
+    },
+
+    changeState: function(model, value, options) {
+      this.render();
+      // Change state of all of our blocks.
+      this.model.get('blockCollection').each(function(block){
+        block.set('state', value);
+      });
     }
 
   });
