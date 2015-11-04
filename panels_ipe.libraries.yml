@@ -7,10 +7,15 @@ panels_ipe:
     js/models/AppModel.js: {}
     js/models/BlockModel.js: {}
     js/models/RegionModel.js: {}
+    js/models/TabModel.js: {}
     # Views.
     js/views/AppView.js: {}
     js/views/BlockView.js: {}
     js/views/RegionView.js: {}
+    js/views/TabView.js: {}
+  css:
+    component:
+      css/panels_ipe.css: {}
   dependencies:
     - core/jquery
     - core/jquery.once

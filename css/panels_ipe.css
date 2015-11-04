@@ -1,0 +1,77 @@
+/**
+ * @file
+ * Contains all CSS for the Panels In-Place Editor.
+ */
+
+#panels-ipe-tray {
+  position: fixed;
+  width: 100%;
+  bottom: 0;
+  left: 0;
+  text-align: center;
+}
+
+.ipe-tab.ipe-tab-close {
+  display: none;
+}
+
+#panels-ipe-tray.active .ipe-tab-close {
+  display: inherit;
+}
+
+.region-content ul.ipe-tabs {
+  margin: 0;
+  padding: 0;
+}
+
+.ipe-tabs {
+  list-style: none;
+  display: inline-block;
+  border: 1px solid darkgray;
+  border-radius: 5px;
+  border-bottom-right-radius: 0;
+  border-bottom-left-radius: 0;
+  border-bottom: 0;
+  background-color: white;
+  margin: 0;
+}
+
+.ipe-tab {
+  display: inline-block;
+  padding: 20px;
+}
+
+.ipe-tab:last-child {
+  border-right: none;
+}
+
+.ipe-tab a {
+  color: black;
+  text-transform: uppercase;
+  text-decoration: none;
+  border-bottom: none;
+}
+
+.ipe-tab a:hover {
+  color: darkgray;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.ipe-tab-content {
+  position: absolute;
+  bottom: -150px;
+  width: 100%;
+  left: 0;
+  height: 150px;
+  background: white;
+  border-top: 1px solid darkgray;
+}
+
+.ipe-tab.active .ipe-tab-content {
+  bottom: 0;
+}
+
+.ipe-tab.active {
+  margin-bottom: 150px;
+}

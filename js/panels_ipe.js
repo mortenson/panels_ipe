@@ -32,8 +32,18 @@
      * Setups up our initial Collection and Views based on the current settings.
      */
     Drupal.panels_ipe.init = function(settings) {
-        // Create our app.
-        Drupal.panels_ipe.app = new Drupal.panels_ipe.AppModel();
+        // Set up our initial tabs.
+        var tab_collection = new Drupal.panels_ipe.TabCollection();
+        tab_collection.add({title: 'Change Layout', id: 'change_layout'});
+        tab_collection.add({title: 'Manage Content', id: 'manage_content'});
+        tab_collection.add({title: 'Close', id: 'close'});
+
+        // Create a global(ish) AppModel.
+        Drupal.panels_ipe.app = new Drupal.panels_ipe.AppModel({
+            'tabCollection': tab_collection
+        });
+
+        // Create an AppView instance.
         var app_view = new Drupal.panels_ipe.AppView({
             model: Drupal.panels_ipe.app,
             'el': '#panels-ipe-tray'

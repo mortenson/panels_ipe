@@ -13,16 +13,17 @@
   Drupal.panels_ipe.AppView = Backbone.View.extend(/** @lends Drupal.panels_ipe.AppView# */{
 
     /**
-     * @type {function}
-     */
-    template: _.template('<a class="enable-ipe">Toggle IPE</a>'),
-
-    /**
      * @type {object}
      */
     events: {
-      'click .enable-ipe': 'toggleIPE'
+      'click .ipe-tab > a': 'openIPE',
+      'click .ipe-tab > a[data-id="close"]': 'closeIPE'
     },
+
+    /**
+     * @type {Drupal.panels_ipe.TabsView} tabsView
+     */
+    tabsView: null,
 
     /**
      * @constructs
@@ -37,25 +38,60 @@
      */
     initialize: function (options) {
       this.model = options.model;
+      // Create a TabsView instance.
+      this.tabsView = new Drupal.panels_ipe.TabsView({'collection': this.model.get('tabCollection')});
     },
 
     /**
-     * Renders the bottom tray for the IPE.
+     * Appends the IPE tray to the bottom of the screen.
      */
     render: function() {
-      this.$el.html(this.template(this.model.toJSON()));
+      // Empty our list.
+      this.$el.empty();
+      // Add our tab collection to the App.
+      this.$el.append(this.tabsView.render().$el);
+      // We need to be appended at the highest level.
+      $('body').append(this.$el);
     },
 
     /**
-     * Toggles the IPE tray.
+     * Opens the IPE tray.
      */
-    toggleIPE: function() {
-      var state = this.model.get('state') == null ? 'active' : null;
-      this.model.set({'state': state});
+    openIPE: function() {
+      var active = this.model.get('active');
+      if (active) {
+        return;
+      }
+
+      // Set our active state correctly.
+      this.model.set({'active': true});
+
       // Change state of all of our regions.
       this.model.get('regionCollection').each(function(region){
-        region.set('state', state);
+        region.set('state', 'active');
       });
+
+      this.$el.addClass('active');
+    },
+
+    /**
+     * Closes the IPE tray.
+     */
+    closeIPE: function() {
+      var active = this.model.get('active');
+      if (!active) {
+        return;
+      }
+
+      // Set our active state correctly.
+      this.model.set({'active': false});
+
+      // Change state of all of our regions.
+      this.model.get('regionCollection').each(function(region){
+        region.set('state', 'inactive');
+      });
+
+      this.$el.removeClass('active');
     }
 
   });

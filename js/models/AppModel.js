@@ -19,17 +19,26 @@
     /**
      * @type {object}
      *
+     * @prop {bool} active
+     * @prop {Drupal.panels_ipe.TabModel} activeTab
      * @prop {Drupal.panels_ipe.BlockModel} activeBlock
      * @prop {Drupal.panels_ipe.RegionModel} activeRegion
      */
-    defaults: /** @lends Drupal.quickedit.AppModel# */{
+    defaults: /** @lends Drupal.panels_ipe.AppModel# */{
 
       /**
-       * The application state.
+       * Whether or not the application is active.
+       *
+       * @type {bool}
+       */
+      active: false,
+
+      /**
+       * The currently active tab.
        *
        * @type {string}
        */
-      state: null,
+      activeTab: null,
 
       /**
        * The currently active block.
@@ -56,7 +65,16 @@
        *
        * @see Drupal.panels_ipe.RegionCollection
        */
-      regionCollection: null
+      regionCollection: null,
+
+      /**
+       * A collection of all tabs on screen.
+       *
+       * @type {Drupal.panels_ipe.TabCollection}
+       *
+       * @see Drupal.panels_ipe.TabCollection
+       */
+      tabCollection: null
     }
 
   });
