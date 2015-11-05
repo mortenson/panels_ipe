@@ -15,15 +15,7 @@
     /**
      * @type {function}
      */
-    template: _.template('<ul class="ipe-tabs"></ul>'),
-
-    /**
-     * @type {object}
-     */
-    events: {
-      'click .ipe-tab > a': 'openIPE',
-      'click .ipe-tab > a[data-id="close"]': 'closeIPE'
-    },
+    template: _.template('<div class="ipe-tab-wrapper"></div>'),
 
     /**
      * @type {Drupal.panels_ipe.TabsView} tabsView
@@ -54,7 +46,7 @@
       // Empty our list.
       this.$el.html(this.template(this.model.toJSON()));
       // Add our tab collection to the App.
-      this.tabsView.setElement(this.$('.ipe-tabs')).render();
+      this.tabsView.setElement(this.$('.ipe-tab-wrapper')).render();
       return this;
     },
 

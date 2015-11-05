@@ -7,75 +7,17 @@
 
 (function ($, _, Backbone, Drupal) {
 
-  'use strict';
-
-  Drupal.panels_ipe.TabView = Backbone.View.extend(/** @lends Drupal.panels_ipe.TabView# */{
-
-    /**
-     * @type {string}
-     */
-    tagName: 'li',
-
-    /**
-     * @type {Backbone.View}
-     *   Some Backbone view that contains the tab content.
-     */
-    contentView: null,
+  Drupal.panels_ipe.TabsView = Backbone.View.extend(/** @lends Drupal.panels_ipe.TabsView# */{
 
     /**
      * @type {function}
      */
-    template: _.template('<a data-id="<%= id %>"><%= title %></a><div class="ipe-tab-content"><%= title %></div>'),
+    template_tab: _.template('<li class="ipe-tab<% if (active) { %> active <% } %>" data-tab-id="<%= id %>"><a><%= title %></a></li>'),
 
     /**
-     * @constructs
-     *
-     * @augments Backbone.View
-     *
-     * @param {object} options
-     *   An object with the following keys:
-     * @param {Drupal.panels_ipe.TabModel} options.model
-     *   The tab model.
+     * @type {function}
      */
-    initialize: function (options) {
-      this.model = options.model;
-      this.listenTo(this.model, 'change:active', this.toggleActive);
-    },
-
-    /**
-     * Renders this tab.
-     */
-    render: function() {
-      // Render our tab structure.
-      this.$el.html(this.template(this.model.toJSON()));
-
-      // Render the tab content.
-      if (this.contentView) {
-        this.$('.ipe-tab-content').html(this.contentView.render().$el);
-      }
-
-      // Add a class for styling purposes.
-      this.$el.addClass('ipe-tab-' + this.model.get('id'));
-
-      return this;
-    },
-
-    /**
-     * Toggles the active state of this tab.
-     */
-    toggleActive: function() {
-      // Set the active state of the tab.
-      if (this.model.get('active')) {
-        this.$el.addClass('active');
-      }
-      else {
-        this.$el.removeClass('active');
-      }
-    }
-
-  });
-
-  Drupal.panels_ipe.TabsView = Backbone.View.extend(/** @lends Drupal.panels_ipe.TabsView# */{
+    template_content: _.template('<div class="ipe-tab-content<% if (active) { %> active <% } %>" data-tab-content-id="<%= id %>"></div>'),
 
     /**
      * @type {object}
@@ -85,34 +27,16 @@
     },
 
     /**
-     * @type {string}
+     * @type {Drupal.panels_ipe.TabCollection}
      */
-    tagName: 'ul',
+    tabs: null,
 
     /**
-     * @type {Array}
+     * @type {Object}
      *
-     * An array of Drupal.panels_ipe.TabsView instances.
+     * An object mapping tab IDs to Backbone views.
      */
-    tabs: [],
-
-    /**
-     * @constructs
-     *
-     * @augments Backbone.View
-     *
-     * @param {object} options
-     *   An object with the following keys:
-     * @param {Drupal.panels_ipe.TabCollection} options.collection
-     *   The tab collection.
-     */
-    initialize: function (options) {
-      this.collection = options.collection;
-      // Create sub-views for each tab.
-      this.collection.each(function(tab) {
-        this.tabs.push(new Drupal.panels_ipe.TabView({'model': tab}));
-      },this);
-    },
+    tabViews: {},
 
     /**
      * Renders our tab collection.
@@ -120,11 +44,24 @@
     render: function() {
       // Empty our list.
       this.$el.empty();
-      // Append each of our tabs.
-      for (var i in this.tabs) {
-        this.$el.append('<li class="ipe-tab ipe-tab-index-' + i + '">');
-        this.tabs[i].setElement('.ipe-tab-index-' + i).render();
-      }
+
+      // Setup the initial wrapping elements.
+      this.$el.append('<ul class="ipe-tabs"></ul>');
+      this.$el.append('<div class="ipe-tabs-content"></div>');
+
+      // Append each of our tabs and their tab content view.
+      this.collection.each(function(tab) {
+        // Append the tab.
+        var id = tab.get('id');
+        this.$('.ipe-tabs').append(this.template_tab(tab.toJSON()));
+
+        // Render the tab content.
+        this.$('.ipe-tabs-content').append(this.template_content(tab.toJSON()));
+        // Check to see if this tab has content.
+        if (this.tabViews[id]) {
+          this.tabViews[id].setElement('[data-tab-content-id="' + id + '"]').render();
+        }
+      }, this);
       return this;
     },
 
@@ -139,11 +76,14 @@
 
       // Set the active tab correctly.
       e.preventDefault();
-      var id = $(e.currentTarget).data('id');
+      var id = $(e.currentTarget).parent().data('tab-id');
       if (id != 'close') {
         var tab = this.collection.get(id);
         tab.set('active', true);
       }
+
+      // Trigger a re-render.
+      this.render();
     }
 
   });
