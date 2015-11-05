@@ -9,6 +9,7 @@ namespace Drupal\panels_ipe\Controller;
 
 use Drupal\Core\Block\BlockManagerInterface;
 use Drupal\Core\Controller\ControllerBase;
+use Drupal\layout_plugin\Layout;
 use Drupal\page_manager\PageVariantInterface;
 use Drupal\Core\Render\RendererInterface;
 use Drupal\page_manager\PageInterface;
@@ -104,6 +105,43 @@ class PanelsIPEPageController extends ControllerBase {
       'uuid' => $configuration['uuid'],
       'label' => $block->label(),
       'id' => $block->getPluginId()
+    ];
+
+    return new JsonResponse($data);
+  }
+
+  /**
+   * AJAX callback to get a list of available Layouts.
+   *
+   * @param PageInterface $page
+   *   The current Page Manager page.
+   * @param string $variant_id
+   *   The machine name of the current display variant.
+   *
+   * @return JsonResponse|AccessDeniedHttpException
+   */
+  public function getLayouts(PageInterface $page, $variant_id) {
+    // Check if the variant exists.
+    /** @var \Drupal\panels\Plugin\DisplayVariant\PanelsDisplayVariant $variant */
+    if (!$variant = $page->getVariant($variant_id)) {
+      throw new NotFoundHttpException();
+    }
+
+    // Check entity access before continuing.
+    if (!$variant->access($this->currentUser())) {
+      throw new AccessDeniedHttpException();
+    }
+
+    // Get the current layout.
+    $layout = $variant->getLayout();
+
+    // Get a list of all available layouts.
+    $layouts = Layout::getLayoutOptions(['group_by_category' => TRUE]);
+
+    // Return a structured JSON response for our Backbone App.
+    $data = [
+      'current_layout' => $layout,
+      'layouts' => $layouts
     ];
 
     return new JsonResponse($data);
