@@ -72,19 +72,22 @@ class PanelsIPEPageController extends ControllerBase {
    */
   public function getBlock(PageInterface $page, $variant_id, $block_id) {
     // Check if the variant exists.
-    /** @var \Drupal\panels\Plugin\DisplayVariant\PanelsDisplayVariant $variant */
+    /** @var \Drupal\page_manager\PageVariantInterface $variant */
     if (!$variant = $page->getVariant($variant_id)) {
       throw new NotFoundHttpException();
     }
 
+    /** @var \Drupal\panels\Plugin\DisplayVariant\PanelsDisplayVariant $variant_plugin */
+    $variant_plugin = $variant->getVariantPlugin();
+
     // Check if the block exists.
-    if (!$block = $variant->getBlock($block_id)) {
+    if (!$block = $variant_plugin->getBlock($block_id)) {
       throw new NotFoundHttpException();
     }
 
     // Check entity access before continuing.
     $user = $this->currentUser();
-    if (!$variant->access($user) || !$block->access($user)) {
+    if (!$block->access($user)) {
       throw new AccessDeniedHttpException();
     }
 
@@ -126,18 +129,16 @@ class PanelsIPEPageController extends ControllerBase {
    */
   public function getLayouts(PageInterface $page, $variant_id) {
     // Check if the variant exists.
-    /** @var \Drupal\panels\Plugin\DisplayVariant\PanelsDisplayVariant $variant */
+    /** @var \Drupal\page_manager\PageVariantInterface $variant */
     if (!$variant = $page->getVariant($variant_id)) {
       throw new NotFoundHttpException();
     }
 
-    // Check entity access before continuing.
-    if (!$variant->access($this->currentUser())) {
-      throw new AccessDeniedHttpException();
-    }
+    /** @var \Drupal\panels\Plugin\DisplayVariant\PanelsDisplayVariant $variant_plugin */
+    $variant_plugin = $variant->getVariantPlugin();
 
     // Get the current layout.
-    $layout = $variant->getLayout();
+    $layout = $variant_plugin->getConfiguration()['layout'];
 
     // Get a list of all available layouts.
     $layouts = Layout::getLayoutOptions(['group_by_category' => TRUE]);
