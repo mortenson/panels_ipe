@@ -17,11 +17,6 @@
     tagName: 'li',
 
     /**
-     * @type {string}
-     */
-    className: 'ipe-tab',
-
-    /**
      * @type {Backbone.View}
      *   Some Backbone view that contains the tab content.
      */
@@ -95,11 +90,6 @@
     tagName: 'ul',
 
     /**
-     * @type {string}
-     */
-    className: 'ipe-tabs',
-
-    /**
      * @type {Array}
      *
      * An array of Drupal.panels_ipe.TabsView instances.
@@ -132,7 +122,8 @@
       this.$el.empty();
       // Append each of our tabs.
       for (var i in this.tabs) {
-        this.$el.append(this.tabs[i].render().$el);
+        this.$el.append('<li class="ipe-tab ipe-tab-index-' + i + '">');
+        this.tabs[i].setElement('.ipe-tab-index-' + i).render();
       }
       return this;
     },

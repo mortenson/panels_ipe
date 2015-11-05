@@ -45,14 +45,7 @@
        *
        * @see Drupal.panels_ipe.BlockCollection
        */
-      blockCollection: null,
-
-      /**
-       * The HTML content of the region.
-       *
-       * @type {string}
-       */
-      html: null
+      blockCollection: null
     }
 
   });

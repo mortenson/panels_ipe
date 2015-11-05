@@ -17,6 +17,12 @@
     template: _.template('<div class="panels-ipe-header"><h5>Region: <%= name %></h5></div>'),
 
     /**
+     * @type {Array}
+     *   An array of child Drupal.panels_ipe.BlockViews.
+     */
+    blockViews: [],
+
+    /**
      * @constructs
      *
      * @augments Backbone.View
@@ -30,29 +36,38 @@
      */
     initialize: function (options) {
       this.model = options.model;
-      if (options.el) {
-        this.model.set({html: this.$el.html()});
-      }
+      // Initialize our Block Views.
+      this.model.get('blockCollection').each(function(block) {
+        this.blockViews.push(new Drupal.panels_ipe.BlockView({
+          'model': block,
+          'el': "[data-block-id='" + block.get('uuid') + "']"
+        }));
+      }, this);
       this.listenTo(this.model, 'change:state', this.changeState);
     },
 
     /**
-     * Renders the wrapping elements and refreshes a block model.
+     * Renders header elements and re-renders the region and contained blocks.
      */
     render: function() {
+      // Decide if our header should be displayed.
       this.$('.panels-ipe-header').remove();
       if (this.model.get('state') == 'active') {
         this.$el.prepend(this.template(this.model.toJSON()));
+      }
+      // Re-render all of our sub-views of blocks.
+      for (var i in this.blockViews) {
+        this.blockViews[i].render();
       }
       return this;
     },
 
     changeState: function(model, value, options) {
-      this.render();
       // Change state of all of our blocks.
       this.model.get('blockCollection').each(function(block){
         block.set('state', value);
       });
+      this.render();
     }
 
   });

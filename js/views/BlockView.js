@@ -33,7 +33,6 @@
       if (options.el) {
         this.model.set({html: this.$el.html()});
       }
-      this.listenTo(this.model, 'change:state', this.render);
     },
 
     /**

@@ -13,6 +13,11 @@
   Drupal.panels_ipe.AppView = Backbone.View.extend(/** @lends Drupal.panels_ipe.AppView# */{
 
     /**
+     * @type {function}
+     */
+    template: _.template('<ul class="ipe-tabs"></ul>'),
+
+    /**
      * @type {object}
      */
     events: {
@@ -47,11 +52,10 @@
      */
     render: function() {
       // Empty our list.
-      this.$el.empty();
+      this.$el.html(this.template(this.model.toJSON()));
       // Add our tab collection to the App.
-      this.$el.append(this.tabsView.render().$el);
-      // We need to be appended at the highest level.
-      $('body').append(this.$el);
+      this.tabsView.setElement(this.$('.ipe-tabs')).render();
+      return this;
     },
 
     /**
