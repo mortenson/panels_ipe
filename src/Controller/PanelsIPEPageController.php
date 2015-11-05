@@ -66,7 +66,9 @@ class PanelsIPEPageController extends ControllerBase {
    * @param string $block_id
    *   The UUID of the requested block.
    *
-   * @return JsonResponse|AccessDeniedHttpException
+   * @return JsonResponse
+   *
+   * @throws AccessDeniedHttpException|NotFoundHttpException
    */
   public function getBlock(PageInterface $page, $variant_id, $block_id) {
     // Check if the variant exists.
@@ -118,7 +120,9 @@ class PanelsIPEPageController extends ControllerBase {
    * @param string $variant_id
    *   The machine name of the current display variant.
    *
-   * @return JsonResponse|AccessDeniedHttpException
+   * @return JsonResponse
+   *
+   * @throws AccessDeniedHttpException|NotFoundHttpException
    */
   public function getLayouts(PageInterface $page, $variant_id) {
     // Check if the variant exists.
