@@ -17,6 +17,11 @@
     template: _.template('<div class="panels-ipe-header"><h5>Region: <%= name %></h5></div>'),
 
     /**
+     * @type {Drupal.panels_ipe.RegionModel}
+     */
+    model: null,
+
+    /**
      * @type {Array}
      *   An array of child Drupal.panels_ipe.BlockViews.
      */

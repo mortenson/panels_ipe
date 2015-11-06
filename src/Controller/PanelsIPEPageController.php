@@ -141,14 +141,17 @@ class PanelsIPEPageController extends ControllerBase {
     $layout = $variant_plugin->getConfiguration()['layout'];
 
     // Get a list of all available layouts.
-    $layouts = Layout::getLayoutOptions(['group_by_category' => TRUE]);
+    $layouts = Layout::getLayoutOptions();
+    $data = [];
+    foreach ($layouts as $id => $label) {
+      $data[] = [
+        'id' => $id,
+        'label' => $label,
+        'current' => $layout == $id
+      ];
+    }
 
     // Return a structured JSON response for our Backbone App.
-    $data = [
-      'current_layout' => $layout,
-      'layouts' => $layouts
-    ];
-
     return new JsonResponse($data);
   }
 

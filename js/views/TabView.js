@@ -1,8 +1,8 @@
 /**
  * @file
- * The primary Backbone view for a tab.
+ * The primary Backbone view for a tab collection.
  *
- * see Drupal.panels_ipe.TabModel
+ * see Drupal.panels_ipe.TabCollection
  */
 
 (function ($, _, Backbone, Drupal) {
@@ -12,12 +12,12 @@
     /**
      * @type {function}
      */
-    template_tab: _.template('<li class="ipe-tab<% if (active) { %> active <% } %>" data-tab-id="<%= id %>"><a><%= title %></a></li>'),
+    template_tab: _.template('<li class="ipe-tab<% if (active) { %> active<% } %>" data-tab-id="<%= id %>"><a><%= title %></a></li>'),
 
     /**
      * @type {function}
      */
-    template_content: _.template('<div class="ipe-tab-content<% if (active) { %> active <% } %>" data-tab-content-id="<%= id %>"></div>'),
+    template_content: _.template('<div class="ipe-tab-content<% if (active) { %> active<% } %>" data-tab-content-id="<%= id %>"></div>'),
 
     /**
      * @type {object}
@@ -29,7 +29,7 @@
     /**
      * @type {Drupal.panels_ipe.TabCollection}
      */
-    tabs: null,
+    collection: null,
 
     /**
      * @type {Object}
@@ -37,6 +37,20 @@
      * An object mapping tab IDs to Backbone views.
      */
     tabViews: {},
+
+    /**
+     * @constructs
+     *
+     * @augments Backbone.TabsView
+     *
+     * @param {object} options
+     *   An object with the following keys:
+     * @param {object} options.tabViews
+     *   An object mapping tab IDs to Backbone views.
+     */
+    initialize: function (options) {
+      this.tabViews = options.tabViews;
+    },
 
     /**
      * Renders our tab collection.
@@ -58,7 +72,7 @@
         // Render the tab content.
         this.$('.ipe-tabs-content').append(this.template_content(tab.toJSON()));
         // Check to see if this tab has content.
-        if (this.tabViews[id]) {
+        if (tab.get('active') && this.tabViews[id]) {
           this.tabViews[id].setElement('[data-tab-content-id="' + id + '"]').render();
         }
       }, this);
@@ -69,18 +83,24 @@
      * Switches the current tab.
      */
     switchTab: function(e) {
-      // Disable all existing tabs.
-      this.collection.each(function(tab) {
-        tab.set('active', false);
-      });
-
-      // Set the active tab correctly.
       e.preventDefault();
       var id = $(e.currentTarget).parent().data('tab-id');
-      if (id != 'close') {
-        var tab = this.collection.get(id);
-        tab.set('active', true);
-      }
+
+      // Disable all existing tabs.
+      this.collection.each(function(tab) {
+        // If the user is clicking the same tab twice, close it.
+        if (tab.get('id') == id && tab.get('active') == true) {
+          tab.set('active', false);
+        }
+        // If this is the first click, open the tab.
+        else if (tab.get('id') == id) {
+          tab.set('active', true);
+        }
+        // The tab wasn't clicked, make sure it's closed.
+        else {
+          tab.set('active', false);
+        }
+      });
 
       // Trigger a re-render.
       this.render();

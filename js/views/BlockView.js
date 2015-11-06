@@ -17,6 +17,11 @@
     template: _.template('<div class="panels-ipe-header"><h5>Block: <%= label %></h5></div><%= html %>'),
 
     /**
+     * @type {Drupal.panels_ipe.BlockModel}
+     */
+    model: null,
+
+    /**
      * @constructs
      *
      * @augments Backbone.View

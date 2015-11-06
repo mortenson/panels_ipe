@@ -36,17 +36,22 @@
     var tab_collection = new Drupal.panels_ipe.TabCollection();
     tab_collection.add({title: 'Change Layout', id: 'change_layout'});
     tab_collection.add({title: 'Manage Content', id: 'manage_content'});
-    tab_collection.add({title: 'Close', id: 'close'});
 
     // Create a global(ish) AppModel.
     Drupal.panels_ipe.app = new Drupal.panels_ipe.AppModel({
       'tabCollection': tab_collection
     });
 
+    // Set up our initial tab views.
+    var tab_views = {
+      'change_layout': new Drupal.panels_ipe.LayoutTabView()
+    };
+
     // Create an AppView instance.
     var app_view = new Drupal.panels_ipe.AppView({
       model: Drupal.panels_ipe.app,
-      'el': '#panels-ipe-tray'
+      'el': '#panels-ipe-tray',
+      'tabContentViews': tab_views
     });
     $('body').append(app_view.render().$el);
 

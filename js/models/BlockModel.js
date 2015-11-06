@@ -53,6 +53,9 @@
       html: null
     },
 
+    /**
+     * @type {function}
+     */
     url: function() {
       return Drupal.panels_ipe.urlRoot(drupalSettings) + '/block/' + this.get('uuid');
     }

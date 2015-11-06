@@ -18,9 +18,14 @@
     template: _.template('<div class="ipe-tab-wrapper"></div>'),
 
     /**
-     * @type {Drupal.panels_ipe.TabsView} tabsView
+     * @type {Drupal.panels_ipe.TabsView}
      */
     tabsView: null,
+
+    /**
+     * @type {Drupal.panels_ipe.AppModel}
+     */
+    model: null,
 
     /**
      * @constructs
@@ -31,12 +36,16 @@
      *   An object with the following keys:
      * @param {Drupal.panels_ipe.AppModel} options.model
      *   The application state model.
-     *
+     * @param {Object} options.tabContentViews
+     *   An object mapping TabModel ids to arbitrary Backbone views.
      */
     initialize: function (options) {
       this.model = options.model;
       // Create a TabsView instance.
-      this.tabsView = new Drupal.panels_ipe.TabsView({'collection': this.model.get('tabCollection')});
+      this.tabsView = new Drupal.panels_ipe.TabsView({
+        'collection': this.model.get('tabCollection'),
+        'tabViews': options.tabContentViews
+      });
     },
 
     /**

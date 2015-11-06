@@ -3,6 +3,7 @@
  * Contains all CSS for the Panels In-Place Editor.
  */
 
+/* Fix the output of the AppView to the bottom of the screen. */
 #panels-ipe-tray {
   position: fixed;
   width: 100%;
@@ -11,20 +12,19 @@
   text-align: center;
 }
 
+/* Force text to render as a sans-serif web-safe font. */
 #panels-ipe-tray, #panels-ipe-tray a {
   font-family: Arial, Helvetica, sans-serif;
 }
 
-.region-content ul.ipe-tabs {
+/* Remove list styling from the output of the TabsView. */
+.ipe-tabs {
+  list-style: none;
   margin: 0;
   padding: 0;
 }
 
-.ipe-tabs {
-  list-style: none;
-  padding: 0;
-}
-
+/* Display tabs inline and slightly on top of .ipe-tabs-content. */
 .ipe-tab {
   display: inline-block;
   padding: 10px;
@@ -35,10 +35,12 @@
 
 .ipe-tab:first-child {
   border-left: 1px solid darkgray;
+  border-top-left-radius: 5px;
 }
 
 .ipe-tab:last-child {
   border-right: 1px solid darkgray;
+  border-top-right-radius: 5px;
 }
 
 .ipe-tab.active a {
@@ -57,6 +59,7 @@
   border: none;
 }
 
+/* Provide default styles and a minimum height for tab content. */
 .ipe-tab-content {
   display: none;
   min-height: 150px;
