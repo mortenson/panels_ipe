@@ -13,3 +13,11 @@ panels_ipe.layouts:
   requirements:
     _permission: 'access panels in-place editing'
     _entity_access: page.view
+
+panels_ipe.layout:
+  path: '/admin/panels_ipe/page/{page}/variant/{variant_id}/layout/{layout_id}'
+  defaults:
+      _controller: '\Drupal\panels_ipe\Controller\PanelsIPEPageController::getLayout'
+  requirements:
+    _permission: 'access panels in-place editing'
+    _entity_access: page.view

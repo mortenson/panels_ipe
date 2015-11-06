@@ -14,27 +14,41 @@
     /**
      * @type {function}
      */
-    template: _.template('<li class="ipe-layout"><a><%= label %></a></li>'),
+    template_layout: _.template('<li class="ipe-layout" data-layout-id="<%= id %>"><h5 class="ipe-layout-title"><a><%= label %></a></h5></li>'),
 
     /**
      * @type {function}
      */
-    template_current: _.template('<h3>Current Layout: </h3><div class="ipe-current-layout"><%= label %></div>'),
+    template_current: _.template('<p>Current Layout: </p><h5 class="ipe-layout-title"><%= label %></h5>'),
+
+    /**
+     * @type {function}
+     */
+    template: _.template(
+      '<div class="ipe-current-layout"></div><div class="ipe-all-layouts"><p>Available Layouts:</p><ul class="ipe-layouts"></ul></div>'
+    ),
 
     /**
      * @type {Drupal.panels_ipe.LayoutCollection}
      */
-    layouts: null,
+    collection: null,
+
+    /**
+     * @type {object}
+     */
+    events: {
+      'click .ipe-layout': 'selectLayout'
+    },
 
     /**
      * Renders the selection menu for picking Layouts.
      */
     render: function() {
       // If we don't have layouts yet, pull some from the server.
-      if (!this.layouts) {
-        this.layouts = new Drupal.panels_ipe.LayoutCollection;
+      if (!this.collection) {
+        this.collection = new Drupal.panels_ipe.LayoutCollection;
         var self = this;
-        this.layouts.fetch().done(function(){
+        this.collection.fetch().done(function(){
           self.render();
         });
       }
@@ -43,18 +57,41 @@
         this.$el.empty();
 
         // Setup the empty list.
-        this.$el.append('<ul class="ipe-layouts"></ul>');
+        this.$el.html(this.template());
 
         // Append each layout option.
-        this.layouts.each(function(layout) {
-          if (layout.get('current')) {
-            this.$('.ipe-layouts').append(this.template_current(layout.toJSON()));
+        this.collection.each(function(layout) {
+          if (!layout.get('current')) {
+            this.$('.ipe-layouts').append(this.template_layout(layout.toJSON()));
           }
           else {
-            this.$('.ipe-layouts').append(this.template(layout.toJSON()));
+            this.$('.ipe-current-layout').append(this.template_current(layout.toJSON()));
           }
         }, this);
       }
+    },
+
+    /**
+     * Fires a global Backbone event that the App watches to switch layouts.
+     */
+    selectLayout: function(e) {
+      e.preventDefault();
+      var id = $(e.currentTarget).data('layout-id');
+
+      // Unset the current tab.
+      this.collection.each(function(layout) {
+        if (id == layout.id) {
+          layout.set('current', true);
+          // @todo Investigate using non-global events.
+          Drupal.panels_ipe.app.trigger('changeLayout', [layout]);
+        }
+        else {
+          layout.set('current', false);
+        }
+      });
+
+      // Trigger a re-render.
+      this.render();
     }
 
   });

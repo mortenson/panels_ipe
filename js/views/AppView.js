@@ -46,6 +46,8 @@
         'collection': this.model.get('tabCollection'),
         'tabViews': options.tabContentViews
       });
+      // Listen to important events throughout the app.
+      this.listenTo(this.model, "changeLayout", this.changeLayout);
     },
 
     /**
@@ -60,7 +62,7 @@
     },
 
     /**
-     * Opens the IPE tray.
+     * Actives all regions and blocks for editing.
      */
     openIPE: function() {
       var active = this.model.get('active');
@@ -76,11 +78,12 @@
         region.set('state', 'active');
       });
 
+      // @todo Replace with a re-render.
       this.$el.addClass('active');
     },
 
     /**
-     * Closes the IPE tray.
+     * Deactivate all regions and blocks for editing.
      */
     closeIPE: function() {
       var active = this.model.get('active');
@@ -96,7 +99,21 @@
         region.set('state', 'inactive');
       });
 
+      // @todo Replace with a re-render.
       this.$el.removeClass('active');
+    },
+
+    /**
+     * Event callback for when a new layout has been selected.
+     */
+    changeLayout: function (args) {
+      // Grab the layout from the argument list.
+      var layout = args[0];
+
+      // Sync the layout from Drupal. This generates empty HTML we're going to insert.
+      layout.fetch().done(function(){
+
+      });
     }
 
   });

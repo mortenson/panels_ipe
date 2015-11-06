@@ -9,8 +9,8 @@ namespace Drupal\panels_ipe\Controller;
 
 use Drupal\Core\Block\BlockManagerInterface;
 use Drupal\Core\Controller\ControllerBase;
+use Drupal\Core\Render\Element;
 use Drupal\layout_plugin\Layout;
-use Drupal\page_manager\PageVariantInterface;
 use Drupal\Core\Render\RendererInterface;
 use Drupal\page_manager\PageInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
@@ -150,6 +150,62 @@ class PanelsIPEPageController extends ControllerBase {
         'current' => $layout == $id
       ];
     }
+
+    // Return a structured JSON response for our Backbone App.
+    return new JsonResponse($data);
+  }
+
+  /**
+   * Gets a given layout with empty regions.
+   *
+   * @param PageInterface $page
+   *   The current Page Manager page.
+   * @param string $variant_id
+   *   The machine name of the current display variant.
+   * @param string $layout_id
+   *   The machine name of the requested layout.
+   *
+   * @return JsonResponse
+   *
+   * @throws AccessDeniedHttpException|NotFoundHttpException
+   */
+  public function getLayout(PageInterface $page, $variant_id, $layout_id) {
+    // Check if the variant exists.
+    /** @var \Drupal\page_manager\PageVariantInterface $variant */
+    if (!$variant = $page->getVariant($variant_id)) {
+      throw new NotFoundHttpException();
+    }
+
+    /** @var \Drupal\panels\Plugin\DisplayVariant\PanelsDisplayVariant $variant_plugin */
+    $variant_plugin = $variant->getVariantPlugin();
+
+    // Build the requested layout.
+    $configuration = $variant_plugin->getConfiguration();
+    $configuration['layout'] = $layout_id;
+    $variant_plugin->setConfiguration($configuration);
+    $build = $variant_plugin->build();
+
+    // Remove all blocks from the build.
+    $regions = $variant_plugin->getRegionNames();
+    foreach ($regions as $id => $label) {
+      // Get all block/random keys.
+      $children = Element::getVisibleChildren($build[$id]);
+      // Unset those keys, retaining the theme variables for the region.
+      $build[$id] = array_diff_key($build[$id], array_flip($children));
+    }
+
+    // Get the current layout.
+    $current_layout = $variant_plugin->getConfiguration()['layout'];
+
+    // Get a list of all available layouts.
+    $layouts = Layout::getLayoutOptions();
+
+    $data = [
+      'id' => $layout_id,
+      'label' => $layouts[$layout_id],
+      'current' => $current_layout == $layout_id,
+      'html' => $this->renderer->render($build)
+    ];
 
     // Return a structured JSON response for our Backbone App.
     return new JsonResponse($data);

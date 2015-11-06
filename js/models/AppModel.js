@@ -27,36 +27,11 @@
     defaults: /** @lends Drupal.panels_ipe.AppModel# */{
 
       /**
-       * Whether or not the application is active.
+       * Whether or not the editing part of the application is active.
        *
        * @type {bool}
        */
       active: false,
-
-      /**
-       * The currently active tab.
-       *
-       * @type {string}
-       */
-      activeTab: null,
-
-      /**
-       * The currently active block.
-       *
-       * @type {Drupal.panels_ipe.BlockModel}
-       *
-       * @see Drupal.panels_ipe.BlockModel
-       */
-      activeBlock: null,
-
-      /**
-       * The currently active region.
-       *
-       * @type {Drupal.panels_ipe.RegionModel}
-       *
-       * @see Drupal.panels_ipe.RegionModel
-       */
-      activeRegion: null,
 
       /**
        * A collection of all regions on screen.

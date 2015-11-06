@@ -33,7 +33,21 @@
        *
        * @type {bool}
        */
-      current: false
+      current: false,
+
+      /**
+       * The wrapping HTML for this layout. Only used for initial rendering.
+       *
+       * @type {string}
+       */
+      html: null,
+
+      /**
+       * @type {function}
+       */
+      url: function() {
+        return Drupal.panels_ipe.urlRoot(drupalSettings) + '/layout/' + this.id
+      }
 
     }
 
