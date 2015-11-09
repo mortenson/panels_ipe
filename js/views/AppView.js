@@ -112,7 +112,8 @@
 
       // Sync the layout from Drupal. This generates empty HTML we're going to insert.
       layout.fetch().done(function(){
-
+        // Replace the panel display with the empty layout.
+        $('.panel-display').replaceWith(layout.get('html'));
       });
     }
 

@@ -194,6 +194,9 @@ class PanelsIPEPageController extends ControllerBase {
       $build[$id] = array_diff_key($build[$id], array_flip($children));
     }
 
+    // Remove the panels ipe tray, which our builder adds to every build.
+    unset($build['#suffix']);
+
     // Get the current layout.
     $current_layout = $variant_plugin->getConfiguration()['layout'];
 

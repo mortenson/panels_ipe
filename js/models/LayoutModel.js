@@ -40,14 +40,7 @@
        *
        * @type {string}
        */
-      html: null,
-
-      /**
-       * @type {function}
-       */
-      url: function() {
-        return Drupal.panels_ipe.urlRoot(drupalSettings) + '/layout/' + this.id
-      }
+      html: null
 
     }
 

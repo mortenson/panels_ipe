@@ -15,7 +15,7 @@ panels_ipe.layouts:
     _entity_access: page.view
 
 panels_ipe.layout:
-  path: '/admin/panels_ipe/page/{page}/variant/{variant_id}/layout/{layout_id}'
+  path: '/admin/panels_ipe/page/{page}/variant/{variant_id}/layouts/{layout_id}'
   defaults:
       _controller: '\Drupal\panels_ipe\Controller\PanelsIPEPageController::getLayout'
   requirements:
