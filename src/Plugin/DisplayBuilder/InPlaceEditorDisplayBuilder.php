@@ -69,23 +69,13 @@ class InPlaceEditorDisplayBuilder extends StandardDisplayBuilder {
 
     // Explicitly support Page Manger, as we need to have a reference for where
     // to save the display.
-    /** @var \Drupal\page_manager\Entity\Page $page */
-    $page = \Drupal::request()->attributes->get('page_manager_page');
-    /** @var \Drupal\page_manager\Entity\PageVariant $variant */
     $variant = \Drupal::request()->attributes->get('page_manager_page_variant');
-    if ($page && $variant) {
+    if ($variant) {
       // Add the display variant's config.
       $settings['display_variant'] = [
         'label' => $variant->label(),
         'id' => $variant->id(),
         'uuid' => $variant->uuid(),
-      ];
-
-      // Add the entity information so the proper JSON callback is used.
-      $settings['page'] = [
-        'label' => $page->label(),
-        'id' => $page->id(),
-        'uuid' => $page->uuid()
       ];
     }
 

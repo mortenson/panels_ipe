@@ -87,7 +87,7 @@
    * Returns the urlRoot for all callbacks
    */
   Drupal.panels_ipe.urlRoot = function(settings) {
-    return '/admin/panels_ipe/page/' + settings.panels_ipe.page.id + '/variant/' + settings.panels_ipe.display_variant.id;
+    return '/admin/panels_ipe/variant/' + settings.panels_ipe.display_variant.id;
   };
 
 }(jQuery, _, Backbone, Drupal));

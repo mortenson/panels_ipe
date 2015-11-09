@@ -1,23 +1,20 @@
 panels_ipe.block:
-  path: '/admin/panels_ipe/page/{page}/variant/{variant_id}/block/{block_id}'
+  path: '/admin/panels_ipe/variant/{variant_id}/block/{block_id}'
   defaults:
       _controller: '\Drupal\panels_ipe\Controller\PanelsIPEPageController::getBlock'
   requirements:
     _permission: 'access panels in-place editing'
-    _entity_access: page.view
 
 panels_ipe.layouts:
-  path: '/admin/panels_ipe/page/{page}/variant/{variant_id}/layouts'
+  path: '/admin/panels_ipe/variant/{variant_id}/layouts'
   defaults:
       _controller: '\Drupal\panels_ipe\Controller\PanelsIPEPageController::getLayouts'
   requirements:
     _permission: 'access panels in-place editing'
-    _entity_access: page.view
 
 panels_ipe.layout:
-  path: '/admin/panels_ipe/page/{page}/variant/{variant_id}/layouts/{layout_id}'
+  path: '/admin/panels_ipe/variant/{variant_id}/layouts/{layout_id}'
   defaults:
       _controller: '\Drupal\panels_ipe\Controller\PanelsIPEPageController::getLayout'
   requirements:
     _permission: 'access panels in-place editing'
-    _entity_access: page.view

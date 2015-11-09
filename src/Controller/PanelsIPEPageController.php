@@ -12,7 +12,7 @@ use Drupal\Core\Controller\ControllerBase;
 use Drupal\Core\Render\Element;
 use Drupal\layout_plugin\Layout;
 use Drupal\Core\Render\RendererInterface;
-use Drupal\page_manager\PageInterface;
+use Drupal\page_manager\Entity\PageVariant;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
@@ -57,10 +57,8 @@ class PanelsIPEPageController extends ControllerBase {
   }
 
   /**
-   * AJAX callback to get a block's metadata and rendered HTML.
+   * Gets a block's metadata and rendered HTML.
    *
-   * @param PageInterface $page
-   *   The current Page Manager page.
    * @param string $variant_id
    *   The machine name of the current display variant.
    * @param string $block_id
@@ -70,10 +68,10 @@ class PanelsIPEPageController extends ControllerBase {
    *
    * @throws AccessDeniedHttpException|NotFoundHttpException
    */
-  public function getBlock(PageInterface $page, $variant_id, $block_id) {
+  public function getBlock($variant_id, $block_id) {
     // Check if the variant exists.
     /** @var \Drupal\page_manager\PageVariantInterface $variant */
-    if (!$variant = $page->getVariant($variant_id)) {
+    if (!$variant = PageVariant::load($variant_id)) {
       throw new NotFoundHttpException();
     }
 
@@ -116,10 +114,8 @@ class PanelsIPEPageController extends ControllerBase {
   }
 
   /**
-   * AJAX callback to get a list of available Layouts.
+   * Gets a list of available Layouts, without wrapping HTML.
    *
-   * @param PageInterface $page
-   *   The current Page Manager page.
    * @param string $variant_id
    *   The machine name of the current display variant.
    *
@@ -127,10 +123,10 @@ class PanelsIPEPageController extends ControllerBase {
    *
    * @throws AccessDeniedHttpException|NotFoundHttpException
    */
-  public function getLayouts(PageInterface $page, $variant_id) {
+  public function getLayouts($variant_id) {
     // Check if the variant exists.
     /** @var \Drupal\page_manager\PageVariantInterface $variant */
-    if (!$variant = $page->getVariant($variant_id)) {
+    if (!$variant = PageVariant::load($variant_id)) {
       throw new NotFoundHttpException();
     }
 
@@ -158,8 +154,6 @@ class PanelsIPEPageController extends ControllerBase {
   /**
    * Gets a given layout with empty regions.
    *
-   * @param PageInterface $page
-   *   The current Page Manager page.
    * @param string $variant_id
    *   The machine name of the current display variant.
    * @param string $layout_id
@@ -169,10 +163,10 @@ class PanelsIPEPageController extends ControllerBase {
    *
    * @throws AccessDeniedHttpException|NotFoundHttpException
    */
-  public function getLayout(PageInterface $page, $variant_id, $layout_id) {
+  public function getLayout($variant_id, $layout_id) {
     // Check if the variant exists.
     /** @var \Drupal\page_manager\PageVariantInterface $variant */
-    if (!$variant = $page->getVariant($variant_id)) {
+    if (!$variant = PageVariant::load($variant_id)) {
       throw new NotFoundHttpException();
     }
 
