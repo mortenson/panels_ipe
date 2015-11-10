@@ -23,6 +23,11 @@
     tabsView: null,
 
     /**
+     * @type {Drupal.panels_ipe.LayoutView}
+     */
+    layoutView: null,
+
+    /**
      * @type {Drupal.panels_ipe.AppModel}
      */
     model: null,
@@ -59,6 +64,9 @@
       // Add our tab collection to the App.
       this.tabsView.setElement(this.$('.ipe-tab-wrapper')).render();
       // Re-render our layout.
+      if (this.layoutView) {
+        this.layoutView.render();
+      }
       return this;
     },
 
@@ -106,24 +114,40 @@
       var layout = args[0];
 
       // Sync the layout from Drupal.
-      layout.fetch();
+      var self = this;
+      layout.fetch().done(function() {
+        // Grab all the blocks from the current layout.
+        var regions = self.model.get('layout').get('regionCollection');
+        var block_collection = new Drupal.panels_ipe.BlockCollection();
+        regions.each(function(region) {
+          block_collection.add(region.get('blockCollection').toJSON());
+        });
 
-      // Grab all the blocks from the current layout.
-      var regions = this.model.get('layout').get('regionCollection');
-      var block_collection = new Drupal.panels_ipe.BlockCollection();
-      regions.each(function(region) {
-        block_collection.add(region.get('blockCollection').toJSON());
+        // Get the first region in the layout.
+        // @todo Be smarter about re-adding blocks.
+        var first_region = layout.get('regionCollection').at(0);
+
+        // Append all blocks from previous layout.
+        first_region.set({'blockCollection': block_collection});
+
+        // Change the default layout in our AppModel.
+        self.model.set({'layout': layout});
+
+        // Replace the current LayoutView's content.
+        self.layoutView.$el.replaceWith(layout.get('html'));
+
+        // Remove the current LayoutView.
+        self.layoutView.remove();
+
+        // Create a new LayoutView.
+        self.layoutView = new Drupal.panels_ipe.LayoutView({
+          'model': layout,
+          'el': ".panel-display"
+        });
+
+        // Re-render the app.
+        self.render();
       });
-
-      // Get the first region in the layout.
-      // @todo Be smarter about re-adding blocks.
-      var first_region = layout.get('regionCollection').at(0);
-
-      // Append all blocks from previous layout.
-      first_region.set({'blockCollection': block_collection});
-
-      // Change the default layout in our AppModel.
-      this.model.set({'layout': layout});
     }
 
   });

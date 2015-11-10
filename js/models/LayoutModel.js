@@ -49,6 +49,25 @@
        */
       regionCollection: null
 
+    },
+
+    /**
+     * Overrides the parse method to set our regionCollection dynamically.
+     *
+     * @param {Object} resp
+     * @param {Object} options
+     */
+    parse: function(resp, options) {
+      // If possible, initialize our region collection.
+      if (typeof resp.regions != 'undefined') {
+        resp.regionCollection = new Drupal.panels_ipe.RegionCollection();
+        for (var i in resp.regions) {
+          var region = new Drupal.panels_ipe.RegionModel(resp.regions[i]);
+          region.set({'blockCollection': new Drupal.panels_ipe.BlockCollection()});
+          resp.regionCollection.add(region);
+        }
+      }
+      return resp;
     }
 
   });

@@ -49,7 +49,6 @@
      */
     render: function() {
       // Re-render all of our regions.
-      // Normally we would empty ourselves out, but regions never change.
       for (var i in this.regionViews) {
         this.regionViews[i].render();
       }

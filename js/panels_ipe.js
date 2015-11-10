@@ -78,13 +78,15 @@
 
     // Create the Layout model/view.
     var layout = new Drupal.panels_ipe.LayoutModel(settings.panels_ipe.layout);
+    layout.set({'regionCollection': region_collection});
     var layout_view = new Drupal.panels_ipe.LayoutView({
       'model': layout,
-      'el': "[data-layout-id='" + settings.panels_ipe.layout.id + "']"
+      'el': ".panel-display"
     });
     layout_view.render();
 
     Drupal.panels_ipe.app.set({'layout': layout});
+    app_view.layoutView = layout_view;
   };
 
   /**

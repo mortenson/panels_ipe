@@ -152,7 +152,7 @@ class PanelsIPEPageController extends ControllerBase {
   }
 
   /**
-   * Gets a given layout with empty regions.
+   * Gets a given layout with empty regions and relevant metadata.
    *
    * @param string $variant_id
    *   The machine name of the current display variant.
@@ -181,11 +181,18 @@ class PanelsIPEPageController extends ControllerBase {
 
     // Remove all blocks from the build.
     $regions = $variant_plugin->getRegionNames();
+    $region_data = [];
     foreach ($regions as $id => $label) {
       // Get all block/random keys.
       $children = Element::getVisibleChildren($build[$id]);
       // Unset those keys, retaining the theme variables for the region.
       $build[$id] = array_diff_key($build[$id], array_flip($children));
+
+      // Format region metadata.
+      $region_data[] = [
+        'name' => $id,
+        'label' => $label
+      ];
     }
 
     // Remove the panels ipe tray, which our builder adds to every build.
@@ -201,7 +208,8 @@ class PanelsIPEPageController extends ControllerBase {
       'id' => $layout_id,
       'label' => $layouts[$layout_id],
       'current' => $current_layout == $layout_id,
-      'html' => $this->renderer->render($build)
+      'html' => $this->renderer->render($build),
+      'regions' => $region_data
     ];
 
     // Return a structured JSON response for our Backbone App.

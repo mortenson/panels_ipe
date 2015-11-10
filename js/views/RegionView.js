@@ -42,13 +42,9 @@
     initialize: function (options) {
       this.model = options.model;
       // Initialize our Block Views.
-      this.model.get('blockCollection').each(function(block) {
-        this.blockViews.push(new Drupal.panels_ipe.BlockView({
-          'model': block,
-          'el': "[data-block-id='" + block.get('uuid') + "']"
-        }));
-      }, this);
+      this.initBlockViews();
       this.listenTo(this.model, 'change:active', this.changeState);
+      this.listenTo(this.model, 'change:blockCollection', this.initBlockViews);
     },
 
     /**
@@ -73,6 +69,15 @@
         block.set('active', value);
       });
       this.render();
+    },
+
+    initBlockViews: function() {
+      this.model.get('blockCollection').each(function(block) {
+        this.blockViews.push(new Drupal.panels_ipe.BlockView({
+          'model': block,
+          'el': "[data-block-id='" + block.get('uuid') + "']"
+        }));
+      }, this);
     }
 
   });
