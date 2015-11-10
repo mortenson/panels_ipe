@@ -47,7 +47,7 @@
     render: function() {
       // Replace our current HTML.
       this.$el.replaceWith(this.model.get('html'));
-      this.setElement(this.el);
+      this.setElement("[data-block-id='" + this.model.get('uuid') + "']");
       if (this.model.get('active')) {
         this.$el.prepend(this.template(this.model.toJSON()));
       }

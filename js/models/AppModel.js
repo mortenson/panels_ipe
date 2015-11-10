@@ -37,8 +37,6 @@
        * The current Layout.
        *
        * @type {Drupal.panels_ipe.LayoutModel}
-       *
-       * @see Drupal.panels_ipe.LayoutModel
        */
       layout: null,
 
@@ -46,10 +44,22 @@
        * A collection of all tabs on screen.
        *
        * @type {Drupal.panels_ipe.TabCollection}
-       *
-       * @see Drupal.panels_ipe.TabCollection
        */
-      tabCollection: null
+      tabCollection: null,
+
+      /**
+       * The "Edit" tab.
+       *
+       * @type {Drupal.panels_ipe.TabModel}
+       */
+      editTab: null,
+
+      /**
+       * The "Save" tab.
+       *
+       * @type {Drupal.panels_ipe.TabModel}
+       */
+      saveTab: null
     }
 
   });

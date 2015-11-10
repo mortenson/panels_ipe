@@ -46,13 +46,16 @@
      */
     initialize: function (options) {
       this.model = options.model;
+
       // Create a TabsView instance.
       this.tabsView = new Drupal.panels_ipe.TabsView({
         'collection': this.model.get('tabCollection'),
         'tabViews': options.tabContentViews
       });
+
       // Listen to important events throughout the app.
       this.listenTo(this.model, "changeLayout", this.changeLayout);
+      this.listenTo(this.model.get('editTab'), "change:active", this.clickEditTab);
     },
 
     /**
@@ -83,7 +86,7 @@
       this.model.set({'active': true});
 
       // Set the layout's active state correctly.
-      this.layout.set({'active': true});
+      this.model.get('layout').set({'active': true});
 
       this.$el.addClass('active');
     },
@@ -101,7 +104,7 @@
       this.model.set({'active': false});
 
       // Set the layout's active state correctly.
-      this.layout.set({'active': false});
+      this.model.get('layout').set({'active': false});
 
       this.$el.removeClass('active');
     },
@@ -142,6 +145,19 @@
         // Re-render the app.
         self.render();
       });
+    },
+
+    /**
+     * Sets the IPE active state based on the "Edit" TabModel.
+     */
+    clickEditTab: function(){
+      var active = this.model.get('editTab').get('active');
+      if (active) {
+        this.openIPE();
+      }
+      else {
+        this.closeIPE();
+      }
     }
 
   });
