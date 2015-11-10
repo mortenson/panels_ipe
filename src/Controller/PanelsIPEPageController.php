@@ -94,7 +94,9 @@ class PanelsIPEPageController extends ControllerBase {
     $configuration = $block->getConfiguration();
     $elements = [
       '#theme' => 'block',
-      '#attributes' => [],
+      '#attributes' => [
+        'data-block-id' => $block->getConfiguration()['uuid']
+      ],
       '#configuration' => $configuration,
       '#plugin_id' => $block->getPluginId(),
       '#base_plugin_id' => $block->getBaseId(),
