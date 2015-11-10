@@ -109,3 +109,30 @@
 [data-tab-content-id="edit"].active, [data-tab-content-id="save"].active {
   display: none;
 }
+
+/* Style the block/region headers. */
+.ipe-actions {
+  height: 20px;
+  background-color: darkgray;
+  padding: 5px;
+  clear: both;
+}
+
+.ipe-actions ul.ipe-action-list {
+  float: right;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.ipe-actions h5, .ipe-actions li {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 12px;
+  text-transform: uppercase;
+  font-weight: bold;
+  margin: 0;
+}
+
+.ipe-actions h5 {
+  float: left;
+}

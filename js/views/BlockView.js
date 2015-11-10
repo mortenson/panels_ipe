@@ -14,7 +14,12 @@
     /**
      * @type {function}
      */
-    template: _.template('<div class="panels-ipe-header"><h5>Block: <%= label %></h5></div>'),
+    template_actions: _.template(
+      '<div class="ipe-actions" data-block-action-id="<%= uuid %>">' +
+      '  <h5>Block: <%= label %></h5>' +
+      '  <ul class="ipe-action-list"><li data-action-id="move">Move</li></ul>' +
+      '</div>'
+    ),
 
     /**
      * @type {Drupal.panels_ipe.BlockModel}
@@ -39,6 +44,7 @@
         this.model.set({'html': this.$el.prop('outerHTML')});
       }
       this.listenTo(this.model, 'reset', this.render);
+      this.listenTo(this.model, 'change:active', this.render);
     },
 
     /**
@@ -49,7 +55,7 @@
       this.$el.replaceWith(this.model.get('html'));
       this.setElement("[data-block-id='" + this.model.get('uuid') + "']");
       if (this.model.get('active')) {
-        this.$el.prepend(this.template(this.model.toJSON()));
+        this.$el.prepend(this.template_actions(this.model.toJSON()));
       }
       return this;
     }

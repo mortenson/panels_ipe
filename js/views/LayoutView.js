@@ -12,6 +12,16 @@
   Drupal.panels_ipe.LayoutView = Backbone.View.extend(/** @lends Drupal.panels_ipe.LayoutView# */{
 
     /**
+     * @type {function}
+     */
+    template_region_actions: _.template(
+      '<div class="ipe-actions" data-region-action-id="<%= name %>">' +
+      '  <h5>Region: <%= name %></h5>' +
+      '  <ul class="ipe-action-list"></ul>' +
+      '</div>'
+    ),
+
+    /**
      * @type {Drupal.panels_ipe.LayoutModel}
      */
     model: null,
@@ -59,13 +69,19 @@
     },
 
     changeState: function(model, value, options) {
-      // Set all of our blocks active as well.
+      // Prepend all regions with the appropriate action header.
       this.model.get('regionCollection').each(function (region) {
+        if (value) {
+          var selector = '[data-region-name="' + region.get('name') + '"]';
+          this.$(selector).prepend(this.template_region_actions(region.toJSON()));
+        }
+        else {
+          this.$('.ipe-actions').remove();
+        }
         region.get('blockCollection').each(function (block) {
-            block.set({'active': value});
-        });
-      });
-      // Re-render all blocks.
+          block.set({'active': value});
+        }, this);
+      }, this);
       this.render();
     },
 
@@ -83,7 +99,7 @@
           // The "empty_elem" variable will be later used to trigger a
           // BlockModel.fetch() call, which will re-render and remove our
           // placeholder.
-          if (this.$("[data-block-id='" + block.get('uuid') + "']").length == 0) {
+          if (this.$('[data-block-id="' + block.get('uuid') + '"]').length == 0) {
             var empty_elem = $('<div data-block-id="' + block.get('uuid') + '">');
             this.$('[data-region-name="' + region.get('name') + '"]').append(empty_elem);
           }
