@@ -20,9 +20,9 @@
       /**
        * The region state.
        *
-       * @type {string}
+       * @type {bool}
        */
-      state: null,
+      active: false,
 
       /**
        * The machine name of the region.

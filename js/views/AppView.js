@@ -58,6 +58,7 @@
       this.$el.html(this.template(this.model.toJSON()));
       // Add our tab collection to the App.
       this.tabsView.setElement(this.$('.ipe-tab-wrapper')).render();
+      // Re-render our layout.
       return this;
     },
 
@@ -73,12 +74,9 @@
       // Set our active state correctly.
       this.model.set({'active': true});
 
-      // Change state of all of our regions.
-      this.model.get('regionCollection').each(function(region){
-        region.set('state', 'active');
-      });
+      // Set the layout's active state correctly.
+      this.layout.set({'active': true});
 
-      // @todo Replace with a re-render.
       this.$el.addClass('active');
     },
 
@@ -94,12 +92,9 @@
       // Set our active state correctly.
       this.model.set({'active': false});
 
-      // Change state of all of our regions.
-      this.model.get('regionCollection').each(function(region){
-        region.set('state', 'inactive');
-      });
+      // Set the layout's active state correctly.
+      this.layout.set({'active': false});
 
-      // @todo Replace with a re-render.
       this.$el.removeClass('active');
     },
 
@@ -110,11 +105,25 @@
       // Grab the layout from the argument list.
       var layout = args[0];
 
-      // Sync the layout from Drupal. This generates empty HTML we're going to insert.
-      layout.fetch().done(function(){
-        // Replace the panel display with the empty layout.
-        $('.panel-display').replaceWith(layout.get('html'));
+      // Sync the layout from Drupal.
+      layout.fetch();
+
+      // Grab all the blocks from the current layout.
+      var regions = this.model.get('layout').get('regionCollection');
+      var block_collection = new Drupal.panels_ipe.BlockCollection();
+      regions.each(function(region) {
+        block_collection.add(region.get('blockCollection').toJSON());
       });
+
+      // Get the first region in the layout.
+      // @todo Be smarter about re-adding blocks.
+      var first_region = layout.get('regionCollection').at(0);
+
+      // Append all blocks from previous layout.
+      first_region.set({'blockCollection': block_collection});
+
+      // Change the default layout in our AppModel.
+      this.model.set({'layout': layout});
     }
 
   });

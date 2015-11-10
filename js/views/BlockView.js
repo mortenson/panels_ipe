@@ -44,7 +44,7 @@
      * Renders the wrapping elements and refreshes a block model.
      */
     render: function() {
-      if (this.model.get('state') == 'active') {
+      if (this.model.get('active')) {
         this.$el.html(this.template(this.model.toJSON()));
       }
       else {

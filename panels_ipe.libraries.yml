@@ -12,9 +12,10 @@ panels_ipe:
     # Views.
     js/views/AppView.js: {}
     js/views/BlockView.js: {}
+    js/views/LayoutPicker.js: {}
+    js/views/LayoutView.js: {}
     js/views/RegionView.js: {}
     js/views/TabView.js: {}
-    js/views/LayoutTabView.js: {}
   css:
     component:
       css/panels_ipe.css: {}

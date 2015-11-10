@@ -40,7 +40,14 @@
        *
        * @type {string}
        */
-      html: null
+      html: null,
+
+      /**
+       * A collection of regions contained in this Layout.
+       *
+       * @type {Drupal.panels_ipe.RegionCollection}
+       */
+      regionCollection: null
 
     }
 

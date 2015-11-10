@@ -44,7 +44,7 @@
 
     // Set up our initial tab views.
     var tab_views = {
-      'change_layout': new Drupal.panels_ipe.LayoutTabView()
+      'change_layout': new Drupal.panels_ipe.LayoutPicker()
     };
 
     // Create an AppView instance.
@@ -56,6 +56,8 @@
     $('body').append(app_view.render().$el);
 
     // Assemble the initial region and block collections.
+    // This logic is a little messy, as traditionally we would never initialize
+    // Backbone with existing HTML content.
     var region_collection = new Drupal.panels_ipe.RegionCollection();
     for (var i in settings.panels_ipe.regions) {
       var region = new Drupal.panels_ipe.RegionModel();
@@ -71,16 +73,18 @@
 
       region.set({'blockCollection': block_collection});
 
-      var region_view = new Drupal.panels_ipe.RegionView({
-        'model': region,
-        'el': "[data-region-name='" + settings.panels_ipe.regions[i].name + "']"
-      });
-      // By rendering the region we also render the region's blocks.
-      region_view.render();
       region_collection.add(region);
     }
 
-    Drupal.panels_ipe.app.set({'regionCollection': region_collection});
+    // Create the Layout model/view.
+    var layout = new Drupal.panels_ipe.LayoutModel(settings.panels_ipe.layout);
+    var layout_view = new Drupal.panels_ipe.LayoutView({
+      'model': layout,
+      'el': "[data-layout-id='" + settings.panels_ipe.layout.id + "']"
+    });
+    layout_view.render();
+
+    Drupal.panels_ipe.app.set({'layout': layout});
   };
 
   /**

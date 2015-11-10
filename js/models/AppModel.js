@@ -34,13 +34,13 @@
       active: false,
 
       /**
-       * A collection of all regions on screen.
+       * The current Layout.
        *
-       * @type {Drupal.panels_ipe.RegionCollection}
+       * @type {Drupal.panels_ipe.LayoutModel}
        *
-       * @see Drupal.panels_ipe.RegionCollection
+       * @see Drupal.panels_ipe.LayoutModel
        */
-      regionCollection: null,
+      layout: null,
 
       /**
        * A collection of all tabs on screen.

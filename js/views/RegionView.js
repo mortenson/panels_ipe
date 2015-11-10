@@ -48,7 +48,7 @@
           'el': "[data-block-id='" + block.get('uuid') + "']"
         }));
       }, this);
-      this.listenTo(this.model, 'change:state', this.changeState);
+      this.listenTo(this.model, 'change:active', this.changeState);
     },
 
     /**
@@ -57,7 +57,7 @@
     render: function() {
       // Decide if our header should be displayed.
       this.$('.panels-ipe-header').remove();
-      if (this.model.get('state') == 'active') {
+      if (this.model.get('active')) {
         this.$el.prepend(this.template(this.model.toJSON()));
       }
       // Re-render all of our sub-views of blocks.
@@ -70,7 +70,7 @@
     changeState: function(model, value, options) {
       // Change state of all of our blocks.
       this.model.get('blockCollection').each(function(block){
-        block.set('state', value);
+        block.set('active', value);
       });
       this.render();
     }

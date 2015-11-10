@@ -1,6 +1,6 @@
 /**
  * @file
- * Renders a collection of Layouts for selection in an IPE tab.
+ * Renders a collection of Layouts for selection.
  *
  * see Drupal.panels_ipe.LayoutCollection
  */
@@ -9,7 +9,7 @@
 
   'use strict';
 
-  Drupal.panels_ipe.LayoutTabView = Backbone.View.extend(/** @lends Drupal.panels_ipe.LayoutTabView# */{
+  Drupal.panels_ipe.LayoutPicker = Backbone.View.extend(/** @lends Drupal.panels_ipe.LayoutPicker# */{
 
     /**
      * @type {function}

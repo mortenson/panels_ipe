@@ -17,9 +17,9 @@
       /**
        * The block state.
        *
-       * @type {string}
+       * @type {bool}
        */
-      state: null,
+      active: false,
 
       /**
        * The ID of the block.
