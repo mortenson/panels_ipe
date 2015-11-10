@@ -81,7 +81,7 @@
     layout.set({'regionCollection': region_collection});
     var layout_view = new Drupal.panels_ipe.LayoutView({
       'model': layout,
-      'el': ".panel-display"
+      'el': "#panels-ipe-content"
     });
     layout_view.render();
 

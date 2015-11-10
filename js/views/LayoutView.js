@@ -12,15 +12,15 @@
   Drupal.panels_ipe.LayoutView = Backbone.View.extend(/** @lends Drupal.panels_ipe.LayoutView# */{
 
     /**
-     * @type {Drupal.panels_ipe.RegionModel}
+     * @type {Drupal.panels_ipe.LayoutModel}
      */
     model: null,
 
     /**
      * @type {Array}
-     *   An array of child Drupal.panels_ipe.RegionViews.
+     *   An array of child Drupal.panels_ipe.BlockView objects.
      */
-    regionViews: [],
+    blockViews: [],
 
     /**
      * @constructs
@@ -36,39 +36,53 @@
      */
     initialize: function (options) {
       this.model = options.model;
-      // Initialize our Region Views.
+      // Initialiaze our html, this never changes.
+      if (this.model.get('html')) {
+        this.$el.html(this.model.get('html'));
+      }
+      // Initialize our Block Views.
       if (this.el) {
-        this.initRegionViews();
+        this.initBlockViews();
       }
       this.listenTo(this.model, 'change:active', this.changeState);
-      this.listenTo(this.model, 'reset', this.initRegionViews);
     },
 
     /**
-     * Re-renders our regions, we have no HTML to be re-rendered.
+     * Re-renders our blocks, we have no HTML to be re-rendered.
      */
     render: function() {
-      // Re-render all of our regions.
-      for (var i in this.regionViews) {
-        this.regionViews[i].render();
+      // Re-render all of our blocks.
+      for (var i in this.blockViews) {
+        this.blockViews[i].render();
       }
       return this;
     },
 
     changeState: function(model, value, options) {
-      // Change state of all of our regions.
-      this.model.get('regionCollection').each(function(region){
-        region.set('active', value);
-      });
       this.render();
     },
 
-    initRegionViews: function() {
+    initBlockViews: function() {
       this.model.get('regionCollection').each(function (region) {
-        this.regionViews.push(new Drupal.panels_ipe.RegionView({
-          'model': region,
-          'el': "[data-region-name='" + region.get('name') + "']"
-        }));
+        region.get('blockCollection').each(function (block) {
+
+          // If the target element doesn't exist, append an empty one.
+          if (this.$("[data-block-id='" + block.get('uuid') + "']").length == 0) {
+            var empty_elem = $('<div data-block-id="' + block.get('uuid') + '">');
+            this.$('[data-region-name="' + region.get('name') + '"]').append(empty_elem);
+          }
+
+          this.blockViews.push(new Drupal.panels_ipe.BlockView({
+            'model': block,
+            'el': "[data-block-id='" + block.get('uuid') + "']"
+          }));
+
+          // Fetch the block content from the server
+          if (typeof empty_elem != 'undefined') {
+            block.fetch();
+          }
+
+        }, this);
       }, this);
     }
 

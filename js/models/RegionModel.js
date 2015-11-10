@@ -18,13 +18,6 @@
     defaults: /** @lends Drupal.panels_ipe.RegionModel# */{
 
       /**
-       * The region state.
-       *
-       * @type {bool}
-       */
-      active: false,
-
-      /**
        * The machine name of the region.
        *
        * @type {string}

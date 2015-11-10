@@ -14,7 +14,7 @@
     /**
      * @type {function}
      */
-    template: _.template('<div class="panels-ipe-header"><h5>Block: <%= label %></h5></div><%= html %>'),
+    template: _.template('<div class="panels-ipe-header"><h5>Block: <%= label %></h5></div>'),
 
     /**
      * @type {Drupal.panels_ipe.BlockModel}
@@ -35,20 +35,21 @@
      */
     initialize: function (options) {
       this.model = options.model;
-      if (options.el) {
-        this.model.set({html: this.$el.html()});
+      if (options.el && !this.model.get('html')) {
+        this.model.set({'html': this.$el.prop('outerHTML')});
       }
+      this.listenTo(this.model, 'reset', this.render);
     },
 
     /**
      * Renders the wrapping elements and refreshes a block model.
      */
     render: function() {
+      // Replace our current HTML.
+      this.$el.replaceWith(this.model.get('html'));
+      this.setElement(this.el);
       if (this.model.get('active')) {
-        this.$el.html(this.template(this.model.toJSON()));
-      }
-      else {
-        this.$el.html(this.model.get('html'));
+        this.$el.prepend(this.template(this.model.toJSON()));
       }
       return this;
     }

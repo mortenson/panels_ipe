@@ -108,8 +108,9 @@ class InPlaceEditorDisplayBuilder extends StandardDisplayBuilder {
         'drupalSettings' => $this->getDrupalSettings($regions, $contexts, $layout)
       ];
 
-      // Add our custom tray to the build.
-      $build['#suffix'] = '<div id="panels-ipe-tray"></div>';
+      // Add our custom elements to the build.
+      $build['#prefix'] = '<div id="panels-ipe-content">';
+      $build['#suffix'] = '</div><div id="panels-ipe-tray"></div>';
     }
     return $build;
   }

@@ -14,7 +14,6 @@ panels_ipe:
     js/views/BlockView.js: {}
     js/views/LayoutPicker.js: {}
     js/views/LayoutView.js: {}
-    js/views/RegionView.js: {}
     js/views/TabView.js: {}
   css:
     component:

@@ -133,16 +133,10 @@
         // Change the default layout in our AppModel.
         self.model.set({'layout': layout});
 
-        // Replace the current LayoutView's content.
-        self.layoutView.$el.replaceWith(layout.get('html'));
-
-        // Remove the current LayoutView.
-        self.layoutView.remove();
-
         // Create a new LayoutView.
         self.layoutView = new Drupal.panels_ipe.LayoutView({
           'model': layout,
-          'el': ".panel-display"
+          'el': "#panels-ipe-content"
         });
 
         // Re-render the app.
