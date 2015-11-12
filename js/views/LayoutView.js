@@ -57,18 +57,12 @@
      *   An object with the following keys:
      * @param {Drupal.panels_ipe.LayoutModel} options.model
      *   The layout state model.
-     * @param {string} options.el
-     *   An optional selector if an existing element is already on screen.
      */
     initialize: function (options) {
       this.model = options.model;
-      // Initialiaze our html, this never changes.
+      // Initialize our html, this never changes.
       if (this.model.get('html')) {
         this.$el.html(this.model.get('html'));
-      }
-      // Initialize our Block Views, if HTML is already provided to us.
-      if (this.el) {
-        this.initBlockViews();
       }
       this.listenTo(this.model, 'change:active', this.changeState);
     },
@@ -77,10 +71,39 @@
      * Re-renders our blocks, we have no HTML to be re-rendered.
      */
     render: function() {
-      // Re-render all of our blocks (regions never change).
+      // Remove all existing BlockViews.
       for (var i in this.blockViews) {
-        this.blockViews[i].render();
+        this.blockViews[i].remove();
       }
+      this.blockViews = [];
+
+      // Re-attach all BlockViews to appropriate regions.
+      this.model.get('regionCollection').each(function (region) {
+        region.get('blockCollection').each(function (block) {
+          // Attach an empty element for our View to attach itself to.
+          if (this.$('[data-block-id="' + block.get('uuid') + '"]').length == 0) {
+            var empty_elem = $('<div data-block-id="' + block.get('uuid') + '">');
+            this.$('[data-region-name="' + region.get('name') + '"]').append(empty_elem);
+          }
+
+          // Attach a View to this empty element.
+          var block_view = new Drupal.panels_ipe.BlockView({
+            'model': block,
+            'el': '[data-block-id="' + block.get('uuid') + '"]'
+          });
+          this.blockViews.push(block_view);
+
+          // Fetch the Block's content from the server, if needed.
+          if (!block.get('html')) {
+            block.fetch();
+          }
+          else {
+            block_view.render();
+          }
+
+        }, this);
+      }, this);
+
       return this;
     },
 
@@ -99,40 +122,6 @@
         }, this);
       }, this);
       this.render();
-    },
-
-    /**
-     * Initializes our blockViews property if HTML is provided to us.
-     *
-     * If anything in our BlockCollection isn't already on screen, this
-     * function will also fetch new HTML from the server and render that.
-     */
-    initBlockViews: function() {
-      this.model.get('regionCollection').each(function (region) {
-        region.get('blockCollection').each(function (block) {
-
-          // If the target element doesn't exist, append an empty one.
-          // The "empty_elem" variable will be later used to trigger a
-          // BlockModel.fetch() call, which will re-render and remove our
-          // placeholder.
-          if (this.$('[data-block-id="' + block.get('uuid') + '"]').length == 0) {
-            var empty_elem = $('<div data-block-id="' + block.get('uuid') + '">');
-            this.$('[data-region-name="' + region.get('name') + '"]').append(empty_elem);
-          }
-
-          // Attach a View to this empty element.
-          this.blockViews.push(new Drupal.panels_ipe.BlockView({
-            'model': block,
-            'el': '[data-block-id="' + block.get('uuid') + '"]'
-          }));
-
-          // Fetch the block content from the server
-          if (typeof empty_elem != 'undefined') {
-            block.fetch();
-          }
-
-        }, this);
-      }, this);
     },
 
     /**
@@ -172,6 +161,9 @@
 
       // Grab the value of this region.
       var region_name = $(e.currentTarget).children(':selected').data('region-option-name');
+      if (!region_name) {
+        return;
+      }
 
       // First, remove the Block from the current region.
       var block;
@@ -188,21 +180,6 @@
       if (block) {
         var region = this.model.get('regionCollection').get(region_name);
         region.get('blockCollection').add(block);
-
-        // Move the BlockView.
-        for (var i in this.blockViews) {
-          if (this.blockViews[i].model == block) {
-            // Remove the previous element.
-            this.blockViews[i].remove();
-
-            // Create a new element and append it to the new region.
-            var empty_elem = $('<div data-block-id="' + block.get('uuid') + '">');
-            this.$('[data-region-name="' + region.get('name') + '"]').append(empty_elem);
-
-            // Set the BlockView to the new element.
-            this.blockViews[i].setElement('[data-block-id="' + block.get('uuid') + '"]')
-          }
-        }
       }
 
       // Hide the select list.
@@ -210,6 +187,18 @@
 
       // Re-render.
       this.render();
+    },
+
+    /**
+     * Changes the LayoutModel for this view.
+     *
+     * @param {Drupal.panels_ipe.LayoutModel} layout
+     */
+    changeLayout: function (layout) {
+      // Stop listening to the current model.
+      this.stopListening(this.model);
+      // Initialize with the new model.
+      this.initialize({'model': layout});
     }
 
   });
