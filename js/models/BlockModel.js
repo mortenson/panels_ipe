@@ -51,6 +51,7 @@
        * @type {string}
        */
       html: null
+
     },
 
     /**
@@ -72,7 +73,17 @@
     /**
      * @type {Drupal.panels_ipe.BlockModel}
      */
-    model: Drupal.panels_ipe.BlockModel
+    model: Drupal.panels_ipe.BlockModel,
+
+    /**
+     * For Blocks, our identifier is the UUID, not the ID.
+     *
+     * @type {function}
+     */
+    modelId: function(attrs) {
+      return attrs.uuid;
+    }
+
   });
 
 }(_, jQuery, Backbone, Drupal, drupalSettings));

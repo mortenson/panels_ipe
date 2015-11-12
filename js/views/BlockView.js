@@ -17,7 +17,11 @@
     template_actions: _.template(
       '<div class="ipe-actions" data-block-action-id="<%= uuid %>">' +
       '  <h5>Block: <%= label %></h5>' +
-      '  <ul class="ipe-action-list"><li data-action-id="move">Move</li></ul>' +
+      '  <ul class="ipe-action-list">' +
+      '    <li data-action-id="move">' +
+      '      <select><option>Move</option></select>' +
+      '    </li>' +
+      '  </ul>' +
       '</div>'
     ),
 

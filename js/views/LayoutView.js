@@ -22,6 +22,13 @@
     ),
 
     /**
+     * @type {function}
+     */
+    template_region_option: _.template(
+      '<option data-region-option-name="<%= name %>"><%= name %></option>'
+    ),
+
+    /**
      * @type {Drupal.panels_ipe.LayoutModel}
      */
     model: null,
@@ -31,6 +38,15 @@
      *   An array of child Drupal.panels_ipe.BlockView objects.
      */
     blockViews: [],
+
+    /**
+     * @type {object}
+     */
+    events: {
+      'mousedown [data-action-id="move"] > select': 'showBlockRegionList',
+      'blur [data-action-id="move"] > select': 'hideBlockRegionList',
+      'change [data-action-id="move"] > select': 'selectBlockRegionList'
+    },
 
     /**
      * @constructs
@@ -61,7 +77,7 @@
      * Re-renders our blocks, we have no HTML to be re-rendered.
      */
     render: function() {
-      // Re-render all of our blocks.
+      // Re-render all of our blocks (regions never change).
       for (var i in this.blockViews) {
         this.blockViews[i].render();
       }
@@ -117,6 +133,68 @@
 
         }, this);
       }, this);
+    },
+
+    /**
+     * Replaces the "Move" button with a select list of regions.
+     */
+    showBlockRegionList: function(e) {
+      // Get the BlockModel id (uuid).
+      var id = $(e.currentTarget).closest('[data-block-action-id]').data('block-action-id');
+
+      $(e.currentTarget).empty();
+
+      // Add other regions to select list.
+      this.model.get('regionCollection').each(function (region) {
+        // If this is the current region, place it first in the list.
+        if (region.get('blockCollection').get(id)) {
+          $(e.currentTarget).prepend(this.template_region_option(region.toJSON()));
+        }
+        else {
+          $(e.currentTarget).append(this.template_region_option(region.toJSON()));
+        }
+      }, this);
+    },
+
+    /**
+     * Hides the region selector.
+     */
+    hideBlockRegionList: function(e) {
+      $(e.currentTarget).html('<option>Move</option>');
+    },
+
+    /**
+     * React to a new region being selected.
+     */
+    selectBlockRegionList: function(e) {
+      // Get the BlockModel id (uuid).
+      var id = $(e.currentTarget).closest('[data-block-action-id]').data('block-action-id');
+
+      // Grab the value of this region.
+      var region_name = $(e.currentTarget).children(':selected').data('region-option-name');
+
+      // First, remove the Block from the current region.
+      var block;
+      var region_collection = this.model.get('regionCollection');
+      region_collection.each(function (region) {
+        var block_collection = region.get('blockCollection');
+        if (block_collection.get(id)) {
+          block = block_collection.get(id);
+          region_collection.remove(block);
+        }
+      });
+
+      // Next, add the Block to the new region.
+      if (block) {
+        var region = this.model.get('regionCollection').get(region_name);
+        region.get('blockCollection').add(block);
+      }
+
+      // Hide the select list.
+      this.hideBlockRegionList(e);
+
+      // Re-render.
+      this.render();
     }
 
   });

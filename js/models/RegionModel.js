@@ -53,7 +53,17 @@
     /**
      * @type {Drupal.panels_ipe.RegionModel}
      */
-    model: Drupal.panels_ipe.RegionModel
+    model: Drupal.panels_ipe.RegionModel,
+
+    /**
+     * For Regions, our identifier is the region name.
+     *
+     * @type {function}
+     */
+    modelId: function(attrs) {
+      return attrs.name;
+    }
+
   });
 
 }(_, jQuery, Backbone, Drupal));
