@@ -115,6 +115,7 @@
   height: 20px;
   background-color: darkgray;
   padding: 5px;
+  margin-top: 1px;
   clear: both;
 }
 
@@ -135,4 +136,25 @@
 
 .ipe-actions h5 {
   float: left;
+}
+
+.ipe-actions a {
+  color: black;
+  text-transform: uppercase;
+  border: none;
+  cursor: pointer;
+}
+
+.ipe-actions a:hover {
+  color: #393939;
+  border: none;
+}
+
+.ipe-action-list li {
+  display: inline-block;
+}
+
+.ipe-action-list [data-action-id="move"] select {
+  background: transparent;
+  text-transform: uppercase;
 }

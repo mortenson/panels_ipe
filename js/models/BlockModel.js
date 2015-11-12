@@ -82,6 +82,25 @@
      */
     modelId: function(attrs) {
       return attrs.uuid;
+    },
+
+    /**
+     * Moves a Block up or down in this collection.
+     *
+     * @type {function}
+     *
+     * @param {Drupal.panels_ipe.BlockModel} block
+     *  The BlockModel you want to move.
+     * @param {string} direction
+     *  The string name of the direction (either "up" or "down").
+     */
+    shift: function(block, direction) {
+      var index = this.indexOf(block);
+      if ((direction == 'up' && index > 0) || (direction == 'down' && index < this.models.length)) {
+        this.remove(block, {'silent': true});
+        var new_index = direction == 'up' ? index-1 : index+1;
+        this.add(block, {'at': new_index, 'silent': true});
+      }
     }
 
   });

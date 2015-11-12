@@ -45,7 +45,9 @@
     events: {
       'mousedown [data-action-id="move"] > select': 'showBlockRegionList',
       'blur [data-action-id="move"] > select': 'hideBlockRegionList',
-      'change [data-action-id="move"] > select': 'selectBlockRegionList'
+      'change [data-action-id="move"] > select': 'selectBlockRegionList',
+      'click [data-action-id="up"]': 'moveBlock',
+      'click [data-action-id="down"]': 'moveBlock'
     },
 
     /**
@@ -107,9 +109,13 @@
       return this;
     },
 
+    /**
+     * Prepends Regions and Blocks with action items.
+     */
     changeState: function(model, value, options) {
-      // Prepend all regions with the appropriate action header.
+      // Toggles the action headers on each RegionView and BlockView.
       this.model.get('regionCollection').each(function (region) {
+        // Prepend or remove the action header for this region.
         if (value) {
           var selector = '[data-region-name="' + region.get('name') + '"]';
           this.$(selector).prepend(this.template_region_actions(region.toJSON()));
@@ -117,6 +123,8 @@
         else {
           this.$('.ipe-actions').remove();
         }
+
+        // BlockViews handle their own rendering, so just set the active value here.
         region.get('blockCollection').each(function (block) {
           block.set({'active': value});
         }, this);
@@ -161,9 +169,6 @@
 
       // Grab the value of this region.
       var region_name = $(e.currentTarget).children(':selected').data('region-option-name');
-      if (!region_name) {
-        return;
-      }
 
       // First, remove the Block from the current region.
       var block;
@@ -199,6 +204,28 @@
       this.stopListening(this.model);
       // Initialize with the new model.
       this.initialize({'model': layout});
+    },
+
+    /**
+     * Moves a block up or down in its RegionModel's BlockCollection.
+     */
+    moveBlock: function(e) {
+      // Get the BlockModel id (uuid).
+      var id = $(e.currentTarget).closest('[data-block-action-id]').data('block-action-id');
+
+      // Get the direction the block is moving.
+      var dir = $(e.currentTarget).data('action-id');
+
+      // Grab the model for this region.
+      var region_name = $(e.currentTarget).closest('[data-region-name]').data('region-name');
+      var region = this.model.get('regionCollection').get(region_name);
+      var block = region.get('blockCollection').get(id);
+
+      // Shift the Block.
+      region.get('blockCollection').shift(block, dir);
+
+      // Re-render ourselves.
+      this.render();
     }
 
   });
