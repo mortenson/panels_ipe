@@ -123,7 +123,7 @@
           // Attach a View to this empty element.
           this.blockViews.push(new Drupal.panels_ipe.BlockView({
             'model': block,
-            'el': "[data-block-id='" + block.get('uuid') + "']"
+            'el': '[data-block-id="' + block.get('uuid') + '"]'
           }));
 
           // Fetch the block content from the server
@@ -180,7 +180,7 @@
         var block_collection = region.get('blockCollection');
         if (block_collection.get(id)) {
           block = block_collection.get(id);
-          region_collection.remove(block);
+          block_collection.remove(block);
         }
       });
 
@@ -188,6 +188,21 @@
       if (block) {
         var region = this.model.get('regionCollection').get(region_name);
         region.get('blockCollection').add(block);
+
+        // Move the BlockView.
+        for (var i in this.blockViews) {
+          if (this.blockViews[i].model == block) {
+            // Remove the previous element.
+            this.blockViews[i].remove();
+
+            // Create a new element and append it to the new region.
+            var empty_elem = $('<div data-block-id="' + block.get('uuid') + '">');
+            this.$('[data-region-name="' + region.get('name') + '"]').append(empty_elem);
+
+            // Set the BlockView to the new element.
+            this.blockViews[i].setElement('[data-block-id="' + block.get('uuid') + '"]')
+          }
+        }
       }
 
       // Hide the select list.
