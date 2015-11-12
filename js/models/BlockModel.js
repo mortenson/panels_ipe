@@ -43,6 +43,27 @@
       label: null,
 
       /**
+       * The provider for the block (usually the module name).
+       *
+       * @type {string}
+       */
+      provider: null,
+
+      /**
+       * Whether or not the label display for this block is visible.
+       *
+       * @type {string}
+       */
+      label_display: 'visible',
+
+      /**
+       * The context mapping for this block (only used on backend).
+       *
+       * @type {Array}
+       */
+      context_mapping: [],
+
+      /**
        * The HTML content of the block. This is stored in the model as the
        * IPE doesn't actually care what the block's content is, the functional
        * elements of the model are the metadata. The BlockView renders this

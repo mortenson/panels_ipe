@@ -7,6 +7,7 @@
 
 namespace Drupal\panels_ipe\Controller;
 
+use Drupal\Component\Serialization\Json;
 use Drupal\Core\Block\BlockManagerInterface;
 use Drupal\Core\Controller\ControllerBase;
 use Drupal\Core\Render\Element;
@@ -14,6 +15,7 @@ use Drupal\layout_plugin\Layout;
 use Drupal\Core\Render\RendererInterface;
 use Drupal\page_manager\Entity\PageVariant;
 use Symfony\Component\DependencyInjection\ContainerInterface;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Zend\Diactoros\Response\JsonResponse;
@@ -132,6 +134,11 @@ class PanelsIPEPageController extends ControllerBase {
       throw new NotFoundHttpException();
     }
 
+    // Check variant access.
+    if (!$variant->access('read')) {
+      throw new AccessDeniedHttpException();
+    }
+
     /** @var \Drupal\panels\Plugin\DisplayVariant\PanelsDisplayVariant $variant_plugin */
     $variant_plugin = $variant->getVariantPlugin();
 
@@ -170,6 +177,11 @@ class PanelsIPEPageController extends ControllerBase {
     /** @var \Drupal\page_manager\PageVariantInterface $variant */
     if (!$variant = PageVariant::load($variant_id)) {
       throw new NotFoundHttpException();
+    }
+
+    // Check variant access.
+    if (!$variant->access('read')) {
+      throw new AccessDeniedHttpException();
     }
 
     /** @var \Drupal\panels\Plugin\DisplayVariant\PanelsDisplayVariant $variant_plugin */
@@ -217,6 +229,106 @@ class PanelsIPEPageController extends ControllerBase {
 
     // Return a structured JSON response for our Backbone App.
     return new JsonResponse($data);
+  }
+
+  /**
+   * Updates the current PageVariant based on the changes done in our app.
+   *
+   * @param \Drupal\page_manager\PageVariantInterface $variant
+   *   The current variant.
+   * @param array $layout
+   *   The decoded LayoutModel from our App.
+   */
+  protected function updateVariant($variant, $layout) {
+    // Load the current variant plugin.
+    /** @var \Drupal\panels\Plugin\DisplayVariant\PanelsDisplayVariant $variant_plugin */
+    $variant_plugin = $variant->getVariantPlugin();
+
+    // Get the variant plugin's configuration.
+    $configuration = $variant_plugin->getConfiguration();
+
+    // Set the layout.
+    $configuration['layout'] = $layout['id'];
+
+    // Edit our blocks.
+    foreach ($layout['regionCollection'] as $region) {
+      $weight = 0;
+      foreach ($region['blockCollection'] as $block) {
+        // Our Backbone app models Blocks to abstract their region.
+        $block['region'] = $region['name'];
+
+        // Weight is based by order in the collection.
+        $block['weight'] = ++$weight;
+
+        // @todo This should be removed in Backbone.
+        unset($block['html']);
+        unset($block['active']);
+
+        // If the block already exists, update it. Otherwise add it.
+        if (isset($configuration['blocks'][$block['uuid']])) {
+          $configuration['blocks'][$block['uuid']] = array_merge($configuration['blocks'][$block['uuid']], $block);
+        }
+        else {
+          $configuration['blocks'][$block['uuid']] = $block;
+        }
+      }
+    }
+
+    // Save the plugin.
+    $variant->set('variant_settings', $configuration);
+    $variant->save();
+  }
+
+  /**
+   * Updates (PUT) an existing Layout in this Variant.
+   *
+   * @param string $variant_id
+   *   The machine name of the current display variant.
+   * @param string $layout_id
+   *   The machine name of the requested layout.
+   * @param \Symfony\Component\HttpFoundation\Request $request
+   *   The current request.
+   *
+   * @return JsonResponse
+   *
+   * @throws AccessDeniedHttpException|NotFoundHttpException
+   */
+  public function updateLayout($variant_id, $layout_id, Request $request) {
+    // Check if the variant exists.
+    /** @var \Drupal\page_manager\PageVariantInterface $variant */
+    if (!$variant = PageVariant::load($variant_id)) {
+      throw new NotFoundHttpException();
+    }
+
+    // Check variant access.
+    if (!$variant->access('update')) {
+      throw new AccessDeniedHttpException();
+    }
+
+    // Decode the request.
+    $content = $request->getContent();
+    if (!empty($content) && $layout = Json::decode($content)) {
+      $this->updateVariant($variant, $layout);
+    }
+  }
+
+  /**
+   * Creates (POST) a new Layout for this Variant.
+   *
+   * @param string $variant_id
+   *   The machine name of the current display variant.
+   * @param string $layout_id
+   *   The machine name of the new layout.
+   * @param \Symfony\Component\HttpFoundation\Request $request
+   *   The current request.
+   *
+   * @return JsonResponse
+   *
+   * @throws AccessDeniedHttpException|NotFoundHttpException
+   */
+  public function createLayout($variant_id, $layout_id, Request $request) {
+    // For now, creating and updating a layout is the same thing.
+    return $this->updateLayout($variant_id, $layout_id, $request);
   }
 
 }

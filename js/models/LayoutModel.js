@@ -22,6 +22,13 @@
       id: null,
 
       /**
+       * Whether or not this was the original layout for the variant.
+       *
+       * @type {bool}
+       */
+      original: false,
+
+      /**
        * The layout label.
        *
        * @type {string}
@@ -52,6 +59,13 @@
     },
 
     /**
+     * Overrides the isNew method to mark if this is the initial layout or not.
+     */
+    isNew: function () {
+      return !this.get('original');
+    },
+
+    /**
      * Overrides the parse method to set our regionCollection dynamically.
      *
      * @param {Object} resp
@@ -68,6 +82,13 @@
         }
       }
       return resp;
+    },
+
+    /**
+     * @type {function}
+     */
+    url: function() {
+      return Drupal.panels_ipe.urlRoot(drupalSettings) + '/layouts/' + this.get('id')
     }
 
   });

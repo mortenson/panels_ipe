@@ -56,6 +56,7 @@
       // Listen to important events throughout the app.
       this.listenTo(this.model, "changeLayout", this.changeLayout);
       this.listenTo(this.model.get('editTab'), "change:active", this.clickEditTab);
+      this.listenTo(this.model.get('saveTab'), "change:active", this.clickSaveTab);
     },
 
     /**
@@ -154,6 +155,16 @@
       }
       else {
         this.closeIPE();
+      }
+    },
+
+    /**
+     * Saves our layout to the server.
+     */
+    clickSaveTab: function(){
+      if (this.model.get('saveTab').get('active')) {
+        this.model.get('layout').save();
+        this.model.get('saveTab').set({'active': false});
       }
     }
 

@@ -50,10 +50,14 @@ class InPlaceEditorDisplayBuilder extends StandardDisplayBuilder {
 
       /** @var \Drupal\Core\Block\BlockPluginInterface[] $blocks */
       foreach ($blocks as $block_uuid => $block) {
+        $block_config = $block->getConfiguration();
         $settings['regions'][$region]['blocks'][$block_uuid] = [
           'uuid' => $block_uuid,
           'label' => $block->label(),
-          'id' => $block->getPluginId()
+          'id' => $block->getPluginId(),
+          'context_mapping' => $block_config['context_mapping'],
+          'label_display' => $block_config['label_display'],
+          'provider' => $block_config['provider']
         ];
       }
     }
@@ -63,7 +67,8 @@ class InPlaceEditorDisplayBuilder extends StandardDisplayBuilder {
       $layout_definition = $layout->getPluginDefinition();
       $settings['layout'] = [
         'id' => $layout->getPluginId(),
-        'label' => $layout_definition['label']
+        'label' => $layout_definition['label'],
+        'original' => true
       ];
     }
 
