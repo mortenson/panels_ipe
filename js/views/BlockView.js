@@ -50,6 +50,8 @@
      */
     initialize: function (options) {
       this.model = options.model;
+      // An element already exists and our HTML properly isn't set.
+      // This only occurs on initial page load for performance reasons.
       if (options.el && !this.model.get('html')) {
         this.model.set({'html': this.$el.prop('outerHTML')});
       }

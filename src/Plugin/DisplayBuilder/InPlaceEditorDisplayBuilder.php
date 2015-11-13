@@ -55,8 +55,6 @@ class InPlaceEditorDisplayBuilder extends StandardDisplayBuilder {
           'uuid' => $block_uuid,
           'label' => $block->label(),
           'id' => $block->getPluginId(),
-          'context_mapping' => $block_config['context_mapping'],
-          'label_display' => $block_config['label_display'],
           'provider' => $block_config['provider']
         ];
       }

@@ -28,7 +28,7 @@
 /* Display tabs inline and slightly on top of .ipe-tabs-content. */
 .ipe-tab {
   display: inline-block;
-  padding: 10px;
+  padding: 10px 5px 10px 5px;
   background-color: white;
   border-top: 1px solid darkgray;
   margin-bottom: -1px;
@@ -64,13 +64,37 @@
 .ipe-tab-content {
   display: none;
   min-height: 100px;
-  padding: 25px;
+  padding: 10px 5px 10px 5px;
   background-color: white;
   border-top: 1px solid darkgray;
 }
 
 .ipe-tab-content.active {
   display: block;
+}
+
+/* Place icons in some tabs */
+[data-tab-id="change_layout"],[data-tab-id="manage_content"],[data-tab-id="edit"],[data-tab-id="save"] {
+  padding-left: 30px;
+  background-size: 24px 24px;
+  background-repeat: no-repeat;
+  background-position: 5px center;
+}
+
+[data-tab-id="change_layout"] {
+  background-image: url('../images/ic_dashboard_black_24px.svg');
+}
+
+[data-tab-id="manage_content"] {
+  background-image: url('../images/ic_content_copy_black_24px.svg');
+}
+
+[data-tab-id="edit"] {
+  background-image: url('../images/ic_edit_black_24px (1).svg');
+}
+
+[data-tab-id="save"] {
+  background-image: url('../images/ic_save_black_24px.svg');
 }
 
 /* Styles for the Layout selector. */
@@ -80,20 +104,26 @@
 }
 
 .ipe-current-layout {
-  margin-right: 50px;
+  vertical-align: top;
+  padding-right: 10px;
 }
 
-/* Remove <ul> list styling. */
+/* Remove <ul> list styling and make list scrollable. */
 .ipe-layouts {
+  vertical-align: top;
   list-style: none;
   margin: 0;
   padding: 0;
+  max-width: 600px;
+  white-space: nowrap;
+  overflow-x: auto;
 }
 
 /* Show layouts as clickable things. */
 .ipe-layout {
   cursor: pointer;
   display: inline-block;
+  margin-right: 5px;
 }
 
 .ipe-layout-title {
@@ -111,9 +141,10 @@
 }
 
 /* Style the block/region headers. */
-.ipe-actions {
+div.ipe-actions {
+  display: block;
   height: 20px;
-  background-color: darkgray;
+  background-color: rgb(222, 222, 222);
   padding: 5px;
   margin-top: 1px;
   clear: both;
@@ -156,5 +187,6 @@
 
 .ipe-action-list [data-action-id="move"] select {
   background: transparent;
+  border: none;
   text-transform: uppercase;
 }
