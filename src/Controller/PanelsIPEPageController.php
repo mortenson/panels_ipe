@@ -19,6 +19,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Zend\Diactoros\Response\JsonResponse;
+use Zend\Feed\PubSubHubbub\HttpResponse;
 
 /**
  * Contains all JSON endpoints required for Panels IPE + Page Manager.
@@ -244,11 +245,11 @@ class PanelsIPEPageController extends ControllerBase {
     /** @var \Drupal\panels\Plugin\DisplayVariant\PanelsDisplayVariant $variant_plugin */
     $variant_plugin = $variant->getVariantPlugin();
 
-    // Get the variant plugin's configuration.
+    // Change the layout.
     $configuration = $variant_plugin->getConfiguration();
-
-    // Set the layout.
     $configuration['layout'] = $layout['id'];
+    $variant_plugin->setConfiguration($configuration);
+    $variant_plugin->getLayout();
 
     // Edit our blocks.
     foreach ($layout['regionCollection'] as $region) {
@@ -266,17 +267,18 @@ class PanelsIPEPageController extends ControllerBase {
 
         // If the block already exists, update it. Otherwise add it.
         if (isset($configuration['blocks'][$block['uuid']])) {
-          $configuration['blocks'][$block['uuid']] = array_merge($configuration['blocks'][$block['uuid']], $block);
+          $variant_plugin->updateBlock($block['uuid'], array_merge($configuration['blocks'][$block['uuid']], $block));
         }
         else {
-          $configuration['blocks'][$block['uuid']] = $block;
+          $variant_plugin->addBlock($block);
         }
       }
     }
 
     // Save the plugin.
-    $variant->set('variant_settings', $configuration);
     $variant->save();
+
+    return new JsonResponse(['success' => true]);
   }
 
   /**
@@ -308,7 +310,10 @@ class PanelsIPEPageController extends ControllerBase {
     // Decode the request.
     $content = $request->getContent();
     if (!empty($content) && $layout = Json::decode($content)) {
-      $this->updateVariant($variant, $layout);
+      return $this->updateVariant($variant, $layout);
+    }
+    else {
+      return new JsonResponse(['success' => false], 400);
     }
   }
 

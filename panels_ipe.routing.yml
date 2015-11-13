@@ -4,6 +4,7 @@ panels_ipe.block:
       _controller: '\Drupal\panels_ipe\Controller\PanelsIPEPageController::getBlock'
   requirements:
     _permission: 'access panels in-place editing'
+    _method: 'GET'
 
 panels_ipe.layouts:
   path: '/admin/panels_ipe/variant/{variant_id}/layouts'
@@ -11,6 +12,7 @@ panels_ipe.layouts:
       _controller: '\Drupal\panels_ipe\Controller\PanelsIPEPageController::getLayouts'
   requirements:
     _permission: 'access panels in-place editing'
+    _method: 'GET'
 
 panels_ipe.layout:
   path: '/admin/panels_ipe/variant/{variant_id}/layouts/{layout_id}'
@@ -18,6 +20,7 @@ panels_ipe.layout:
       _controller: '\Drupal\panels_ipe\Controller\PanelsIPEPageController::getLayout'
   requirements:
     _permission: 'access panels in-place editing'
+    _method: 'GET'
 
 panels_ipe.layout.update:
   path: '/admin/panels_ipe/variant/{variant_id}/layouts/{layout_id}'
