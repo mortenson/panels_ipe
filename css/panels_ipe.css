@@ -66,10 +66,7 @@
 
 .ipe-tab img {
   vertical-align: middle;
-}
-
-.ipe-tab img {
-  vertical-align: middle;
+  width: 24px;
 }
 
 /* Provide default styles and a minimum height for tab content. */
