@@ -54,6 +54,11 @@
      */
     initialize: function (options) {
       this.tabViews = options.tabViews;
+      // Preload our active icon.
+      this.collection.each(function(tab) {
+        var active_icon = drupalSettings.panels_ipe.base_path + '/images/tab_' + tab.get('id') + '_active.svg';
+        $("<img />").attr("src", active_icon);
+      });
     },
 
     /**
