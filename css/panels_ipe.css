@@ -28,6 +28,7 @@
 /* Display tabs inline and slightly on top of .ipe-tabs-content. */
 .ipe-tab {
   display: inline-block;
+  vertical-align: bottom;
   padding: 10px 5px 10px 5px;
   background-color: white;
   border-top: 1px solid darkgray;
@@ -50,7 +51,10 @@
 
 .ipe-tab a {
   color: black;
+  height: 24px;
+  display: block;
   text-transform: uppercase;
+  vertical-align: top;
   border: none;
   cursor: pointer;
 }
@@ -58,6 +62,14 @@
 .ipe-tab a:hover {
   color: darkgray;
   border: none;
+}
+
+.ipe-tab img {
+  vertical-align: middle;
+}
+
+.ipe-tab img {
+  vertical-align: middle;
 }
 
 /* Provide default styles and a minimum height for tab content. */
@@ -73,34 +85,16 @@
   display: block;
 }
 
-/* Place icons in some tabs */
-[data-tab-id="change_layout"],[data-tab-id="manage_content"],[data-tab-id="edit"],[data-tab-id="save"] {
-  padding-left: 30px;
-  background-size: 24px 24px;
-  background-repeat: no-repeat;
-  background-position: 5px center;
-}
-
-[data-tab-id="change_layout"] {
-  background-image: url('../images/ic_dashboard_black_24px.svg');
-}
-
-[data-tab-id="manage_content"] {
-  background-image: url('../images/ic_content_copy_black_24px.svg');
-}
-
-[data-tab-id="edit"] {
-  background-image: url('../images/ic_edit_black_24px (1).svg');
-}
-
-[data-tab-id="save"] {
-  background-image: url('../images/ic_save_black_24px.svg');
+/* Don't show text for these tabs */
+[data-tab-id="save"] a, [data-tab-id="edit"] a {
+  padding: 0;
+  max-width: 24px;
+  overflow-x: hidden;
 }
 
 /* Styles for the Layout selector. */
 .ipe-current-layout, .ipe-all-layouts {
   display: inline-block;
-  height: 50px;
 }
 
 .ipe-current-layout {

@@ -82,6 +82,9 @@ class InPlaceEditorDisplayBuilder extends StandardDisplayBuilder {
       ];
     }
 
+    // Add the module path so that our Javascript can dynamically load images.
+    $settings['base_path'] = drupal_get_path('module', 'panels_ipe');
+
     return ['panels_ipe' => $settings];
   }
 

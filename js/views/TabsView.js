@@ -5,14 +5,18 @@
  * see Drupal.panels_ipe.TabCollection
  */
 
-(function ($, _, Backbone, Drupal) {
+(function ($, _, Backbone, Drupal, drupalSettings) {
 
   Drupal.panels_ipe.TabsView = Backbone.View.extend(/** @lends Drupal.panels_ipe.TabsView# */{
 
     /**
      * @type {function}
      */
-    template_tab: _.template('<li class="ipe-tab<% if (active) { %> active<% } %>" data-tab-id="<%= id %>"><a><%= title %></a></li>'),
+    template_tab: _.template(
+      '<li class="ipe-tab<% if (tab.active) { %> active<% } %>" data-tab-id="<%= tab.id %>">' +
+      '  <a><img src="<%= path %>/images/tab_<%= tab.id %><% if (tab.active) { %>_active<% } %>.svg" /><%= tab.title %></a>' +
+      '</li>'
+    ),
 
     /**
      * @type {function}
@@ -67,7 +71,11 @@
       this.collection.each(function(tab) {
         // Append the tab.
         var id = tab.get('id');
-        this.$('.ipe-tabs').append(this.template_tab(tab.toJSON()));
+        var template_vars = {
+          'tab': tab.toJSON(),
+          'path': drupalSettings.panels_ipe.base_path
+        };
+        this.$('.ipe-tabs').append(this.template_tab(template_vars));
 
         // Render the tab content.
         this.$('.ipe-tabs-content').append(this.template_content(tab.toJSON()));
@@ -108,4 +116,4 @@
 
   });
 
-}(jQuery, _, Backbone, Drupal));
+}(jQuery, _, Backbone, Drupal, drupalSettings));
