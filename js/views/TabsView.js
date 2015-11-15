@@ -14,7 +14,7 @@
      */
     template_tab: _.template(
       '<li class="ipe-tab<% if (tab.active) { %> active<% } %>" data-tab-id="<%= tab.id %>">' +
-      '  <a><img src="<%= path %>/images/tab_<%= tab.id %><% if (tab.active) { %>_active<% } %>.svg" /><%= tab.title %></a>' +
+      '  <a><span class="ipe-icon ipe-icon-<%= tab.id %>"></span><%= tab.title %></a>' +
       '</li>'
     ),
 
@@ -54,11 +54,6 @@
      */
     initialize: function (options) {
       this.tabViews = options.tabViews;
-      // Preload our active icon.
-      this.collection.each(function(tab) {
-        var active_icon = drupalSettings.panels_ipe.base_path + '/images/tab_' + tab.get('id') + '_active.svg';
-        $("<img />").attr("src", active_icon);
-      });
     },
 
     /**
