@@ -39,6 +39,13 @@
       active: false,
 
       /**
+       * Whether or not the tab is loading.
+       *
+       * @type {bool}
+       */
+      loading: false,
+
+      /**
        * The title of the tab.
        *
        * @type {string}

@@ -24,6 +24,13 @@
     /**
      * @type {function}
      */
+    template_loading: _.template(
+      '<span class="ipe-icon ipe-icon-loading"></span>'
+    ),
+
+    /**
+     * @type {function}
+     */
     template: _.template(
       '<div class="ipe-current-layout"></div><div class="ipe-all-layouts"><p>Available Layouts:</p><ul class="ipe-layouts"></ul></div>'
     ),
@@ -46,9 +53,14 @@
     render: function() {
       // If we don't have layouts yet, pull some from the server.
       if (!this.collection) {
+        // Indicate an AJAX request.
+        this.$el.html(this.template_loading());
+
+        // Fetch a list of layouts from the server.
         this.collection = new Drupal.panels_ipe.LayoutCollection;
         var self = this;
         this.collection.fetch().done(function(){
+          // We have a collection now, re-render ourselves.
           self.render();
         });
       }
@@ -82,16 +94,17 @@
       this.collection.each(function(layout) {
         if (id == layout.id) {
           layout.set('current', true);
+          // Indicate an AJAX request.
+          this.$el.html(this.template_loading());
+
+          // Only the AppView is aware of the rendered Layout.
           // @todo Investigate using non-global events.
           Drupal.panels_ipe.app.trigger('changeLayout', [layout]);
         }
         else {
           layout.set('current', false);
         }
-      });
-
-      // Trigger a re-render.
-      this.render();
+      }, this);
     }
 
   });

@@ -53,10 +53,12 @@
         'tabViews': options.tabContentViews
       });
 
-      // Listen to important events throughout the app.
-      this.listenTo(this.model, "changeLayout", this.changeLayout);
-      this.listenTo(this.model.get('editTab'), "change:active", this.clickEditTab);
-      this.listenTo(this.model.get('saveTab'), "change:active", this.clickSaveTab);
+      // Listen to important global events throughout the app.
+      this.listenTo(this.model, 'changeLayout', this.changeLayout);
+
+      // Listen to tabs that don't have associated BackboneViews.
+      this.listenTo(this.model.get('editTab'), 'change:active', this.clickEditTab);
+      this.listenTo(this.model.get('saveTab'), 'change:active', this.clickSaveTab);
     },
 
     /**
@@ -163,8 +165,13 @@
      */
     clickSaveTab: function(){
       if (this.model.get('saveTab').get('active')) {
-        this.model.get('layout').save();
-        this.model.get('saveTab').set({'active': false});
+        // Save the Layout and disable the tab.
+        var self = this;
+        self.model.get('saveTab').set({'loading': true});
+        this.model.get('layout').save().done(function() {
+          self.model.get('saveTab').set({'loading': false, 'active': false});
+          self.tabsView.render();
+        });
       }
     }
 

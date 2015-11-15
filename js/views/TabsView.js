@@ -13,8 +13,8 @@
      * @type {function}
      */
     template_tab: _.template(
-      '<li class="ipe-tab<% if (tab.active) { %> active<% } %>" data-tab-id="<%= tab.id %>">' +
-      '  <a title="<%= tab.title %>"><span class="ipe-icon ipe-icon-<%= tab.id %>"></span><%= tab.title %></a>' +
+      '<li class="ipe-tab<% if (active) { %> active<% } %>" data-tab-id="<%= id %>">' +
+      '  <a title="<%= title %>"><span class="ipe-icon ipe-icon-<% if (loading) { %>loading<% } else { print(id) } %>"></span><%= title %></a>' +
       '</li>'
     ),
 
@@ -71,11 +71,8 @@
       this.collection.each(function(tab) {
         // Append the tab.
         var id = tab.get('id');
-        var template_vars = {
-          'tab': tab.toJSON(),
-          'path': drupalSettings.panels_ipe.base_path
-        };
-        this.$('.ipe-tabs').append(this.template_tab(template_vars));
+
+        this.$('.ipe-tabs').append(this.template_tab(tab.toJSON()));
 
         // Render the tab content.
         this.$('.ipe-tabs-content').append(this.template_content(tab.toJSON()));
@@ -96,6 +93,10 @@
 
       // Disable all existing tabs.
       this.collection.each(function(tab) {
+        // If the tab is loading, do nothing.
+        if (tab.get('loading')) {
+          return;
+        }
         // If the user is clicking the same tab twice, close it.
         if (tab.get('id') == id && tab.get('active') == true) {
           tab.set('active', false);
