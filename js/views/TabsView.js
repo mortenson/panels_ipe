@@ -14,7 +14,7 @@
      */
     template_tab: _.template(
       '<li class="ipe-tab<% if (tab.active) { %> active<% } %>" data-tab-id="<%= tab.id %>">' +
-      '  <a><span class="ipe-icon ipe-icon-<%= tab.id %>"></span><%= tab.title %></a>' +
+      '  <a title="<%= tab.title %>"><span class="ipe-icon ipe-icon-<%= tab.id %>"></span><%= tab.title %></a>' +
       '</li>'
     ),
 
