@@ -192,6 +192,9 @@
 
       // Re-render.
       this.render();
+
+      // Highlight the block.
+      this.$('[data-block-id="' + id + '"]').addClass('ipe-highlight');
     },
 
     /**
@@ -226,6 +229,9 @@
 
       // Re-render ourselves.
       this.render();
+
+      // Highlight the block.
+      this.$('[data-block-id="' + id + '"]').addClass('ipe-highlight');
     }
 
   });

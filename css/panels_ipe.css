@@ -108,6 +108,10 @@
   border: none;
 }
 
+.ipe-tab a::selection {
+  background: none;
+}
+
 /* Provide default styles and a minimum height for tab content. */
 .ipe-tab-content {
   display: none;
@@ -218,4 +222,18 @@ div.ipe-actions {
   background: transparent;
   border: none;
   text-transform: uppercase;
+}
+
+/* This is used for highlighting new content on screen. */
+.ipe-highlight {
+  animation: blink .4s ease-in-out 2;
+}
+
+@keyframes blink {
+  from, to {
+    box-shadow: 0 0 0 1px transparent;
+  }
+  50% {
+    box-shadow: 0 0 0 2px #58a02c;
+  }
 }
