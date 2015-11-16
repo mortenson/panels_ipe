@@ -81,6 +81,7 @@
           this.tabViews[id].setElement('[data-tab-content-id="' + id + '"]').render();
         }
       }, this);
+
       return this;
     },
 
@@ -92,27 +93,53 @@
       var id = $(e.currentTarget).parent().data('tab-id');
 
       // Disable all existing tabs.
+      var animation = null;
+      var already_open = false;
       this.collection.each(function(tab) {
         // If the tab is loading, do nothing.
         if (tab.get('loading')) {
           return;
         }
+
+        // Don't repeat comparisons, if possible.
+        var clicked = tab.get('id') == id;
+        var active = tab.get('active');
+
         // If the user is clicking the same tab twice, close it.
-        if (tab.get('id') == id && tab.get('active') == true) {
+        if (clicked && active) {
           tab.set('active', false);
+          animation = 'slideUp';
         }
         // If this is the first click, open the tab.
-        else if (tab.get('id') == id) {
+        else if (clicked) {
           tab.set('active', true);
+          animation = 'slideDown';
         }
         // The tab wasn't clicked, make sure it's closed.
         else {
+          // Mark that the View was already open.
+          if (active) {
+            already_open = true;
+          }
           tab.set('active', false);
         }
       });
 
-      // Trigger a re-render.
-      this.render();
+      // Trigger a re-render, with animation if needed.
+      if (animation == 'slideUp') {
+        // Close the tab, then re-render.
+        var self = this;
+        this.$('.ipe-tabs-content')[animation]('fast', function() { self.render(); });
+      }
+      else if (animation == 'slideDown' && !already_open) {
+        // We need to render first as hypothetically nothing is open.
+        this.render();
+        this.$('.ipe-tabs-content').hide();
+        this.$('.ipe-tabs-content')[animation]('fast');
+      }
+      else {
+        this.render();
+      }
     }
 
   });
