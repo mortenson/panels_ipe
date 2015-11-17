@@ -63,9 +63,9 @@
 /* Fix the output of the AppView to the bottom of the screen. */
 #panels-ipe-tray {
   position: fixed;
-  left: 50%;
+  width: 100%;
   bottom: 0;
-  transform: translate(-50%);
+  left: 0;
   text-align: center;
 }
 
