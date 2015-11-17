@@ -16,6 +16,20 @@
   font-size: 24px;
 }
 
+.ipe-icon.ipe-icon-up,.ipe-icon.ipe-icon-down {
+  height: 24px;
+  margin-top: -10px;
+  display: block;
+}
+
+.ipe-icon.ipe-icon-up:before {
+  content: "\e900";
+}
+
+.ipe-icon.ipe-icon-down:before {
+  content: "\e901";
+}
+
 .ipe-icon.ipe-icon-warning:before {
   content: "\e902";
 }
@@ -24,12 +38,12 @@
   content: "\e903";
 }
 
-.ipe-icon.ipe-icon-manage_content:before {
-  content: "\e905";
-}
-
 .ipe-icon.ipe-icon-edit:before {
   content: "\e904";
+}
+
+.ipe-icon.ipe-icon-manage_content:before {
+  content: "\e905";
 }
 
 .ipe-icon.ipe-icon-save:before {
@@ -49,9 +63,9 @@
 /* Fix the output of the AppView to the bottom of the screen. */
 #panels-ipe-tray {
   position: fixed;
-  width: 100%;
+  left: 50%;
   bottom: 0;
-  left: 0;
+  transform: translate(-50%);
   text-align: center;
 }
 
@@ -181,6 +195,7 @@ div.ipe-actions {
   padding: 5px;
   margin-top: 1px;
   clear: both;
+  cursor:default;
 }
 
 .ipe-actions ul.ipe-action-list {
@@ -204,18 +219,25 @@ div.ipe-actions {
 
 .ipe-actions a {
   color: black;
+  display: block;
   text-transform: uppercase;
   border: none;
   cursor: pointer;
+  transition: .2s;
 }
 
 .ipe-actions a:hover {
-  color: #393939;
+  color: #bebebe;
   border: none;
+}
+
+.ipe-actions a::selection {
+  background: none;
 }
 
 .ipe-action-list li {
   display: inline-block;
+  vertical-align: middle;
 }
 
 .ipe-action-list [data-action-id="move"] select {
@@ -234,6 +256,6 @@ div.ipe-actions {
     box-shadow: 0 0 0 1px transparent;
   }
   50% {
-    box-shadow: 0 0 0 2px #58a02c;
+    box-shadow: 0 0 0 2px rgba(88, 160, 44, 0.70);
   }
 }

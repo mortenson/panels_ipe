@@ -19,10 +19,10 @@
       '  <h5>Block: <%= label %></h5>' +
       '  <ul class="ipe-action-list">' +
       '    <li data-action-id="up">' +
-      '      <a>▲</a>' +
+      '      <a><span class="ipe-icon ipe-icon-up"></span></a>' +
       '    </li>' +
       '    <li data-action-id="down">' +
-      '      <a>▼</a>' +
+      '      <a><span class="ipe-icon ipe-icon-down"></span></a>' +
       '    </li>' +
       '    <li data-action-id="move">' +
       '      <select><option>Move</option></select>' +
