@@ -15,7 +15,7 @@
      * @type {function}
      */
     template_actions: _.template(
-      '<div class="ipe-actions" data-block-action-id="<%= uuid %>">' +
+      '<div class="ipe-actions-block ipe-actions" data-block-action-id="<%= uuid %>">' +
       '  <h5>Block: <%= label %></h5>' +
       '  <ul class="ipe-action-list">' +
       '    <li data-action-id="up">' +
@@ -66,9 +66,34 @@
       // Replace our current HTML.
       this.$el.replaceWith(this.model.get('html'));
       this.setElement("[data-block-id='" + this.model.get('uuid') + "']");
+
+      // We modify our content if the IPE is active.
       if (this.model.get('active')) {
+        // Prepend the ipe-actions header.
         this.$el.prepend(this.template_actions(this.model.toJSON()));
+
+        // Make ourselves draggable.
+        this.$el.draggable({
+          'handle': '.ipe-actions',
+          'scroll': true,
+          'scrollSpeed': 20,
+          // Maintain our original width when dragging.
+          'helper': function(e) {
+            var original = $(e.target).hasClass("ui-draggable") ? $(e.target) :  $(e.target).closest(".ui-draggable");
+            return original.clone().css({
+              width: original.width()
+            });
+          },
+          'start': function(e, ui) {
+            $('.ipe-droppable').addClass('active');
+          },
+          'stop': function(e, ui) {
+            $('.ipe-droppable').removeClass('active');
+          },
+          'opacity': .5
+        });
       }
+
       return this;
     }
 

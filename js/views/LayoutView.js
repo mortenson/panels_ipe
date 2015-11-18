@@ -29,6 +29,13 @@
     ),
 
     /**
+     * @type {function}
+     */
+    template_region_droppable: _.template(
+      '<div class="ipe-droppable" data-droppable-region-name="<%= region %>" data-droppable-index="<%= index %>"></div>'
+    ),
+
+    /**
      * @type {Drupal.panels_ipe.LayoutModel}
      */
     model: null,
@@ -47,7 +54,17 @@
       'blur [data-action-id="move"] > select': 'hideBlockRegionList',
       'change [data-action-id="move"] > select': 'selectBlockRegionList',
       'click [data-action-id="up"]': 'moveBlock',
-      'click [data-action-id="down"]': 'moveBlock'
+      'click [data-action-id="down"]': 'moveBlock',
+      'drop .ipe-droppable': 'dropBlock'
+    },
+
+    /**
+     * @type {object}
+     */
+    droppable_settings: {
+      'tolerance': 'pointer',
+      'hoverClass': 'hover',
+      'accept': '[data-block-id]'
     },
 
     /**
@@ -79,19 +96,39 @@
       }
       this.blockViews = [];
 
+      // Remove any active-state items that may remain rendered.
+      this.$('.ipe-actions').remove();
+      this.$('.ipe-droppable').remove();
+
       // Re-attach all BlockViews to appropriate regions.
       this.model.get('regionCollection').each(function (region) {
+        var region_selector = '[data-region-name="' + region.get('name') + '"]';
+
+        // Add an initial droppable area to our region if this is the first render.
+        if (this.model.get('active')) {
+          this.$(region_selector).prepend($(this.template_region_droppable({
+            'region': region.get('name'),
+            'index': 0
+          })).droppable(this.droppable_settings));
+
+          // Prepend the action header for this region.
+          this.$(region_selector).prepend(this.template_region_actions(region.toJSON()));
+        }
+
+        var i = 1;
         region.get('blockCollection').each(function (block) {
+          var block_selector = '[data-block-id="' + block.get('uuid') + '"]';
+
           // Attach an empty element for our View to attach itself to.
-          if (this.$('[data-block-id="' + block.get('uuid') + '"]').length == 0) {
+          if (this.$(block_selector).length == 0) {
             var empty_elem = $('<div data-block-id="' + block.get('uuid') + '">');
-            this.$('[data-region-name="' + region.get('name') + '"]').append(empty_elem);
+            this.$(region_selector).append(empty_elem);
           }
 
           // Attach a View to this empty element.
           var block_view = new Drupal.panels_ipe.BlockView({
             'model': block,
-            'el': '[data-block-id="' + block.get('uuid') + '"]'
+            'el': block_selector
           });
           this.blockViews.push(block_view);
 
@@ -103,6 +140,15 @@
             block_view.render();
           }
 
+          // Prepend/append droppable regions if the Block is active.
+          if (this.model.get('active')) {
+            block_view.$el.after($(this.template_region_droppable({
+              'region': region.get('name'),
+              'index': i
+            })).droppable(this.droppable_settings));
+          }
+
+          ++i;
         }, this);
       }, this);
 
@@ -113,22 +159,15 @@
      * Prepends Regions and Blocks with action items.
      */
     changeState: function(model, value, options) {
-      // Toggles the action headers on each RegionView and BlockView.
+      // Sets the active state of child blocks when our state changes.
       this.model.get('regionCollection').each(function (region) {
-        // Prepend or remove the action header for this region.
-        if (value) {
-          var selector = '[data-region-name="' + region.get('name') + '"]';
-          this.$(selector).prepend(this.template_region_actions(region.toJSON()));
-        }
-        else {
-          this.$('.ipe-actions').remove();
-        }
-
         // BlockViews handle their own rendering, so just set the active value here.
         region.get('blockCollection').each(function (block) {
           block.set({'active': value});
         }, this);
       }, this);
+
+      // Re-render ourselves.
       this.render();
     },
 
@@ -229,6 +268,36 @@
 
       // Re-render ourselves.
       this.render();
+
+      // Highlight the block.
+      this.$('[data-block-id="' + id + '"]').addClass('ipe-highlight');
+    },
+
+    /**
+     * Reacts to a block being dropped on a droppable region.
+     */
+    dropBlock: function(e, ui) {
+      // Get the BlockModel id (uuid) and old region name.
+      var id = ui.draggable.data('block-id');
+      var old_region_name = ui.draggable.closest('[data-region-name]').data('region-name');
+
+      // Get the BlockModel and remove it from its last position.
+      var old_region = this.model.get('regionCollection').get(old_region_name);
+      var block = old_region.get('blockCollection').get(id);
+      old_region.get('blockCollection').remove(block, {silent: true});
+
+      // Get the new region name and index from the droppable.
+      var new_region_name = $(e.currentTarget).data('droppable-region-name');
+      var index = $(e.currentTarget).data('droppable-index');
+
+      // Add the BlockModel to its new region/index.
+      var new_region = this.model.get('regionCollection').get(new_region_name);
+      new_region.get('blockCollection').add(block, {'at': index, 'silent': true});
+
+      // Re-render ourselves.
+      // We do this twice as jQuery UI mucks with the DOM as it lets go of a
+      // cloned element. Typically we would only ever need to re-render once.
+      this.render().render();
 
       // Highlight the block.
       this.$('[data-block-id="' + id + '"]').addClass('ipe-highlight');

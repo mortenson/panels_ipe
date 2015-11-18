@@ -195,7 +195,11 @@ div.ipe-actions {
   padding: 5px;
   margin-top: 1px;
   clear: both;
-  cursor:default;
+}
+
+/* Indicate that blocks are draggable */
+.ipe-actions-block {
+  cursor: move;
 }
 
 .ipe-actions ul.ipe-action-list {
@@ -231,7 +235,7 @@ div.ipe-actions {
   border: none;
 }
 
-.ipe-actions a::selection {
+.ipe-actions *::selection {
   background: none;
 }
 
@@ -258,4 +262,24 @@ div.ipe-actions {
   50% {
     box-shadow: 0 0 0 2px rgba(88, 160, 44, 0.70);
   }
+}
+
+/* Drag/drop styles for blocks. */
+.ipe-droppable {
+  display: none;
+  width: 100%;
+  height: 30px;
+  margin: 5px 0 5px;
+  background-color: transparent;
+  border: 1px dashed #3c3c3c;
+  transition: .2s;
+}
+
+.ipe-droppable.active {
+  display: block;
+}
+
+.ipe-droppable.hover {
+  background-color: rgba(88, 160, 44, 0.70);
+  border-color: rgb(67, 125, 33);
 }

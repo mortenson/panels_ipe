@@ -23,6 +23,7 @@ panels_ipe:
     - core/jquery.once
     - core/jquery.ui
     - core/jquery.ui.draggable
+    - core/jquery.ui.droppable
     - core/underscore
     - core/backbone
     - core/drupal
