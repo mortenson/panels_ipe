@@ -6,12 +6,14 @@ panels_ipe:
     # Models.
     js/models/AppModel.js: {}
     js/models/BlockModel.js: {}
+    js/models/BlockPluginModel.js: {}
     js/models/RegionModel.js: {}
     js/models/TabModel.js: {}
     js/models/LayoutModel.js: {}
     # Views.
     js/views/AppView.js: {}
     js/views/BlockView.js: {}
+    js/views/BlockPicker.js: {}
     js/views/LayoutPicker.js: {}
     js/views/LayoutView.js: {}
     js/views/TabsView.js: {}

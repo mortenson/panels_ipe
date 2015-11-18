@@ -239,6 +239,8 @@ class PanelsIPEPageController extends ControllerBase {
    *   The current variant.
    * @param array $layout
    *   The decoded LayoutModel from our App.
+   *
+   * @return JsonResponse
    */
   protected function updateVariant($variant, $layout) {
     // Load the current variant plugin.
@@ -334,6 +336,31 @@ class PanelsIPEPageController extends ControllerBase {
   public function createLayout($variant_id, $layout_id, Request $request) {
     // For now, creating and updating a layout is the same thing.
     return $this->updateLayout($variant_id, $layout_id, $request);
+  }
+
+  /**
+   * Gets a list of Block Plugins from the server.
+   *
+   * @return JsonResponse
+   */
+  public function getBlockPlugins() {
+    // Get block plugin definitions from the server.
+    $definitions = $this->blockManager->getDefinitions();
+
+    // Assemble our relevant data.
+    $data = [];
+    foreach ($definitions as $plugin_id => $definition) {
+      $data[] = [
+        'plugin_id' => $plugin_id,
+        'label' => $definition['label'],
+        'category' => $definition['category'],
+        'id' => $definition['id'],
+        'provider' => $definition['provider']
+      ];
+    }
+
+    // Return a structured JSON response for our Backbone App.
+    return new JsonResponse($data);
   }
 
 }

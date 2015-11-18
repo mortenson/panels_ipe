@@ -6,6 +6,14 @@ panels_ipe.block:
     _permission: 'access panels in-place editing'
     _method: 'GET'
 
+panels_ipe.block.plugins:
+  path: '/admin/panels_ipe/blocks'
+  defaults:
+      _controller: '\Drupal\panels_ipe\Controller\PanelsIPEPageController::getBlockPlugins'
+  requirements:
+    _permission: 'access panels in-place editing'
+    _method: 'GET'
+
 panels_ipe.layouts:
   path: '/admin/panels_ipe/variant/{variant_id}/layouts'
   defaults:
