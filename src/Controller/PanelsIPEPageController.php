@@ -350,6 +350,10 @@ class PanelsIPEPageController extends ControllerBase {
     // Assemble our relevant data.
     $data = [];
     foreach ($definitions as $plugin_id => $definition) {
+      // Don't add broken Blocks.
+      if ($plugin_id == 'broken') {
+        continue;
+      }
       $data[] = [
         'plugin_id' => $plugin_id,
         'label' => $definition['label'],

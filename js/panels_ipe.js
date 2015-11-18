@@ -52,7 +52,8 @@
 
     // Set up our initial tab views.
     var tab_views = {
-      'change_layout': new Drupal.panels_ipe.LayoutPicker()
+      'change_layout': new Drupal.panels_ipe.LayoutPicker(),
+      'manage_content': new Drupal.panels_ipe.BlockPicker()
     };
 
     // Create an AppView instance.

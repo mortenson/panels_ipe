@@ -66,6 +66,13 @@
     model: Drupal.panels_ipe.BlockPluginModel,
 
     /**
+     * Defines a sort parameter for the collection.
+     *
+     * @type {string}
+     */
+    comparator: 'category',
+
+    /**
      * @type {function}
      */
     url: function() {
