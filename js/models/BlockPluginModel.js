@@ -76,7 +76,7 @@
      * @type {function}
      */
     url: function() {
-      return 'admin/panels_ipe/blocks'
+      return 'admin/panels_ipe/block_plugins'
     }
 
   });

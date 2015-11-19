@@ -16,6 +16,7 @@ use Drupal\Core\Render\RendererInterface;
 use Drupal\page_manager\Entity\PageVariant;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Zend\Diactoros\Response\JsonResponse;
@@ -365,6 +366,17 @@ class PanelsIPEPageController extends ControllerBase {
 
     // Return a structured JSON response for our Backbone App.
     return new JsonResponse($data);
+  }
+
+  /**
+   * Renders a configuration form for a given Block Plugin.
+   *
+   * @param string $plugin_id The requested Block Plugin ID.
+   *
+   * @return Response
+   */
+  public function getBlockPluginForm($plugin_id) {
+    return new Response('<form>I\'m a form!</form>');
   }
 
 }

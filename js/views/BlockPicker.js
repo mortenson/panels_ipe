@@ -65,7 +65,8 @@
      * @type {object}
      */
     events: {
-      'click [data-block-category]': 'toggleCategory'
+      'click [data-block-category]': 'toggleCategory',
+      'click [data-plugin-id] a': 'clickBlockAdd'
     },
 
     /**
