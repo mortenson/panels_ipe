@@ -356,7 +356,7 @@ class PanelsIPEPageController extends ControllerBase {
       }
       $data[] = [
         'plugin_id' => $plugin_id,
-        'label' => $definition['label'],
+        'label' => $definition['admin_label'],
         'category' => $definition['category'],
         'id' => $definition['id'],
         'provider' => $definition['provider']

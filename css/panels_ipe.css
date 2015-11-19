@@ -161,7 +161,6 @@
   list-style: none;
   margin: 0;
   padding: 0;
-  max-width: 600px;
   white-space: nowrap;
   overflow-x: auto;
 }
@@ -287,13 +286,28 @@ div.ipe-actions {
 /* Style the BlockPicker. */
 .ipe-block-picker-bottom {
   overflow-x: scroll;
+  white-space: nowrap;
+  margin: auto;
   padding: 20px;
+  min-height: 70px;
+}
+
+.ipe-block-picker-top {
+  display: none;
+}
+
+.ipe-block-picker-top.active {
+  display: block;
+  padding: 20px;
+  max-height: 100%;
+  border-bottom: 1px solid darkgray;
 }
 
 .ipe-block-category {
   color: black;
   display: inline-block;
   padding: 10px;
+  margin-right: 10px;
   text-transform: uppercase;
   font-size: 15px;
   font-weight: bold;
@@ -303,7 +317,7 @@ div.ipe-actions {
   cursor: pointer;
 }
 
-.ipe-block-category:hover {
+.ipe-block-category:hover,.ipe-block-category.active {
   border-color: rgb(67, 125, 33);
   color: inherit;
 }
@@ -312,10 +326,51 @@ div.ipe-actions {
   color: white;
   background: black;
   border-radius: 50%;
+  margin-left: 5px;
   font-size: 10px;
   height: 20px;
   width: 20px;
   line-height: 20px;
   display: inline-block;
   vertical-align: middle;
+}
+
+.ipe-block-plugin {
+  text-transform: uppercase;
+  display: inline-block;
+  margin: 5px 20px 0 0;
+  text-align: left;
+  position: relative;
+}
+
+.ipe-block-plugin-info {
+  display: inline-block;
+}
+
+.ipe-block-plugin h5 {
+  font-size: 14px;
+  font-weight: bold;
+  margin: 0;
+}
+
+.ipe-block-plugin p {
+  font-size: 12px;
+}
+
+/* The "Add" button for Block Plugins. */
+.ipe-block-plugin a {
+  display: inline-block;
+  vertical-align: top;
+  font-size: 12px;
+  padding: 0 5px 0 5px;
+  border: 1px solid darkgray;
+  border-radius: 5px;
+  transition: .2s;
+  color: inherit;
+  cursor: pointer;
+}
+
+.ipe-block-plugin a:hover {
+  border-color: rgb(67, 125, 33);
+  color: inherit;
 }

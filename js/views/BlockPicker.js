@@ -18,17 +18,24 @@
     collection: null,
 
     /**
+     * The name of the currently selected category.
+     *
+     * @type {string}
+     */
+    activeCategory: null,
+
+    /**
      * @type {function}
      */
     template: _.template(
-      '<div class="ipe-block-picker-top"></div><div class="ipe-block-picker-bottom"></div>'
+      '<div class="ipe-block-picker-top"></div><div class="ipe-block-picker-bottom"><div class="ipe-block-categories"></div></div>'
     ),
 
     /**
      * @type {function}
      */
     template_category: _.template(
-      '<a class="ipe-block-category" data-block-category="<%= name %>">' +
+      '<a class="ipe-block-category<% if (active) { %> active<% } %>" data-block-category="<%= name %>">' +
       '  <%= name %>' +
       '  <div class="ipe-block-category-count"><%= count %></div>' +
       '</a>'
@@ -39,7 +46,10 @@
      */
     template_plugin: _.template(
       '<div class="ipe-block-plugin" data-plugin-id="<%= plugin_id %>">' +
-      '  <h5><%= label %> (<%= id %>)</h5>' +
+      '  <div class="ipe-block-plugin-info">' +
+      '    <h5><%= label %></h5>' +
+      '    <p>Provider: <strong><%= provider %></strong></p>' +
+      '  </div>' +
       '  <a>Add</a>' +
       '</div>'
     ),
@@ -50,6 +60,13 @@
     template_loading: _.template(
       '<span class="ipe-icon ipe-icon-loading"></span>'
     ),
+
+    /**
+     * @type {object}
+     */
+    events: {
+      'click [data-block-category]': 'toggleCategory'
+    },
 
     /**
      * Renders the selection menu for picking Blocks.
@@ -71,7 +88,6 @@
       }
 
       // Empty ourselves.
-      this.$el.empty();
       this.$el.html(this.template());
 
       // Get a list of categories from the collection.
@@ -86,7 +102,61 @@
 
       // Render each category.
       for (var i in categories_count) {
-        this.$('.ipe-block-picker-bottom').append(this.template_category({'name': i, 'count': categories_count[i]}));
+        this.$('.ipe-block-categories').append(this.template_category({
+          'name': i,
+          'count': categories_count[i],
+          'active': this.activeCategory == i
+        }));
+      }
+
+      // Check if a category is selected. If so, render the top-tray.
+      if (this.activeCategory) {
+        this.$('.ipe-block-picker-top').addClass('active');
+        this.collection.each(function(block_plugin) {
+          if (block_plugin.get('category') == this.activeCategory) {
+            this.$('.ipe-block-picker-top').append(this.template_plugin(block_plugin.toJSON()));
+          }
+        }, this);
+      }
+    },
+
+    /**
+     * Reacts to a category being clicked.
+     */
+    toggleCategory: function(e) {
+      var category = $(e.currentTarget).data('block-category');
+
+      var animation = false;
+
+      // No category is open.
+      if (!this.activeCategory) {
+        this.activeCategory = category;
+        animation = 'slideDown';
+      }
+      // The same category is clicked twice.
+      else if (this.activeCategory == category) {
+        this.activeCategory = null;
+        animation = 'slideUp';
+      }
+      // Another category is already open.
+      else if (this.activeCategory) {
+        this.activeCategory = category;
+      }
+
+      // Trigger a re-render, with animation if needed.
+      if (animation == 'slideUp') {
+        // Close the tab, then re-render.
+        var self = this;
+        this.$('.ipe-block-picker-top')[animation]('fast', function() { self.render(); });
+      }
+      else if (animation == 'slideDown') {
+        // We need to render first as hypothetically nothing is open.
+        this.render();
+        this.$('.ipe-block-picker-top').hide();
+        this.$('.ipe-block-picker-top')[animation]('fast');
+      }
+      else {
+        this.render();
       }
     }
 
