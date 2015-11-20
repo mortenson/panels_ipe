@@ -10,7 +10,9 @@ namespace Drupal\panels_ipe\Controller;
 use Drupal\Component\Serialization\Json;
 use Drupal\Core\Block\BlockManagerInterface;
 use Drupal\Core\Controller\ControllerBase;
+use Drupal\Core\Form\FormState;
 use Drupal\Core\Render\Element;
+use Drupal\Core\Render\HtmlResponse;
 use Drupal\layout_plugin\Layout;
 use Drupal\Core\Render\RendererInterface;
 use Drupal\page_manager\Entity\PageVariant;
@@ -20,7 +22,6 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Zend\Diactoros\Response\JsonResponse;
-use Zend\Feed\PubSubHubbub\HttpResponse;
 
 /**
  * Contains all JSON endpoints required for Panels IPE + Page Manager.
@@ -369,14 +370,46 @@ class PanelsIPEPageController extends ControllerBase {
   }
 
   /**
-   * Renders a configuration form for a given Block Plugin.
+   * Returns a full Block Plugin, including its rendered configuration form.
    *
    * @param string $plugin_id The requested Block Plugin ID.
    *
    * @return Response
    */
-  public function getBlockPluginForm($plugin_id) {
-    return new Response('<form>I\'m a form!</form>');
+  public function getBlockPlugin($plugin_id) {
+    // Create an instance of this Block plugin.
+    /** @var \Drupal\Core\Block\BlockBase $definition */
+    $definition = $this->blockManager->createInstance($plugin_id);
+
+    // Get the configuration in the block plugin definition.
+    $definitions = $this->blockManager->getDefinitions();
+    $configuration = $definitions[$plugin_id];
+
+    // Build a Block configuration form.
+    $form = $definition->buildConfigurationForm(array(), new FormState());
+
+    $data = [
+      'plugin_id' => $plugin_id,
+      'id' => $configuration['id'],
+      'label' => $configuration['admin_label'],
+      'category' => $configuration['category'],
+      'provider' => $configuration['provider'],
+      'form' => $this->renderer->render($form)
+    ];
+
+    // Return the rendered form.
+    return new JsonResponse($data);
+  }
+
+  /**
+   * Submits a configuration form for a given Block Plugin.
+   *
+   * @param string $plugin_id The requested Block Plugin ID.
+   *
+   * @return Response
+   */
+  public function submitBlockPluginForm($plugin_id) {
+
   }
 
 }

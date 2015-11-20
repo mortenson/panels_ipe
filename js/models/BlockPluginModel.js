@@ -47,7 +47,14 @@
        *
        * @type {string}
        */
-      provider: null
+      provider: null,
+
+      /**
+       * The HTML of the block configuration form.
+       *
+       * @type {string}
+       */
+      form: null
 
     }
 
@@ -71,6 +78,15 @@
      * @type {string}
      */
     comparator: 'category',
+
+    /**
+     * For Block Plugins, our identifier is the plugin id.
+     *
+     * @type {function}
+     */
+    modelId: function(attrs) {
+      return attrs.plugin_id;
+    },
 
     /**
      * @type {function}

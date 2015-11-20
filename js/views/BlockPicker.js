@@ -66,7 +66,7 @@
      */
     events: {
       'click [data-block-category]': 'toggleCategory',
-      'click [data-plugin-id] a': 'clickBlockAdd'
+      'click [data-plugin-id] a': 'displayBlockForm'
     },
 
     /**
@@ -159,6 +159,20 @@
       else {
         this.render();
       }
+    },
+
+    /**
+     * Displays a Block Configuration form when adding a Block Plugin.
+     */
+    displayBlockForm: function(e) {
+      // Get the current plugin_id.
+      var plugin_id = $(e.currentTarget).data('plugin-id');
+
+      // Get the target plugin.
+      var plugin = this.collection.get(plugin_id);
+
+      // Fetch the full content of the plugin, which pulls in the configuration form.
+      plugin.fetch();
     }
 
   });
