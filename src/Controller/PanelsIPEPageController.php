@@ -8,11 +8,13 @@
 namespace Drupal\panels_ipe\Controller;
 
 use Drupal\Component\Serialization\Json;
+use Drupal\Core\Ajax\AjaxResponse;
+use Drupal\Core\Ajax\AppendCommand;
+use Drupal\Core\Ajax\InsertCommand;
 use Drupal\Core\Block\BlockManagerInterface;
 use Drupal\Core\Controller\ControllerBase;
 use Drupal\Core\Form\FormState;
 use Drupal\Core\Render\Element;
-use Drupal\Core\Render\HtmlResponse;
 use Drupal\layout_plugin\Layout;
 use Drupal\Core\Render\RendererInterface;
 use Drupal\page_manager\Entity\PageVariant;
@@ -370,7 +372,7 @@ class PanelsIPEPageController extends ControllerBase {
   }
 
   /**
-   * Returns a full Block Plugin, including its rendered configuration form.
+   * Drupal AJAX compatible route for rending a given Block Plugin's form.
    *
    * @param string $plugin_id The requested Block Plugin ID.
    *
@@ -378,7 +380,7 @@ class PanelsIPEPageController extends ControllerBase {
    *
    * @throws NotFoundHttpException
    */
-  public function getBlockPlugin($plugin_id) {
+  public function getBlockPluginForm($plugin_id) {
     // Get the configuration in the block plugin definition.
     $definitions = $this->blockManager->getDefinitions();
 
@@ -386,7 +388,6 @@ class PanelsIPEPageController extends ControllerBase {
     if (!isset($definitions[$plugin_id])) {
       throw new NotFoundHttpException();
     }
-    $configuration = $definitions[$plugin_id];
 
     // Create an instance of this Block plugin.
     /** @var \Drupal\Core\Block\BlockBase $definition */
@@ -398,17 +399,15 @@ class PanelsIPEPageController extends ControllerBase {
     // Hide the admin label, we display this in our Backbone view.
     unset($form['admin_label']);
 
-    $data = [
-      'plugin_id' => $plugin_id,
-      'id' => $configuration['id'],
-      'label' => $configuration['admin_label'],
-      'category' => $configuration['category'],
-      'provider' => $configuration['provider'],
-      'form' => $this->renderer->render($form)
-    ];
+    //
 
-    // Return the rendered form.
-    return new JsonResponse($data);
+    // Return the rendered form as a proper Drupal AJAX response.
+    // This is needed as forms often have custom JS and CSS that need added,
+    // and it isn't worth replicating things that work in Drupal with Backbone.
+    $response = new AjaxResponse();
+    $command = new AppendCommand('.ipe-block-plugin-form', $form);
+    $response->addCommand($command);
+    return $response;
   }
 
   /**

@@ -58,8 +58,8 @@
      * @type {function}
      */
     template_plugin_form: _.template(
-      '<h4>Create new <strong><%= label %></strong> block</h4>' +
-      '<div class="ipe-block-plugin-form"><%= form %></div>'
+      '<h4>Add <strong><%= label %></strong> block</h4>' +
+      '<div class="ipe-block-plugin-form"></div>'
     ),
 
     /**
@@ -175,19 +175,14 @@
     displayBlockForm: function(e) {
       // Get the current plugin_id.
       var plugin_id = $(e.currentTarget).data('plugin-id');
-
-      // Get the target plugin.
       var plugin = this.collection.get(plugin_id);
 
       // Indicate an AJAX request.
-      this.$('.ipe-block-picker-top').html(this.template_loading());
+      this.$('.ipe-block-picker-top').html(this.template_plugin_form(plugin.toJSON()));
 
-      // Fetch the full content of the plugin, which pulls in the configuration form.
-      var self = this;
-      plugin.fetch().done(function() {
-        // Replace whatever is in the top section with our form.
-        self.$('.ipe-block-picker-top').html(self.template_plugin_form(plugin.toJSON()));
-      });
+      // Make the Drupal AJAX request.
+      var ajax = Drupal.ajax({'url': '/admin/panels_ipe/block_plugins/' + plugin_id + '/form'});
+      ajax.execute();
     }
 
   });

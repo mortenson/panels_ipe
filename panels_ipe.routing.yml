@@ -14,13 +14,12 @@ panels_ipe.block_plugins:
     _permission: 'access panels in-place editing'
     _method: 'GET'
 
-panels_ipe.block_plugin:
-  path: '/admin/panels_ipe/block_plugins/{plugin_id}'
+panels_ipe.block_plugin.form:
+  path: '/admin/panels_ipe/block_plugins/{plugin_id}/form'
   defaults:
-      _controller: '\Drupal\panels_ipe\Controller\PanelsIPEPageController::getBlockPlugin'
+      _controller: '\Drupal\panels_ipe\Controller\PanelsIPEPageController::getBlockPluginForm'
   requirements:
     _permission: 'access panels in-place editing'
-    _method: 'GET'
 
 panels_ipe.layouts:
   path: '/admin/panels_ipe/variant/{variant_id}/layouts'

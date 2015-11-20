@@ -47,14 +47,7 @@
        *
        * @type {string}
        */
-      provider: null,
-
-      /**
-       * The HTML of the block configuration form.
-       *
-       * @type {string}
-       */
-      form: null
+      provider: null
 
     },
 

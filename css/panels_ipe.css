@@ -378,10 +378,18 @@ div.ipe-actions {
 /* Theme the block plugin form */
 
 .ipe-block-picker-top h4 {
-  font-size: 16px;
-  border-bottom: 1px solid darkgray;
   display: inline-block;
+  font-size: 16px;
+  text-transform: uppercase;
+  border-bottom: 1px solid darkgray;
+  padding: 5px;
   margin: 0 0 10px 0;
+}
+
+.ipe-block-plugin-form {
+  text-align: left;
+  margin: 0 auto;
+  max-width: 600px;
 }
 
 .ipe-block-plugin-form .form-item {
@@ -392,4 +400,14 @@ div.ipe-actions {
   display: inline-block;
   text-transform: uppercase;
   margin-right: 5px;
+}
+
+.ipe-block-plugin-form summary {
+  text-transform: uppercase;
+  background: transparent;
+}
+
+.ipe-block-plugin-form .ipe-icon-loading {
+  text-align: center;
+  width: 100%;
 }
