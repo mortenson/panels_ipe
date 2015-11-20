@@ -87,7 +87,7 @@
      * @type {function}
      */
     url: function() {
-      return 'admin/panels_ipe/block_plugins'
+      return Drupal.panels_ipe.urlRoot(drupalSettings) + '/block_plugins'
     }
 
   });

@@ -181,7 +181,7 @@
       this.$('.ipe-block-picker-top').html(this.template_plugin_form(plugin.toJSON()));
 
       // Make the Drupal AJAX request.
-      var ajax = Drupal.ajax({'url': '/admin/panels_ipe/block_plugins/' + plugin_id + '/form'});
+      var ajax = Drupal.ajax({'url': Drupal.panels_ipe.urlRoot(drupalSettings) + '/block_plugins/' + plugin_id + '/form'});
       ajax.execute();
     }
 

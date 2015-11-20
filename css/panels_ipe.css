@@ -411,3 +411,18 @@ div.ipe-actions {
   text-align: center;
   width: 100%;
 }
+
+.ipe-block-plugin-form input[type="submit"] {
+  text-transform: uppercase;
+  margin: 0;
+  background: white;
+  border-radius: 5px;
+  display: inline-block;
+  transition: .2s;
+}
+
+.ipe-block-plugin-form input[type="submit"]:hover {
+  border-color: rgb(67, 125, 33);
+  color: inherit;
+  background: inherit;
+}

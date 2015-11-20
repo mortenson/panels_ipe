@@ -14,7 +14,6 @@ use Drupal\Core\Block\BlockManagerInterface;
 use Drupal\Core\Controller\ControllerBase;
 use Drupal\Core\Form\FormState;
 use Drupal\Core\Render\Element;
-use Drupal\layout_plugin\Layout;
 use Drupal\Core\Render\RendererInterface;
 use Drupal\layout_plugin\Plugin\Layout\LayoutPluginManagerInterface;
 use Drupal\page_manager\Entity\PageVariant;
@@ -229,7 +228,7 @@ class PanelsIPEPageController extends ControllerBase {
     $current_layout = $variant_plugin->getConfiguration()['layout'];
 
     // Get a list of all available layouts.
-    $layouts = Layout::getLayoutOptions();
+    $layouts = $this->layoutPluginManager->getLayoutOptions();
 
     $data = [
       'id' => $layout_id,
@@ -352,11 +351,20 @@ class PanelsIPEPageController extends ControllerBase {
   /**
    * Gets a list of Block Plugins from the server.
    *
+   * @param string
+   *   The PageVariant ID.
+   *
    * @return JsonResponse
    */
-  public function getBlockPlugins() {
+  public function getBlockPlugins($variant_id) {
+    // Check if the variant exists.
+    /** @var \Drupal\page_manager\PageVariantInterface $variant */
+    if (!$variant = PageVariant::load($variant_id)) {
+      throw new NotFoundHttpException();
+    }
+
     // Get block plugin definitions from the server.
-    $definitions = $this->blockManager->getDefinitions();
+    $definitions = $this->blockManager->getDefinitionsForContexts($variant->getContexts());
 
     // Assemble our relevant data.
     $data = [];
@@ -381,15 +389,24 @@ class PanelsIPEPageController extends ControllerBase {
   /**
    * Drupal AJAX compatible route for rending a given Block Plugin's form.
    *
-   * @param string $plugin_id The requested Block Plugin ID.
+   * @param string $variant_id
+   *   The PageVariant ID.
+   * @param string $plugin_id
+   *   The requested Block Plugin ID.
    *
    * @return Response
    *
    * @throws NotFoundHttpException
    */
-  public function getBlockPluginForm($plugin_id) {
+  public function getBlockPluginForm($variant_id, $plugin_id) {
+    // Check if the variant exists.
+    /** @var \Drupal\page_manager\PageVariantInterface $variant */
+    if (!$variant = PageVariant::load($variant_id)) {
+      throw new NotFoundHttpException();
+    }
+
     // Get the configuration in the block plugin definition.
-    $definitions = $this->blockManager->getDefinitions();
+    $definitions = $this->blockManager->getDefinitionsForContexts($variant->getContexts());
 
     // Check if the block plugin is defined.
     if (!isset($definitions[$plugin_id])) {
@@ -403,10 +420,14 @@ class PanelsIPEPageController extends ControllerBase {
     // Build a Block configuration form.
     $form = $definition->buildConfigurationForm(array(), new FormState());
 
-    // Hide the admin label, we display this in our Backbone view.
-    unset($form['admin_label']);
+    // Append a select list for the region, which we'll use in the IPE.
+    $layouts = $this->layoutPluginManager->getLayoutOptions();
 
-    //
+    // Add a dummy submit button.
+    $form['dummy_submit'] = [
+      '#type' => 'button',
+      '#value' => 'Add'
+    ];
 
     // Return the rendered form as a proper Drupal AJAX response.
     // This is needed as forms often have custom JS and CSS that need added,
