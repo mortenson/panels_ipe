@@ -375,18 +375,28 @@ class PanelsIPEPageController extends ControllerBase {
    * @param string $plugin_id The requested Block Plugin ID.
    *
    * @return Response
+   *
+   * @throws NotFoundHttpException
    */
   public function getBlockPlugin($plugin_id) {
+    // Get the configuration in the block plugin definition.
+    $definitions = $this->blockManager->getDefinitions();
+
+    // Check if the block plugin is defined.
+    if (!isset($definitions[$plugin_id])) {
+      throw new NotFoundHttpException();
+    }
+    $configuration = $definitions[$plugin_id];
+
     // Create an instance of this Block plugin.
     /** @var \Drupal\Core\Block\BlockBase $definition */
     $definition = $this->blockManager->createInstance($plugin_id);
 
-    // Get the configuration in the block plugin definition.
-    $definitions = $this->blockManager->getDefinitions();
-    $configuration = $definitions[$plugin_id];
-
     // Build a Block configuration form.
     $form = $definition->buildConfigurationForm(array(), new FormState());
+
+    // Hide the admin label, we display this in our Backbone view.
+    unset($form['admin_label']);
 
     $data = [
       'plugin_id' => $plugin_id,

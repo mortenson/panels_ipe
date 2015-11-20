@@ -56,7 +56,9 @@
        */
       form: null
 
-    }
+    },
+
+    idAttribute: 'plugin_id'
 
   });
 

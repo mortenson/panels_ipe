@@ -45,13 +45,21 @@
      * @type {function}
      */
     template_plugin: _.template(
-      '<div class="ipe-block-plugin" data-plugin-id="<%= plugin_id %>">' +
+      '<div class="ipe-block-plugin">' +
       '  <div class="ipe-block-plugin-info">' +
       '    <h5><%= label %></h5>' +
       '    <p>Provider: <strong><%= provider %></strong></p>' +
       '  </div>' +
-      '  <a>Add</a>' +
+      '  <a data-plugin-id="<%= plugin_id %>">Add</a>' +
       '</div>'
+    ),
+
+    /**
+     * @type {function}
+     */
+    template_plugin_form: _.template(
+      '<h4>Create new <strong><%= label %></strong> block</h4>' +
+      '<div class="ipe-block-plugin-form"><%= form %></div>'
     ),
 
     /**
@@ -66,7 +74,7 @@
      */
     events: {
       'click [data-block-category]': 'toggleCategory',
-      'click [data-plugin-id] a': 'displayBlockForm'
+      'click [data-plugin-id]': 'displayBlockForm'
     },
 
     /**
@@ -171,8 +179,15 @@
       // Get the target plugin.
       var plugin = this.collection.get(plugin_id);
 
+      // Indicate an AJAX request.
+      this.$('.ipe-block-picker-top').html(this.template_loading());
+
       // Fetch the full content of the plugin, which pulls in the configuration form.
-      plugin.fetch();
+      var self = this;
+      plugin.fetch().done(function() {
+        // Replace whatever is in the top section with our form.
+        self.$('.ipe-block-picker-top').html(self.template_plugin_form(plugin.toJSON()));
+      });
     }
 
   });

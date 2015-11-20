@@ -374,3 +374,22 @@ div.ipe-actions {
   border-color: rgb(67, 125, 33);
   color: inherit;
 }
+
+/* Theme the block plugin form */
+
+.ipe-block-picker-top h4 {
+  font-size: 16px;
+  border-bottom: 1px solid darkgray;
+  display: inline-block;
+  margin: 0 0 10px 0;
+}
+
+.ipe-block-plugin-form .form-item {
+  margin: 0 0 10px 0;
+}
+
+.ipe-block-plugin-form label {
+  display: inline-block;
+  text-transform: uppercase;
+  margin-right: 5px;
+}
