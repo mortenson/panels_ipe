@@ -10,13 +10,13 @@ namespace Drupal\panels_ipe\Controller;
 use Drupal\Component\Serialization\Json;
 use Drupal\Core\Ajax\AjaxResponse;
 use Drupal\Core\Ajax\AppendCommand;
-use Drupal\Core\Ajax\InsertCommand;
 use Drupal\Core\Block\BlockManagerInterface;
 use Drupal\Core\Controller\ControllerBase;
 use Drupal\Core\Form\FormState;
 use Drupal\Core\Render\Element;
 use Drupal\layout_plugin\Layout;
 use Drupal\Core\Render\RendererInterface;
+use Drupal\layout_plugin\Plugin\Layout\LayoutPluginManagerInterface;
 use Drupal\page_manager\Entity\PageVariant;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\Request;
@@ -41,6 +41,11 @@ class PanelsIPEPageController extends ControllerBase {
   protected $renderer;
 
   /**
+   * @var \Drupal\layout_plugin\Plugin\Layout\LayoutPluginManagerInterface
+   */
+  protected $layoutPluginManager;
+
+  /**
    * Constructs a new PanelsIPEController.
    *
    * @param \Drupal\Core\Block\BlockManagerInterface $block_manager
@@ -48,9 +53,10 @@ class PanelsIPEPageController extends ControllerBase {
    * @param \Drupal\Core\Render\RendererInterface $renderer
    *   The renderer.
    */
-  public function __construct(BlockManagerInterface $block_manager, RendererInterface $renderer) {
+  public function __construct(BlockManagerInterface $block_manager, RendererInterface $renderer, LayoutPluginManagerInterface $layout_plugin_manager) {
     $this->blockManager = $block_manager;
     $this->renderer = $renderer;
+    $this->layoutPluginManager = $layout_plugin_manager;
   }
 
   /**
@@ -59,7 +65,8 @@ class PanelsIPEPageController extends ControllerBase {
   public static function create(ContainerInterface $container) {
     return new static(
       $container->get('plugin.manager.block'),
-      $container->get('renderer')
+      $container->get('renderer'),
+      $container->get('plugin.manager.layout_plugin')
     );
   }
 
@@ -151,7 +158,7 @@ class PanelsIPEPageController extends ControllerBase {
     $layout = $variant_plugin->getConfiguration()['layout'];
 
     // Get a list of all available layouts.
-    $layouts = Layout::getLayoutOptions();
+    $layouts = $this->layoutPluginManager->getLayoutOptions();
     $data = [];
     foreach ($layouts as $id => $label) {
       $data[] = [
