@@ -202,6 +202,10 @@ class PanelsIPEPageController extends ControllerBase {
     $configuration = $variant_plugin->getConfiguration();
     $configuration['layout'] = $layout_id;
     $variant_plugin->setConfiguration($configuration);
+
+    // Inherit our PageVariant's contexts before rendering.
+    $variant_plugin->setContexts($variant->getContexts());
+
     $build = $variant_plugin->build();
 
     // Remove all blocks from the build.
@@ -351,7 +355,7 @@ class PanelsIPEPageController extends ControllerBase {
   /**
    * Gets a list of Block Plugins from the server.
    *
-   * @param string
+   * @param string $variant_id
    *   The PageVariant ID.
    *
    * @return JsonResponse
