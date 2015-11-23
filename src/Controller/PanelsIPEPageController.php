@@ -417,21 +417,8 @@ class PanelsIPEPageController extends ControllerBase {
       throw new NotFoundHttpException();
     }
 
-    // Create an instance of this Block plugin.
-    /** @var \Drupal\Core\Block\BlockBase $definition */
-    $definition = $this->blockManager->createInstance($plugin_id);
-
-    // Build a Block configuration form.
-    $form = $definition->buildConfigurationForm(array(), new FormState());
-
-    // Append a select list for the region, which we'll use in the IPE.
-    $layouts = $this->layoutPluginManager->getLayoutOptions();
-
-    // Add a dummy submit button.
-    $form['dummy_submit'] = [
-      '#type' => 'button',
-      '#value' => 'Add'
-    ];
+    // Build a Block Plugin configuration form.
+    $form = \Drupal::formBuilder()->getForm('Drupal\panels_ipe\Form\PanelsIPEBlockPluginForm', $plugin_id);
 
     // Return the rendered form as a proper Drupal AJAX response.
     // This is needed as forms often have custom JS and CSS that need added,
@@ -443,13 +430,17 @@ class PanelsIPEPageController extends ControllerBase {
   }
 
   /**
-   * Submits a configuration form for a given Block Plugin.
+   * Submit a configuration form for a given Block Plugin. This does not create
+   * the Block instance, but instead just returns a valid BlockModel.
    *
-   * @param string $plugin_id The requested Block Plugin ID.
+   * @param string $plugin_id
+   *   The requested Block Plugin ID.
+   * @param \Symfony\Component\HttpFoundation\Request $request
+   *   The current request.
    *
    * @return Response
    */
-  public function submitBlockPluginForm($plugin_id) {
+  public function submitBlockPluginForm($plugin_id, Request $request) {
 
   }
 

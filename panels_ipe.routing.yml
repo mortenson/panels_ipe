@@ -21,6 +21,14 @@ panels_ipe.block_plugin.form:
   requirements:
     _permission: 'access panels in-place editing'
 
+panels_ipe.block_plugin.form_submit:
+  path: '/admin/panels_ipe/variant/{variant_id}/block_plugins/{plugin_id}/form'
+  defaults:
+      _controller: '\Drupal\panels_ipe\Controller\PanelsIPEPageController::submitBlockPluginForm'
+  requirements:
+    _permission: 'access panels in-place editing'
+    _method: 'POST'
+
 panels_ipe.layouts:
   path: '/admin/panels_ipe/variant/{variant_id}/layouts'
   defaults:

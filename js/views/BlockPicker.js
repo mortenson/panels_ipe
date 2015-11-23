@@ -59,7 +59,7 @@
      */
     template_plugin_form: _.template(
       '<h4>Add <strong><%= label %></strong> block</h4>' +
-      '<div class="ipe-block-plugin-form"></div>'
+      '<div class="ipe-block-plugin-form" data-plugin-id="<%= plugin_id %>"></div>'
     ),
 
     /**
@@ -74,7 +74,9 @@
      */
     events: {
       'click [data-block-category]': 'toggleCategory',
-      'click [data-plugin-id]': 'displayBlockForm'
+      'click .ipe-block-plugin [data-plugin-id]': 'displayBlockPluginForm',
+      'click .ipe-block-plugin-form input[value="Add"]': 'addBlockPluginForm',
+      'click .ipe-block-plugin-form input[value="Cancel"]': 'cancelBlockPluginForm'
     },
 
     /**
@@ -172,7 +174,7 @@
     /**
      * Displays a Block Configuration form when adding a Block Plugin.
      */
-    displayBlockForm: function(e) {
+    displayBlockPluginForm: function(e) {
       // Get the current plugin_id.
       var plugin_id = $(e.currentTarget).data('plugin-id');
       var plugin = this.collection.get(plugin_id);
@@ -183,6 +185,19 @@
       // Make the Drupal AJAX request.
       var ajax = Drupal.ajax({'url': Drupal.panels_ipe.urlRoot(drupalSettings) + '/block_plugins/' + plugin_id + '/form'});
       ajax.execute();
+
+    },
+
+    /**
+     * Adds a Block Plugin to the page.
+     */
+    addBlockPluginForm: function(e) {
+      // Get the current plugin_id.
+      var plugin_id = $(e.currentTarget).closest('[data-plugin-id]').data('plugin-id');
+      var plugin = this.collection.get(plugin_id);
+
+      // Submit the form.
+
     }
 
   });

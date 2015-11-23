@@ -84,6 +84,7 @@
 
 /* Display tabs inline and slightly on top of .ipe-tabs-content. */
 .ipe-tab {
+  overflow: hidden;
   display: inline-block;
   vertical-align: bottom;
   padding: 10px 5px 10px 5px;
@@ -141,7 +142,7 @@
 
 /* Don't show text for these tabs */
 [data-tab-id="save"], [data-tab-id="edit"] {
-  overflow-x: hidden;
+  overflow: hidden;
   width: 24px;
 }
 
@@ -378,7 +379,6 @@ div.ipe-actions {
 /* Theme the block plugin form */
 
 .ipe-block-picker-top h4 {
-  display: inline-block;
   font-size: 16px;
   text-transform: uppercase;
   border-bottom: 1px solid darkgray;
@@ -389,7 +389,7 @@ div.ipe-actions {
 .ipe-block-plugin-form {
   text-align: left;
   margin: 0 auto;
-  max-width: 600px;
+  display: inline-block;
 }
 
 .ipe-block-plugin-form .form-item {
@@ -416,6 +416,7 @@ div.ipe-actions {
   text-transform: uppercase;
   margin: 0;
   background: white;
+  color: black;
   border-radius: 5px;
   display: inline-block;
   transition: .2s;
@@ -423,6 +424,21 @@ div.ipe-actions {
 
 .ipe-block-plugin-form input[type="submit"]:hover {
   border-color: rgb(67, 125, 33);
-  color: inherit;
-  background: inherit;
+  color: black;
+  background: white;
+}
+
+#panels-ipe-block-plugin-form-preview, #panels-ipe-block-plugin-form-contents {
+  display: inline-block;
+}
+
+#panels-ipe-block-plugin-form-contents {
+  max-width: 650px;
+}
+
+#panels-ipe-block-plugin-form-preview {
+  vertical-align: top;
+  border-left: 1px solid darkgray;
+  padding-left: 10px;
+  margin-left: 10px;
 }
