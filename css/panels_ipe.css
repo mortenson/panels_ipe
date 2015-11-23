@@ -392,27 +392,27 @@ div.ipe-actions {
   display: inline-block;
 }
 
-.ipe-block-plugin-form .form-item {
+#panels-ipe-block-plugin-form-contents .form-item {
   margin: 0 0 10px 0;
 }
 
-.ipe-block-plugin-form label {
+#panels-ipe-block-plugin-form-contents label {
   display: inline-block;
   text-transform: uppercase;
   margin-right: 5px;
 }
 
-.ipe-block-plugin-form summary {
+#panels-ipe-block-plugin-form-contents summary {
   text-transform: uppercase;
   background: transparent;
 }
 
-.ipe-block-plugin-form .ipe-icon-loading {
+#panels-ipe-block-plugin-form-contents .ipe-icon-loading {
   text-align: center;
   width: 100%;
 }
 
-.ipe-block-plugin-form input[type="submit"] {
+#panels-ipe-block-plugin-form-contents input[type="submit"] {
   text-transform: uppercase;
   margin: 0;
   background: white;
@@ -422,23 +422,20 @@ div.ipe-actions {
   transition: .2s;
 }
 
-.ipe-block-plugin-form input[type="submit"]:hover {
+#panels-ipe-block-plugin-form-contents input[type="submit"]:hover {
   border-color: rgb(67, 125, 33);
   color: black;
   background: white;
 }
 
-#panels-ipe-block-plugin-form-preview, #panels-ipe-block-plugin-form-contents {
-  display: inline-block;
-}
-
 #panels-ipe-block-plugin-form-contents {
   max-width: 650px;
+  padding-right: 10px;
 }
 
 #panels-ipe-block-plugin-form-preview {
   vertical-align: top;
-  border-left: 1px solid darkgray;
-  padding-left: 10px;
-  margin-left: 10px;
+  padding-bottom: 10px;
+  margin-bottom: 10px;
+  border-bottom: 1px dashed darkgray;
 }

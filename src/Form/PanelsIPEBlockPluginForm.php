@@ -65,6 +65,8 @@ class PanelsIPEBlockPluginForm extends FormBase {
     $form['#prefix'] = '<div id="panels-ipe-block-plugin-form-wrapper">';
     $form['#suffix'] = '</div>';
 
+    $form['build'] = [];
+
     // Wrap the form elements in a container, to make it inline with the preview.
     $form['ipe_form'] = [
       '#type' => 'container',
@@ -119,10 +121,17 @@ class PanelsIPEBlockPluginForm extends FormBase {
     $block_instance->submitConfigurationForm($form, $form_state);
 
     // Replace our preview contents with a rendered block.
-    $build = $block_instance->build();
+    $build = [
+      '#theme' => 'block',
+      '#configuration' => $block_instance->getConfiguration(),
+      '#plugin_id' => $block_instance->getPluginId(),
+      '#base_plugin_id' => $block_instance->getBaseId(),
+      '#derivative_plugin_id' => $block_instance->getDerivativeId(),
+    ];
+    $build['content'] = $block_instance->build();
 
     // Wrap our build so it can be displayed inline.
-    $build['#prefix'] = '<div id="panels-ipe-block-plugin-form-preview">';
+    $build['#prefix'] = '<div id="panels-ipe-block-plugin-form-preview"><h4>Preview</h4>';
     $build['#suffix'] = '</div>';
 
     // Add a special element we'll use to preview the potential block.
