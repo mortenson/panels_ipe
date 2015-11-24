@@ -195,9 +195,6 @@
       // Get the current plugin_id.
       var plugin_id = $(e.currentTarget).closest('[data-plugin-id]').data('plugin-id');
       var plugin = this.collection.get(plugin_id);
-
-      // Submit the form.
-
     }
 
   });

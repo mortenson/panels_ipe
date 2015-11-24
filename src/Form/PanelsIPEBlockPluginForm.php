@@ -9,6 +9,7 @@ namespace Drupal\panels_ipe\Form;
 
 use Drupal\Component\Plugin\PluginManagerInterface;
 use Drupal\Core\Form\FormBase;
+use Drupal\Core\Form\FormState;
 use Drupal\Core\Form\FormStateInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
@@ -64,8 +65,6 @@ class PanelsIPEBlockPluginForm extends FormBase {
     // Wrap the form so that our AJAX submit can replace its contents.
     $form['#prefix'] = '<div id="panels-ipe-block-plugin-form-wrapper">';
     $form['#suffix'] = '</div>';
-
-    $form['build'] = [];
 
     // Wrap the form elements in a container, to make it inline with the preview.
     $form['ipe_form'] = [
@@ -131,14 +130,11 @@ class PanelsIPEBlockPluginForm extends FormBase {
     $build['content'] = $block_instance->build();
 
     // Wrap our build so it can be displayed inline.
-    $build['#prefix'] = '<div id="panels-ipe-block-plugin-form-preview"><h4>Preview</h4>';
+    $build['#prefix'] = '<div id="panels-ipe-block-plugin-form-preview">';
     $build['#suffix'] = '</div>';
 
     // Add a special element we'll use to preview the potential block.
     $form['build'] = $build;
-
-    // Rebuild the form.
-    $form_state->setRebuild(TRUE);
 
     return $form;
   }

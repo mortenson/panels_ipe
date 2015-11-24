@@ -429,19 +429,4 @@ class PanelsIPEPageController extends ControllerBase {
     return $response;
   }
 
-  /**
-   * Submit a configuration form for a given Block Plugin. This does not create
-   * the Block instance, but instead just returns a valid BlockModel.
-   *
-   * @param string $plugin_id
-   *   The requested Block Plugin ID.
-   * @param \Symfony\Component\HttpFoundation\Request $request
-   *   The current request.
-   *
-   * @return Response
-   */
-  public function submitBlockPluginForm($plugin_id, Request $request) {
-
-  }
-
 }
