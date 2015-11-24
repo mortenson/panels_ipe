@@ -435,7 +435,7 @@ div.ipe-actions {
 
 #panels-ipe-block-plugin-form-preview {
   vertical-align: top;
-  padding-top: 10px;
   margin-top: 10px;
-  border-top: 1px dashed darkgray;
+  border: 1px dashed darkgray;
+  padding: 5px;
 }

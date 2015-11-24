@@ -11,6 +11,8 @@ use Drupal\Component\Plugin\PluginManagerInterface;
 use Drupal\Core\Form\FormBase;
 use Drupal\Core\Form\FormState;
 use Drupal\Core\Form\FormStateInterface;
+use Drupal\Core\Plugin\Context\ContextHandlerInterface;
+use Drupal\page_manager\Entity\PageVariant;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
@@ -28,14 +30,17 @@ class PanelsIPEBlockPluginForm extends FormBase {
    */
   protected $blockManager;
 
+  protected $contextHandler;
+
   /**
    * Constructs a new PanelsIPEBlockPluginForm.
    *
    * @param \Drupal\Component\Plugin\PluginManagerInterface $block_manager
    *   The block manager.
    */
-  public function __construct(PluginManagerInterface $block_manager) {
+  public function __construct(PluginManagerInterface $block_manager, ContextHandlerInterface $context_handler) {
     $this->blockManager = $block_manager;
+    $this->contextHandler = $context_handler;
   }
 
   /**
@@ -43,7 +48,8 @@ class PanelsIPEBlockPluginForm extends FormBase {
    */
   public static function create(ContainerInterface $container) {
     return new static(
-      $container->get('plugin.manager.block')
+      $container->get('plugin.manager.block'),
+      $container->get('context.handler')
     );
   }
 
@@ -55,9 +61,22 @@ class PanelsIPEBlockPluginForm extends FormBase {
   }
 
   /**
-   * {@inheritdoc}
+   * Builds a form that constructs a unsaved instance of a Block for the IPE.
+   *
+   * @param array $form
+   *   An associative array containing the structure of the form.
+   * @param \Drupal\Core\Form\FormStateInterface $form_state
+   *   The current state of the form.
+   * @param string $plugin_id
+   *   The requested Block Plugin ID.
+   * @param string $variant_id
+   *   The current PageVariant ID.
+   *
+   * @return array
+   *   The form structure.
+   *
    */
-  public function buildForm(array $form, FormStateInterface $form_state, $plugin_id = NULL) {
+  public function buildForm(array $form, FormStateInterface $form_state, $plugin_id = NULL, $variant_id = NULL) {
     // Create an instance of this Block plugin.
     /** @var \Drupal\Core\Block\BlockBase $block_instance */
     $block_instance = $this->blockManager->createInstance($plugin_id);
@@ -77,10 +96,16 @@ class PanelsIPEBlockPluginForm extends FormBase {
     // Get the base configuration form for this block.
     $form['ipe_form']['form'] = $block_instance->buildConfigurationForm($form, $form_state);
 
-    // Add the block to the form as a hidden field.
+    // Add the block ID to the form as a hidden field.
     $form['ipe_form']['plugin_id'] = [
       '#type' => 'hidden',
       '#value' => $plugin_id
+    ];
+
+    // Add the variant ID for rendering the preview with context.
+    $form['ipe_form']['variant_id'] = [
+      '#type' => 'hidden',
+      '#value' => $variant_id
     ];
 
     // Add a preview button that uses AJAX.
@@ -115,6 +140,13 @@ class PanelsIPEBlockPluginForm extends FormBase {
     // Create an instance of this Block plugin.
     /** @var \Drupal\Core\Block\BlockBase $block_instance */
     $block_instance = $this->blockManager->createInstance($form_state->getValue('plugin_id'));
+
+    // Load the PageVariant.
+    /** @var \Drupal\page_manager\PageVariantInterface $variant */
+    $variant = PageVariant::load($form_state->getValue('variant_id'));
+
+    // Add context to the block.
+    $this->contextHandler->applyContextMapping($block_instance, $variant->getContexts());
 
     // Submit the configuration form.
     $block_instance->submitConfigurationForm($form, $form_state);
