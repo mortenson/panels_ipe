@@ -12,6 +12,7 @@ use Drupal\Core\Form\FormBase;
 use Drupal\Core\Form\FormState;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Plugin\Context\ContextHandlerInterface;
+use Drupal\Component\Plugin\ContextAwarePluginInterface;
 use Drupal\page_manager\Entity\PageVariant;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
@@ -141,12 +142,12 @@ class PanelsIPEBlockPluginForm extends FormBase {
     /** @var \Drupal\Core\Block\BlockBase $block_instance */
     $block_instance = $this->blockManager->createInstance($form_state->getValue('plugin_id'));
 
-    // Load the PageVariant.
-    /** @var \Drupal\page_manager\PageVariantInterface $variant */
-    $variant = PageVariant::load($form_state->getValue('variant_id'));
-
     // Add context to the block.
-    $this->contextHandler->applyContextMapping($block_instance, $variant->getContexts());
+    if ($block_instance instanceof ContextAwarePluginInterface) {
+      /** @var \Drupal\page_manager\PageVariantInterface $variant */
+      $variant = PageVariant::load($form_state->getValue('variant_id'));
+      $this->contextHandler->applyContextMapping($block_instance, $variant->getContexts());
+    }
 
     // Submit the configuration form.
     $block_instance->submitConfigurationForm($form, $form_state);
