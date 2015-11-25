@@ -395,6 +395,8 @@ class PanelsIPEPageController extends ControllerBase {
    *
    * @param string $variant_id
    *   The PageVariant ID.
+   * @param string $layout_id
+   *   The requested Layout ID.
    * @param string $plugin_id
    *   The requested Block Plugin ID.
    *
@@ -402,7 +404,7 @@ class PanelsIPEPageController extends ControllerBase {
    *
    * @throws NotFoundHttpException
    */
-  public function getBlockPluginForm($variant_id, $plugin_id) {
+  public function getBlockPluginForm($variant_id, $layout_id, $plugin_id) {
     // Check if the variant exists.
     /** @var \Drupal\page_manager\PageVariantInterface $variant */
     if (!$variant = PageVariant::load($variant_id)) {
@@ -417,8 +419,13 @@ class PanelsIPEPageController extends ControllerBase {
       throw new NotFoundHttpException();
     }
 
+    // Grab the current layout's regions.
+    /** @var \Drupal\layout_plugin\Plugin\Layout\LayoutBase $layout */
+    $layout = $this->layoutPluginManager->createInstance($layout_id, []);
+    $regions = $layout->getRegionNames();
+
     // Build a Block Plugin configuration form.
-    $form = \Drupal::formBuilder()->getForm('Drupal\panels_ipe\Form\PanelsIPEBlockPluginForm', $plugin_id, $variant_id);
+    $form = \Drupal::formBuilder()->getForm('Drupal\panels_ipe\Form\PanelsIPEBlockPluginForm', $plugin_id, $variant_id, $regions);
 
     // Return the rendered form as a proper Drupal AJAX response.
     // This is needed as forms often have custom JS and CSS that need added,

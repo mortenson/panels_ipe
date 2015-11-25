@@ -15,7 +15,7 @@ panels_ipe.block_plugins:
     _method: 'GET'
 
 panels_ipe.block_plugin.form:
-  path: '/admin/panels_ipe/variant/{variant_id}/block_plugins/{plugin_id}/form'
+  path: '/admin/panels_ipe/variant/{variant_id}/layout/{layout_id}/block_plugins/{plugin_id}/form'
   defaults:
       _controller: '\Drupal\panels_ipe\Controller\PanelsIPEPageController::getBlockPluginForm'
   requirements:

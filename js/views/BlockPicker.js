@@ -75,8 +75,7 @@
     events: {
       'click [data-block-category]': 'toggleCategory',
       'click .ipe-block-plugin [data-plugin-id]': 'displayBlockPluginForm',
-      'click .ipe-block-plugin-form input[value="Add"]': 'addBlockPluginForm',
-      'click .ipe-block-plugin-form input[value="Cancel"]': 'cancelBlockPluginForm'
+      'click .ipe-block-plugin-form input[value="Add"]': 'addBlockPluginForm'
     },
 
     /**
@@ -183,9 +182,10 @@
       this.$('.ipe-block-picker-top').html(this.template_plugin_form(plugin.toJSON()));
 
       // Make the Drupal AJAX request.
-      var ajax = Drupal.ajax({'url': Drupal.panels_ipe.urlRoot(drupalSettings) + '/block_plugins/' + plugin_id + '/form'});
+      var layout_id = Drupal.panels_ipe.app.get('layout').get('id');
+      var url = Drupal.panels_ipe.urlRoot(drupalSettings) + '/layout/' + layout_id + '/block_plugins/' + plugin_id + '/form';
+      var ajax = Drupal.ajax({'url': url});
       ajax.execute();
-
     },
 
     /**
@@ -195,6 +195,7 @@
       // Get the current plugin_id.
       var plugin_id = $(e.currentTarget).closest('[data-plugin-id]').data('plugin-id');
       var plugin = this.collection.get(plugin_id);
+      console.log('foo');
     }
 
   });

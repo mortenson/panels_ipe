@@ -22,6 +22,13 @@
       active: false,
 
       /**
+       * The block configuration (only used by new blocks).
+       *
+       * @type {Object}
+       */
+      configuration: false,
+
+      /**
        * The ID of the block.
        *
        * @type {string}

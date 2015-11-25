@@ -17,9 +17,18 @@
     attach: function (context, settings) {
       // Perform initial setup of our app.
       $('body').once('panels-ipe-init').each(Drupal.panels_ipe.init, [settings]);
-    },
-    detach: function (context, settings) {
 
+      // If new block plugin JSON is present, it means we need to add a
+      // new BlockModel somewhere. Inform the App that this has occurred.
+      var json_wrapper = $('#panels-ipe-block-plugin-form-json', context);
+      if (json_wrapper.length > 0) {
+        // Decode the JSON
+        var block = JSON.parse(json_wrapper.html());
+        // Trigger the event.
+        Drupal.panels_ipe.app.trigger('addBlockPlugin', block);
+        // Remove the wrapper.
+        json_wrapper.remove();
+      }
     }
   };
 

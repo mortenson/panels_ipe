@@ -8,8 +8,8 @@
 namespace Drupal\panels_ipe\Form;
 
 use Drupal\Component\Plugin\PluginManagerInterface;
+use Drupal\Component\Serialization\Json;
 use Drupal\Core\Form\FormBase;
-use Drupal\Core\Form\FormState;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Plugin\Context\ContextHandlerInterface;
 use Drupal\Component\Plugin\ContextAwarePluginInterface;
@@ -72,12 +72,19 @@ class PanelsIPEBlockPluginForm extends FormBase {
    *   The requested Block Plugin ID.
    * @param string $variant_id
    *   The current PageVariant ID.
+   * @param array $regions
+   *   An array of region definitions.
    *
    * @return array
    *   The form structure.
    *
    */
-  public function buildForm(array $form, FormStateInterface $form_state, $plugin_id = NULL, $variant_id = NULL) {
+  public function buildForm(array $form, FormStateInterface $form_state, $plugin_id = NULL, $variant_id = NULL, $regions = NULL) {
+    // We require these defaults arguments.
+    if (!$plugin_id || !$variant_id || !$regions) {
+      return FALSE;
+    }
+
     // Create an instance of this Block plugin.
     /** @var \Drupal\Core\Block\BlockBase $block_instance */
     $block_instance = $this->blockManager->createInstance($plugin_id);
@@ -109,14 +116,42 @@ class PanelsIPEBlockPluginForm extends FormBase {
       '#value' => $variant_id
     ];
 
-    // Add a preview button that uses AJAX.
-    $form['ipe_form']['preview'] = [
+    // Add a select list for region assignment.
+    $form['ipe_form']['region'] = [
+      '#title' => $this->t('Region'),
+      '#type' => 'select',
+      '#options' => $regions,
+      '#required' => TRUE,
+      '#default_value' => reset($regions)
+    ];
+
+    // Add an add button, which is only used by our App.
+    $form['ipe_form']['add'] = [
       '#type' => 'button',
-      '#value' => t('Preview'),
+      '#value' => $this->t('Add'),
       '#ajax' => [
         'callback' => '::submitForm',
         'wrapper' => 'panels-ipe-block-plugin-form-wrapper',
-        'method' => 'replace'
+        'method' => 'replace',
+        'progress' => [
+          'type' => 'throbber',
+          'message' => ''
+        ]
+      ]
+    ];
+
+    // Add a preview button that uses AJAX.
+    $form['ipe_form']['preview'] = [
+      '#type' => 'button',
+      '#value' => $this->t('Preview'),
+      '#ajax' => [
+        'callback' => '::previewForm',
+        'wrapper' => 'panels-ipe-block-plugin-form-wrapper',
+        'method' => 'replace',
+        'progress' => [
+          'type' => 'throbber',
+          'message' => 'Rendering preview...'
+        ]
       ]
     ];
 
@@ -127,27 +162,23 @@ class PanelsIPEBlockPluginForm extends FormBase {
    * {@inheritdoc}
    */
   public function validateForm(array &$form, FormStateInterface $form_state) {
-    // Create an instance of this Block plugin.
-    /** @var \Drupal\Core\Block\BlockBase $block_instance */
-    $block_instance = $this->blockManager->createInstance($form_state->getValue('plugin_id'));
+    $block_instance = $this->getBlockInstance($form_state->getValue('variant_id'), $form_state->getValue('plugin_id'));
 
     $block_instance->validateConfigurationForm($form, $form_state);
   }
 
   /**
-   * {@inheritdoc}
+   * Adds a preview of the current Block Plugin to the form.
+   *
+   * @param array $form
+   *   An associative array containing the structure of the form.
+   * @param \Drupal\Core\Form\FormStateInterface $form_state
+   *   The current state of the form.
+   * @return array $form
+   *   A renderable array representing the form.
    */
-  public function submitForm(array &$form, FormStateInterface $form_state) {
-    // Create an instance of this Block plugin.
-    /** @var \Drupal\Core\Block\BlockBase $block_instance */
-    $block_instance = $this->blockManager->createInstance($form_state->getValue('plugin_id'));
-
-    // Add context to the block.
-    if ($block_instance instanceof ContextAwarePluginInterface) {
-      /** @var \Drupal\page_manager\PageVariantInterface $variant */
-      $variant = PageVariant::load($form_state->getValue('variant_id'));
-      $this->contextHandler->applyContextMapping($block_instance, $variant->getContexts());
-    }
+  public function previewForm(array &$form, FormStateInterface $form_state) {
+    $block_instance = $this->getBlockInstance($form_state->getValue('variant_id'), $form_state->getValue('plugin_id'));
 
     // Submit the configuration form.
     $block_instance->submitConfigurationForm($form, $form_state);
@@ -170,6 +201,62 @@ class PanelsIPEBlockPluginForm extends FormBase {
     $form['build'] = $build;
 
     return $form;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function submitForm(array &$form, FormStateInterface $form_state) {
+    $block_instance = $this->getBlockInstance($form_state->getValue('variant_id'), $form_state->getValue('plugin_id'));
+
+    // Submit the configuration form.
+    $block_instance->submitConfigurationForm($form, $form_state);
+
+    // Get the new block configuration.
+    $configuration = $block_instance->getConfiguration();
+
+    // Add block settings to the form so that we can create the new BlockModel.
+    $settings = [
+      'uuid' => 'new-' . \Drupal::service('uuid')->generate(),
+      'label' => $block_instance->label(),
+      'id' => $block_instance->getPluginId(),
+      'provider' => $configuration['provider'],
+      'region' => $form_state->getValue('region'),
+      'configuration' => $configuration
+    ];
+
+    $form = [
+      '#type' => 'container',
+      '#attributes' => [
+        'id' => 'panels-ipe-block-plugin-form-json'
+      ],
+      ['#markup' => Json::encode($settings)]
+    ];
+
+    return $form;
+  }
+
+  /**
+   * Creates a Block Plugin instance suitable for rendering or testing.
+   *
+   * @param string $variant_id The Variant ID.
+   * @param string $plugin_id The Block Plugin ID.
+   *
+   * @return \Drupal\Core\Block\BlockBase The Block Plugin instance.
+   */
+  protected function getBlockInstance($variant_id, $plugin_id) {
+    // Create an instance of this Block plugin.
+    /** @var \Drupal\Core\Block\BlockBase $block_instance */
+    $block_instance = $this->blockManager->createInstance($plugin_id);
+
+    // Add context to the block.
+    if ($block_instance instanceof ContextAwarePluginInterface) {
+      /** @var \Drupal\page_manager\PageVariantInterface $variant */
+      $variant = PageVariant::load($variant_id);
+      $this->contextHandler->applyContextMapping($block_instance, $variant->getContexts());
+    }
+
+    return $block_instance;
   }
 
 }
