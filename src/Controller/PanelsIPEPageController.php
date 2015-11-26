@@ -12,7 +12,8 @@ use Drupal\Core\Ajax\AjaxResponse;
 use Drupal\Core\Ajax\AppendCommand;
 use Drupal\Core\Block\BlockManagerInterface;
 use Drupal\Core\Controller\ControllerBase;
-use Drupal\Core\Form\FormState;
+use Drupal\Core\Plugin\Context\ContextHandlerInterface;
+use Drupal\Component\Plugin\ContextAwarePluginInterface;
 use Drupal\Core\Render\Element;
 use Drupal\Core\Render\RendererInterface;
 use Drupal\layout_plugin\Plugin\Layout\LayoutPluginManagerInterface;
@@ -35,6 +36,11 @@ class PanelsIPEPageController extends ControllerBase {
   protected $blockManager;
 
   /**
+   * @var \Drupal\Core\Plugin\Context\ContextHandlerInterface $contextHandler
+   */
+  protected $contextHandler;
+
+  /**
    * @var \Drupal\Core\Render\RendererInterface
    */
   protected $renderer;
@@ -48,11 +54,11 @@ class PanelsIPEPageController extends ControllerBase {
    * Constructs a new PanelsIPEController.
    *
    * @param \Drupal\Core\Block\BlockManagerInterface $block_manager
-   *   The block manager.
    * @param \Drupal\Core\Render\RendererInterface $renderer
-   *   The renderer.
+   * @param \Drupal\layout_plugin\Plugin\Layout\LayoutPluginManagerInterface $layout_plugin_manager
+   * @param \Drupal\Core\Plugin\Context\ContextHandlerInterface $context_handler
    */
-  public function __construct(BlockManagerInterface $block_manager, RendererInterface $renderer, LayoutPluginManagerInterface $layout_plugin_manager) {
+  public function __construct(BlockManagerInterface $block_manager, RendererInterface $renderer, LayoutPluginManagerInterface $layout_plugin_manager, ContextHandlerInterface $context_handler) {
     $this->blockManager = $block_manager;
     $this->renderer = $renderer;
     $this->layoutPluginManager = $layout_plugin_manager;
@@ -65,67 +71,9 @@ class PanelsIPEPageController extends ControllerBase {
     return new static(
       $container->get('plugin.manager.block'),
       $container->get('renderer'),
-      $container->get('plugin.manager.layout_plugin')
+      $container->get('plugin.manager.layout_plugin'),
+      $container->get('context.handler')
     );
-  }
-
-  /**
-   * Gets a block's metadata and rendered HTML.
-   *
-   * @param string $variant_id
-   *   The machine name of the current display variant.
-   * @param string $block_id
-   *   The UUID of the requested block.
-   *
-   * @return JsonResponse
-   *
-   * @throws AccessDeniedHttpException|NotFoundHttpException
-   */
-  public function getBlock($variant_id, $block_id) {
-    // Check if the variant exists.
-    /** @var \Drupal\page_manager\PageVariantInterface $variant */
-    if (!$variant = PageVariant::load($variant_id)) {
-      throw new NotFoundHttpException();
-    }
-
-    /** @var \Drupal\panels\Plugin\DisplayVariant\PanelsDisplayVariant $variant_plugin */
-    $variant_plugin = $variant->getVariantPlugin();
-
-    // Check if the block exists.
-    if (!$block = $variant_plugin->getBlock($block_id)) {
-      throw new NotFoundHttpException();
-    }
-
-    // Check entity access before continuing.
-    $user = $this->currentUser();
-    if (!$block->access($user)) {
-      throw new AccessDeniedHttpException();
-    }
-
-    // Assemble a render array for the block.
-    // @todo Support contexts and revisions for all entities.
-    $configuration = $block->getConfiguration();
-    $elements = [
-      '#theme' => 'block',
-      '#attributes' => [
-        'data-block-id' => $block->getConfiguration()['uuid']
-      ],
-      '#configuration' => $configuration,
-      '#plugin_id' => $block->getPluginId(),
-      '#base_plugin_id' => $block->getBaseId(),
-      '#derivative_plugin_id' => $block->getDerivativeId(),
-      'content' => $block->build()
-    ];
-
-    // Return a structured JSON response for our Backbone App.
-    $data = [
-      'html' => $this->renderer->render($elements),
-      'uuid' => $configuration['uuid'],
-      'label' => $block->label(),
-      'id' => $block->getPluginId()
-    ];
-
-    return new JsonResponse($data);
   }
 
   /**

@@ -133,13 +133,8 @@
           });
           this.blockViews.push(block_view);
 
-          // Fetch the Block's content from the server, if needed.
-          if (!block.get('html')) {
-            block.fetch();
-          }
-          else {
-            block_view.render();
-          }
+          // Render the new BlockView.
+          block_view.render();
 
           // Prepend/append droppable regions if the Block is active.
           if (this.model.get('active')) {
