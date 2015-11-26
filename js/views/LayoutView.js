@@ -55,6 +55,7 @@
       'change [data-action-id="move"] > select': 'selectBlockRegionList',
       'click [data-action-id="up"]': 'moveBlock',
       'click [data-action-id="down"]': 'moveBlock',
+      'click [data-action-id="remove"]': 'removeBlock',
       'drop .ipe-droppable': 'dropBlock'
     },
 
@@ -274,6 +275,29 @@
     },
 
     /**
+     * Removes a Block from its region.
+     */
+    removeBlock: function(e) {
+      // Get the BlockModel id (uuid).
+      var id = $(e.currentTarget).closest('[data-block-action-id]').data('block-action-id');
+
+      // Grab the model for this region.
+      var region_name = $(e.currentTarget).closest('[data-region-name]').data('region-name');
+      var region = this.model.get('regionCollection').get(region_name);
+
+      // Add the block to a collection of blocks to remove, if it isn't new.
+      if (!region.get('blockCollection').get(id).get('new')) {
+        this.model.get('deletedBlocks').push(id);
+      }
+
+      // Remove the block.
+      region.get('blockCollection').remove(id);
+
+      // Re-render ourselves.
+      this.render();
+    },
+
+    /**
      * Reacts to a block being dropped on a droppable region.
      */
     dropBlock: function(e, ui) {
@@ -301,6 +325,26 @@
 
       // Highlight the block.
       this.$('[data-block-id="' + id + '"]').addClass('ipe-highlight');
+    },
+
+    /**
+     * Adds a new BlockModel to the layout.
+     *
+     * @var Drupal.panels_ipe.BlockModel block
+     *   The new BlockModel
+     * @var string region_name
+     *   The region name that the block should be placed in.
+     */
+    addBlock: function(block, region_name) {
+      // Get the target region.
+      var region = this.model.get('regionCollection').get(region_name);
+      if (region) {
+        // Add the block.
+        region.get('blockCollection').add(block);
+
+        // Re-render ourselves.
+        this.render();
+      }
     }
 
   });

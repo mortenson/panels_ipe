@@ -13,6 +13,7 @@ use Drupal\Core\Form\FormBase;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Plugin\Context\ContextHandlerInterface;
 use Drupal\Component\Plugin\ContextAwarePluginInterface;
+use Drupal\Core\Render\RendererInterface;
 use Drupal\page_manager\Entity\PageVariant;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
@@ -25,23 +26,31 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 class PanelsIPEBlockPluginForm extends FormBase {
 
   /**
-   * The block manager.
-   *
-   * @var \Drupal\Component\Plugin\PluginManagerInterface
+   * @var \Drupal\Component\Plugin\PluginManagerInterface $blockManager
    */
   protected $blockManager;
 
+  /**
+   * @var \Drupal\Core\Plugin\Context\ContextHandlerInterface $contextHandler
+   */
   protected $contextHandler;
+
+  /**
+   * @var \Drupal\Core\Render\RendererInterface $renderer
+   */
+  protected $renderer;
 
   /**
    * Constructs a new PanelsIPEBlockPluginForm.
    *
    * @param \Drupal\Component\Plugin\PluginManagerInterface $block_manager
-   *   The block manager.
+   * @param \Drupal\Core\Plugin\Context\ContextHandlerInterface $context_handler
+   * @param \Drupal\Core\Render\RendererInterface $renderer
    */
-  public function __construct(PluginManagerInterface $block_manager, ContextHandlerInterface $context_handler) {
+  public function __construct(PluginManagerInterface $block_manager, ContextHandlerInterface $context_handler, RendererInterface $renderer) {
     $this->blockManager = $block_manager;
     $this->contextHandler = $context_handler;
+    $this->renderer = $renderer;
   }
 
   /**
@@ -50,7 +59,8 @@ class PanelsIPEBlockPluginForm extends FormBase {
   public static function create(ContainerInterface $container) {
     return new static(
       $container->get('plugin.manager.block'),
-      $container->get('context.handler')
+      $container->get('context.handler'),
+      $container->get('renderer')
     );
   }
 
@@ -216,14 +226,31 @@ class PanelsIPEBlockPluginForm extends FormBase {
     $configuration = $block_instance->getConfiguration();
 
     // Add block settings to the form so that we can create the new BlockModel.
+    $uuid = \Drupal::service('uuid')->generate();
+    $elements = [
+      '#theme' => 'block',
+      '#attributes' => [
+        'data-block-id' => $uuid
+      ],
+      '#configuration' => $configuration,
+      '#plugin_id' => $block_instance->getPluginId(),
+      '#base_plugin_id' => $block_instance->getBaseId(),
+      '#derivative_plugin_id' => $block_instance->getDerivativeId(),
+      'content' => $block_instance->build()
+    ];
+
     $settings = [
-      'uuid' => 'new-' . \Drupal::service('uuid')->generate(),
+      'uuid' => $uuid,
       'label' => $block_instance->label(),
       'id' => $block_instance->getPluginId(),
       'provider' => $configuration['provider'],
       'region' => $form_state->getValue('region'),
-      'configuration' => $configuration
+      'html' => $this->renderer->render($elements),
+      'new' => TRUE
     ];
+
+    // Merge in the current configuration.
+    $settings = array_merge($settings, $configuration);
 
     $form = [
       '#type' => 'container',

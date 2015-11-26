@@ -55,6 +55,7 @@
 
       // Listen to important global events throughout the app.
       this.listenTo(this.model, 'changeLayout', this.changeLayout);
+      this.listenTo(this.model, 'addBlockPlugin', this.addBlockPlugin);
 
       // Listen to tabs that don't have associated BackboneViews.
       this.listenTo(this.model.get('editTab'), 'change:active', this.clickEditTab);
@@ -173,6 +174,25 @@
           self.tabsView.render();
         });
       }
+    },
+
+    /**
+     * Adds a new BlockPlugin to the screen.
+     *
+     * @var Drupal.panels_ipe.BlockModel block
+     *   The new BlockModel
+     * @var string region
+     *   The region the block should be placed in.
+     */
+    addBlockPlugin: function(block, region) {
+      this.layoutView.addBlock(block, region);
+
+      // Mark all tabs as inactive and close the view.
+      this.tabsView.collection.each(function(tab) {
+        tab.set('active', false);
+      });
+
+      this.tabsView.closeTabContent();
     }
 
   });

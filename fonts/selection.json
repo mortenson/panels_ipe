@@ -4,14 +4,38 @@
 		{
 			"icon": {
 				"paths": [
-					"M512 170.667v-128l-170.667 170.667 170.667 170.667v-128c141.227 0 256 114.773 256 256 0 43.093-10.667 84.053-29.867 119.467l62.293 62.293c33.28-52.48 52.907-114.773 52.907-181.76 0-188.587-152.747-341.333-341.333-341.333zM512 768c-141.227 0-256-114.773-256-256 0-43.093 10.667-84.053 29.867-119.467l-62.293-62.293c-33.28 52.48-52.907 114.773-52.907 181.76 0 188.587 152.747 341.333 341.333 341.333v128l170.667-170.667-170.667-170.667v128z"
+					"M810.667 554.667h-597.333v-85.333h597.333v85.333z"
 				],
 				"attrs": [],
 				"isMulticolor": false,
 				"grid": 0,
 				"tags": [
-					"ic_sync_black_24px"
+					"ic_remove_black_24px"
 				]
+			},
+			"attrs": [],
+			"properties": {
+				"order": 6,
+				"id": 8,
+				"prevSize": 32,
+				"code": 59656,
+				"name": "ic_remove_black_24px"
+			},
+			"setIdx": 0,
+			"setId": 3,
+			"iconIdx": 0
+		},
+		{
+			"icon": {
+				"paths": [
+					"M512 170.667v-128l-170.667 170.667 170.667 170.667v-128c141.227 0 256 114.773 256 256 0 43.093-10.667 84.053-29.867 119.467l62.293 62.293c33.28-52.48 52.907-114.773 52.907-181.76 0-188.587-152.747-341.333-341.333-341.333zM512 768c-141.227 0-256-114.773-256-256 0-43.093 10.667-84.053 29.867-119.467l-62.293-62.293c-33.28 52.48-52.907 114.773-52.907 181.76 0 188.587 152.747 341.333 341.333 341.333v128l170.667-170.667-170.667-170.667v128z"
+				],
+				"attrs": [],
+				"isMulticolor": false,
+				"tags": [
+					"ic_sync_black_24px"
+				],
+				"grid": 0
 			},
 			"attrs": [],
 			"properties": {
@@ -22,8 +46,8 @@
 				"name": "ic_sync_black_24px"
 			},
 			"setIdx": 0,
-			"setId": 2,
-			"iconIdx": 0
+			"setId": 3,
+			"iconIdx": 1
 		},
 		{
 			"icon": {
@@ -32,10 +56,10 @@
 				],
 				"attrs": [],
 				"isMulticolor": false,
-				"grid": 0,
 				"tags": [
 					"ic_expand_less_black_24px"
-				]
+				],
+				"grid": 0
 			},
 			"attrs": [],
 			"properties": {
@@ -46,8 +70,8 @@
 				"name": "ic_expand_less_black_24px"
 			},
 			"setIdx": 0,
-			"setId": 2,
-			"iconIdx": 1
+			"setId": 3,
+			"iconIdx": 2
 		},
 		{
 			"icon": {
@@ -56,10 +80,10 @@
 				],
 				"attrs": [],
 				"isMulticolor": false,
-				"grid": 0,
 				"tags": [
 					"ic_expand_more_black_24px"
-				]
+				],
+				"grid": 0
 			},
 			"attrs": [],
 			"properties": {
@@ -70,8 +94,8 @@
 				"name": "ic_expand_more_black_24px"
 			},
 			"setIdx": 0,
-			"setId": 2,
-			"iconIdx": 2
+			"setId": 3,
+			"iconIdx": 3
 		},
 		{
 			"icon": {
@@ -80,10 +104,10 @@
 				],
 				"attrs": [],
 				"isMulticolor": false,
-				"grid": 0,
 				"tags": [
 					"ic_warning_black_24px"
-				]
+				],
+				"grid": 0
 			},
 			"attrs": [],
 			"properties": {
@@ -94,8 +118,8 @@
 				"name": "ic_warning_black_24px"
 			},
 			"setIdx": 0,
-			"setId": 2,
-			"iconIdx": 3
+			"setId": 3,
+			"iconIdx": 4
 		},
 		{
 			"icon": {
@@ -104,10 +128,10 @@
 				],
 				"attrs": [],
 				"isMulticolor": false,
-				"grid": 0,
 				"tags": [
 					"tab_change_layout"
-				]
+				],
+				"grid": 0
 			},
 			"attrs": [],
 			"properties": {
@@ -118,8 +142,8 @@
 				"name": "tab_change_layout"
 			},
 			"setIdx": 0,
-			"setId": 2,
-			"iconIdx": 4
+			"setId": 3,
+			"iconIdx": 5
 		},
 		{
 			"icon": {
@@ -128,10 +152,10 @@
 				],
 				"attrs": [],
 				"isMulticolor": false,
-				"grid": 0,
 				"tags": [
 					"tab_edit"
-				]
+				],
+				"grid": 0
 			},
 			"attrs": [],
 			"properties": {
@@ -142,8 +166,8 @@
 				"name": "tab_edit"
 			},
 			"setIdx": 0,
-			"setId": 2,
-			"iconIdx": 5
+			"setId": 3,
+			"iconIdx": 6
 		},
 		{
 			"icon": {
@@ -152,22 +176,22 @@
 				],
 				"attrs": [],
 				"isMulticolor": false,
-				"grid": 0,
 				"tags": [
 					"tab_manage_content"
-				]
+				],
+				"grid": 0
 			},
 			"attrs": [],
 			"properties": {
-				"order": 2,
+				"order": 4,
 				"id": 1,
 				"prevSize": 32,
 				"code": 59653,
 				"name": "tab_manage_content"
 			},
 			"setIdx": 0,
-			"setId": 2,
-			"iconIdx": 6
+			"setId": 3,
+			"iconIdx": 7
 		},
 		{
 			"icon": {
@@ -176,10 +200,10 @@
 				],
 				"attrs": [],
 				"isMulticolor": false,
-				"grid": 0,
 				"tags": [
 					"tab_save"
-				]
+				],
+				"grid": 0
 			},
 			"attrs": [],
 			"properties": {
@@ -190,8 +214,8 @@
 				"name": "tab_save"
 			},
 			"setIdx": 0,
-			"setId": 2,
-			"iconIdx": 7
+			"setId": 3,
+			"iconIdx": 8
 		}
 	],
 	"height": 1024,

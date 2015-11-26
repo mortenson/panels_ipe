@@ -54,7 +54,14 @@
        *
        * @type {Drupal.panels_ipe.RegionCollection}
        */
-      regionCollection: null
+      regionCollection: null,
+
+      /**
+       * An array of Block UUIDs that we need to delete.
+       *
+       * @type {Array}
+       */
+      deletedBlocks: []
 
     },
 

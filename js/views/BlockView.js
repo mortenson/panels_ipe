@@ -18,6 +18,9 @@
       '<div class="ipe-actions-block ipe-actions" data-block-action-id="<%= uuid %>">' +
       '  <h5>Block: <%= label %></h5>' +
       '  <ul class="ipe-action-list">' +
+      '    <li data-action-id="remove">' +
+      '      <a><span class="ipe-icon ipe-icon-remove"></span></a>' +
+      '    </li>' +
       '    <li data-action-id="up">' +
       '      <a><span class="ipe-icon ipe-icon-up"></span></a>' +
       '    </li>' +

@@ -108,12 +108,12 @@
         // If the user is clicking the same tab twice, close it.
         if (clicked && active) {
           tab.set('active', false);
-          animation = 'slideUp';
+          animation = 'close';
         }
         // If this is the first click, open the tab.
         else if (clicked) {
           tab.set('active', true);
-          animation = 'slideDown';
+          animation = 'open';
         }
         // The tab wasn't clicked, make sure it's closed.
         else {
@@ -126,20 +126,34 @@
       });
 
       // Trigger a re-render, with animation if needed.
-      if (animation == 'slideUp') {
-        // Close the tab, then re-render.
-        var self = this;
-        this.$('.ipe-tabs-content')[animation]('fast', function() { self.render(); });
+      if (animation == 'close') {
+        this.closeTabContent();
       }
-      else if (animation == 'slideDown' && !already_open) {
-        // We need to render first as hypothetically nothing is open.
-        this.render();
-        this.$('.ipe-tabs-content').hide();
-        this.$('.ipe-tabs-content')[animation]('fast');
+      else if (animation == 'open' && !already_open) {
+        this.openTabContent();
       }
       else {
         this.render();
       }
+    },
+
+    /**
+     * Closes any currently open tab.
+     */
+    closeTabContent: function() {
+      // Close the tab, then re-render.
+      var self = this;
+      this.$('.ipe-tabs-content')['slideUp']('fast', function() { self.render(); });
+    },
+
+    /**
+     * Opens any currently closed tab.
+     */
+    openTabContent: function() {
+      // We need to render first as hypothetically nothing is open.
+      this.render();
+      this.$('.ipe-tabs-content').hide();
+      this.$('.ipe-tabs-content')['slideDown']('fast');
     }
 
   });

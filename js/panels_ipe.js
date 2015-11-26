@@ -23,9 +23,11 @@
       var json_wrapper = $('#panels-ipe-block-plugin-form-json', context);
       if (json_wrapper.length > 0) {
         // Decode the JSON
-        var block = JSON.parse(json_wrapper.html());
+        var data = JSON.parse(json_wrapper.html());
+        // Create a BlockModel.
+        var block = new Drupal.panels_ipe.BlockModel(data);
         // Trigger the event.
-        Drupal.panels_ipe.app.trigger('addBlockPlugin', block);
+        Drupal.panels_ipe.app.trigger('addBlockPlugin', block, data.region);
         // Remove the wrapper.
         json_wrapper.remove();
       }

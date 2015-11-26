@@ -291,6 +291,11 @@ class PanelsIPEPageController extends ControllerBase {
       }
     }
 
+    // Remove blocks if needed.
+    foreach ($layout['deletedBlocks'] as $uuid) {
+      $variant_plugin->removeBlock($uuid);
+    }
+
     // Save the plugin.
     $variant->save();
 

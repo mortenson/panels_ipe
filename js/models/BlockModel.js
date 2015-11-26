@@ -22,11 +22,11 @@
       active: false,
 
       /**
-       * The block configuration (only used by new blocks).
+       * Whether of not this Block is new.
        *
-       * @type {Object}
+       * @type {bool}
        */
-      configuration: false,
+      new: false,
 
       /**
        * The ID of the block.
