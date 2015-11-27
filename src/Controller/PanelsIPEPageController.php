@@ -13,7 +13,6 @@ use Drupal\Core\Ajax\AppendCommand;
 use Drupal\Core\Block\BlockManagerInterface;
 use Drupal\Core\Controller\ControllerBase;
 use Drupal\Core\Plugin\Context\ContextHandlerInterface;
-use Drupal\Component\Plugin\ContextAwarePluginInterface;
 use Drupal\Core\Render\Element;
 use Drupal\Core\Render\RendererInterface;
 use Drupal\layout_plugin\Plugin\Layout\LayoutPluginManagerInterface;
@@ -216,6 +215,7 @@ class PanelsIPEPageController extends ControllerBase {
     $variant_plugin->getLayout();
 
     // Edit our blocks.
+    $return_data = ['newBlocks' => []];
     foreach ($layout['regionCollection'] as $region) {
       $weight = 0;
       foreach ($region['blockCollection'] as $block) {
@@ -234,7 +234,8 @@ class PanelsIPEPageController extends ControllerBase {
           $variant_plugin->updateBlock($block['uuid'], array_merge($configuration['blocks'][$block['uuid']], $block));
         }
         else {
-          $variant_plugin->addBlock($block);
+          $new_uuid = $variant_plugin->addBlock($block);
+          $return_data['newBlocks'][$block['uuid']] = $new_uuid;
         }
       }
     }
@@ -247,7 +248,7 @@ class PanelsIPEPageController extends ControllerBase {
     // Save the plugin.
     $variant->save();
 
-    return new JsonResponse(['success' => true]);
+    return new JsonResponse($return_data);
   }
 
   /**

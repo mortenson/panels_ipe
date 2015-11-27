@@ -85,6 +85,7 @@
         this.$el.html(this.model.get('html'));
       }
       this.listenTo(this.model, 'change:active', this.changeState);
+      this.listenTo(this.model, 'sync', this.modelSync);
     },
 
     /**
@@ -340,6 +341,34 @@
         // Re-render ourselves.
         this.render();
       }
+    },
+
+    /**
+     * React to our LayoutModel being saved to the server.
+     */
+    modelSync: function() {
+      var new_blocks = this.model.get('newBlocks');
+
+      // Make sure our new BlockModels are no longer "new".
+      this.model.get('regionCollection').each(function (region) {
+        region.get('blockCollection').each(function(block) {
+          block.set({'new': false});
+          // Check if this is a new block, in which case our placeholder UUID is replaced with a real one.
+          var old_uuid = block.get('uuid');
+          if (old_uuid in new_blocks) {
+            block.set({'uuid': new_blocks[old_uuid]});
+            block.set({'html': block.get('html').replace(old_uuid, new_blocks[old_uuid])});
+          }
+        }, this);
+      }, this);
+
+      // Reset special attributes we use to communicate with the backend.
+      this.model.set({
+        'deletedBlocks': [],
+        'newBlocks': {}
+      });
+
+      this.render();
     }
 
   });
