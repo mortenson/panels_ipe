@@ -250,7 +250,7 @@ class PanelsIPEBlockPluginForm extends FormBase {
     ];
 
     // Merge in the current configuration.
-    $settings = array_merge($settings, $configuration);
+    $settings = array_merge($configuration, $settings);
 
     $form = [
       '#type' => 'container',
