@@ -241,7 +241,7 @@ class PanelsIPEBlockPluginForm extends FormBase {
 
     $settings = [
       'uuid' => $uuid,
-      'label' => $block_instance->label(),
+      'label' => empty($configuration['label']) ? $block_instance->label() : $configuration['label'],
       'id' => $block_instance->getPluginId(),
       'provider' => $configuration['provider'],
       'region' => $form_state->getValue('region'),
