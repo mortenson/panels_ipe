@@ -179,12 +179,14 @@
 
       // Add other regions to select list.
       this.model.get('regionCollection').each(function (region) {
+        var option = $(this.template_region_option(region.toJSON()));
         // If this is the current region, place it first in the list.
         if (region.get('blockCollection').get(id)) {
-          $(e.currentTarget).prepend(this.template_region_option(region.toJSON()));
+          option.attr('selected', 'selected');
+          $(e.currentTarget).prepend(option);
         }
         else {
-          $(e.currentTarget).append(this.template_region_option(region.toJSON()));
+          $(e.currentTarget).append(option);
         }
       }, this);
     },
