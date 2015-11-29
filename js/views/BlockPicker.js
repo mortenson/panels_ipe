@@ -59,7 +59,7 @@
      */
     template_plugin_form: _.template(
       '<h4>Add <strong><%= label %></strong> block</h4>' +
-      '<div class="ipe-block-plugin-form" data-plugin-id="<%= plugin_id %>"></div>'
+      '<div class="ipe-block-plugin-form" data-plugin-id="<%= plugin_id %>"><div class="ipe-icon ipe-icon-loading"></div></div>'
     ),
 
     /**
@@ -74,8 +74,7 @@
      */
     events: {
       'click [data-block-category]': 'toggleCategory',
-      'click .ipe-block-plugin [data-plugin-id]': 'displayBlockPluginForm',
-      'click .ipe-block-plugin-form input[value="Add"]': 'addBlockPluginForm'
+      'click .ipe-block-plugin [data-plugin-id]': 'displayBlockPluginForm'
     },
 
     /**
@@ -181,21 +180,21 @@
       // Indicate an AJAX request.
       this.$('.ipe-block-picker-top').html(this.template_plugin_form(plugin.toJSON()));
 
-      // Make the Drupal AJAX request.
+      // Get the dynamic URL of our Block Plugin form.
       var layout_id = Drupal.panels_ipe.app.get('layout').get('id');
       var url = Drupal.panels_ipe.urlRoot(drupalSettings) + '/layout/' + layout_id + '/block_plugins/' + plugin_id + '/form';
-      var ajax = Drupal.ajax({'url': url});
-      ajax.execute();
-    },
 
-    /**
-     * Adds a Block Plugin to the page.
-     */
-    addBlockPluginForm: function(e) {
-      // Get the current plugin_id.
-      var plugin_id = $(e.currentTarget).closest('[data-plugin-id]').data('plugin-id');
-      var plugin = this.collection.get(plugin_id);
-      console.log('foo');
+      // Setup the Drupal.Ajax instance.
+      var ajax = Drupal.ajax({'url': url});
+      // Remove our throbber on load.
+      var self = this;
+      ajax.options.complete = function() {
+        self.$('.ipe-block-picker-top .ipe-icon-loading').remove();
+        self.$('#panels-ipe-block-plugin-form-wrapper').hide().fadeIn();
+      };
+
+      // Make the Drupal AJAX request.
+      ajax.execute();
     }
 
   });
