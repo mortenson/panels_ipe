@@ -340,6 +340,9 @@
 
         // Re-render ourselves.
         this.render();
+
+        // Highlight the block.
+        this.$('[data-block-id="' + block.get('uuid') + '"]').addClass('ipe-highlight');
       }
     },
 

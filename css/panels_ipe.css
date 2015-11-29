@@ -202,8 +202,9 @@ div.ipe-actions {
 }
 
 /* Indicate that blocks are draggable */
-.ipe-actions-block {
+div.ipe-actions-block {
   cursor: move;
+  background-color: rgb(243, 243, 243);
 }
 
 .ipe-actions ul.ipe-action-list {

@@ -113,7 +113,10 @@
         // If this is the first click, open the tab.
         else if (clicked) {
           tab.set('active', true);
-          animation = 'open';
+          // Only animate the tab if there is an associate Backbone View.
+          if (this.tabViews[id]) {
+            animation = 'open';
+          }
         }
         // The tab wasn't clicked, make sure it's closed.
         else {
@@ -123,7 +126,7 @@
           }
           tab.set('active', false);
         }
-      });
+      }, this);
 
       // Trigger a re-render, with animation if needed.
       if (animation == 'close') {
