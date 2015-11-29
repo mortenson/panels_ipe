@@ -27,11 +27,18 @@ class InPlaceEditorDisplayBuilder extends StandardDisplayBuilder {
    *
    * @param array $regions
    *   The render array representing regions.
+   * @param \Drupal\layout_plugin\Plugin\Layout\LayoutInterface $layout
+   *   The current layout.
    *
    * @return array
    *   An associative array representing the contents of drupalSettings.
    */
-  protected function getDrupalSettings(array $regions, array $contexts, LayoutInterface $layout = NULL) {
+  protected function getDrupalSettings(array $regions, LayoutInterface $layout) {
+    // Explicitly support Page Manger, as we need to have a reference for where
+    // to save the display.
+    /** @var \Drupal\page_manager\PageVariantInterface $variant */
+    $variant = \Drupal::request()->attributes->get('page_manager_page_variant');
+
     $settings = [
       'regions' => [],
     ];
@@ -61,29 +68,19 @@ class InPlaceEditorDisplayBuilder extends StandardDisplayBuilder {
     }
 
     // Add the layout information.
-    if ($layout) {
-      $layout_definition = $layout->getPluginDefinition();
-      $settings['layout'] = [
-        'id' => $layout->getPluginId(),
-        'label' => $layout_definition['label'],
-        'original' => true
-      ];
-    }
+    $layout_definition = $layout->getPluginDefinition();
+    $settings['layout'] = [
+      'id' => $layout->getPluginId(),
+      'label' => $layout_definition['label'],
+      'original' => true
+    ];
 
-    // Explicitly support Page Manger, as we need to have a reference for where
-    // to save the display.
-    $variant = \Drupal::request()->attributes->get('page_manager_page_variant');
-    if ($variant) {
-      // Add the display variant's config.
-      $settings['display_variant'] = [
-        'label' => $variant->label(),
-        'id' => $variant->id(),
-        'uuid' => $variant->uuid(),
-      ];
-    }
-
-    // Add the module path so that our Javascript can dynamically load images.
-    $settings['base_path'] = drupal_get_path('module', 'panels_ipe');
+    // Add the display variant's config.
+    $settings['display_variant'] = [
+      'label' => $variant->label(),
+      'id' => $variant->id(),
+      'uuid' => $variant->uuid(),
+    ];
 
     return ['panels_ipe' => $settings];
   }
@@ -111,7 +108,7 @@ class InPlaceEditorDisplayBuilder extends StandardDisplayBuilder {
       // Attach the required settings and IPE.
       $build['#attached'] = [
         'library' => ['panels_ipe/panels_ipe'],
-        'drupalSettings' => $this->getDrupalSettings($regions, $contexts, $layout)
+        'drupalSettings' => $this->getDrupalSettings($regions, $layout)
       ];
 
       // Add our custom elements to the build.
