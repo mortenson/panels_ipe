@@ -76,11 +76,13 @@ class InPlaceEditorDisplayBuilder extends StandardDisplayBuilder {
     ];
 
     // Add the display variant's config.
-    $settings['display_variant'] = [
-      'label' => $variant->label(),
-      'id' => $variant->id(),
-      'uuid' => $variant->uuid(),
-    ];
+    if ($variant) {
+      $settings['display_variant'] = [
+        'label' => $variant->label(),
+        'id' => $variant->id(),
+        'uuid' => $variant->uuid(),
+      ];
+    }
 
     return ['panels_ipe' => $settings];
   }
