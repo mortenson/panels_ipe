@@ -52,14 +52,14 @@
 
 .ipe-icon.ipe-icon-loading:before {
   content: "\e907";
-  animation: spin 1s infinite linear;
+  animation: ipe-spin 1s infinite linear;
 }
 
 .ipe-icon.ipe-icon-remove:before {
   content: "\e908";
 }
 
-@keyframes spin {
+@keyframes ipe-spin {
   from {transform:rotate(360deg);}
   to {transform:rotate(0deg);}
 }
@@ -257,10 +257,10 @@ div.ipe-actions-block {
 
 /* This is used for highlighting new content on screen. */
 .ipe-highlight {
-  animation: blink .4s ease-in-out 2;
+  animation: ipe-blink .4s ease-in-out 2;
 }
 
-@keyframes blink {
+@keyframes ipe-blink {
   from, to {
     box-shadow: 0 0 0 1px transparent;
   }
