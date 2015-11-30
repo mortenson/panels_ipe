@@ -173,12 +173,17 @@
      * Displays a Block Configuration form when adding a Block Plugin.
      */
     displayBlockPluginForm: function(e) {
+      var self = this;
+
       // Get the current plugin_id.
       var plugin_id = $(e.currentTarget).data('plugin-id');
       var plugin = this.collection.get(plugin_id);
 
       // Indicate an AJAX request.
-      this.$('.ipe-block-picker-top').html(this.template_plugin_form(plugin.toJSON()));
+      this.$('.ipe-block-picker-top').fadeOut('fast', function() {
+        self.$('.ipe-block-picker-top').html(self.template_plugin_form(plugin.toJSON()));
+        self.$('.ipe-block-picker-top').fadeIn('fast');
+      });
 
       // Get the dynamic URL of our Block Plugin form.
       var layout_id = Drupal.panels_ipe.app.get('layout').get('id');
@@ -187,7 +192,6 @@
       // Setup the Drupal.Ajax instance.
       var ajax = Drupal.ajax({'url': url});
       // Remove our throbber on load.
-      var self = this;
       ajax.options.complete = function() {
         self.$('.ipe-block-picker-top .ipe-icon-loading').remove();
         self.$('#panels-ipe-block-plugin-form-wrapper').hide().fadeIn();
