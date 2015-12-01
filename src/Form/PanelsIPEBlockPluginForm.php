@@ -103,7 +103,7 @@ class PanelsIPEBlockPluginForm extends FormBase {
     $form['#prefix'] = '<div id="panels-ipe-block-plugin-form-wrapper">';
     $form['#suffix'] = '</div>';
 
-    // Wrap the form elements in a container, to make it inline with the preview.
+    // Wrap the form elements in a container.
     $form['ipe_form'] = [
       '#type' => 'container',
       '#attributes' => [
@@ -120,7 +120,7 @@ class PanelsIPEBlockPluginForm extends FormBase {
       '#value' => $plugin_id
     ];
 
-    // Add the variant ID for rendering the preview with context.
+    // Add the variant ID for rendering the block HTML with context.
     $form['ipe_form']['variant_id'] = [
       '#type' => 'hidden',
       '#value' => $variant_id
@@ -150,21 +150,6 @@ class PanelsIPEBlockPluginForm extends FormBase {
       ]
     ];
 
-    // Add a preview button that uses AJAX.
-    $form['ipe_form']['preview'] = [
-      '#type' => 'button',
-      '#value' => $this->t('Preview'),
-      '#ajax' => [
-        'callback' => '::previewForm',
-        'wrapper' => 'panels-ipe-block-plugin-form-wrapper',
-        'method' => 'replace',
-        'progress' => [
-          'type' => 'throbber',
-          'message' => 'Rendering preview...'
-        ]
-      ]
-    ];
-
     return $form;
   }
 
@@ -175,42 +160,6 @@ class PanelsIPEBlockPluginForm extends FormBase {
     $block_instance = $this->getBlockInstance($form_state->getValue('variant_id'), $form_state->getValue('plugin_id'));
 
     $block_instance->validateConfigurationForm($form, $form_state);
-  }
-
-  /**
-   * Adds a preview of the current Block Plugin to the form.
-   *
-   * @param array $form
-   *   An associative array containing the structure of the form.
-   * @param \Drupal\Core\Form\FormStateInterface $form_state
-   *   The current state of the form.
-   * @return array $form
-   *   A renderable array representing the form.
-   */
-  public function previewForm(array &$form, FormStateInterface $form_state) {
-    $block_instance = $this->getBlockInstance($form_state->getValue('variant_id'), $form_state->getValue('plugin_id'));
-
-    // Submit the configuration form.
-    $block_instance->submitConfigurationForm($form, $form_state);
-
-    // Replace our preview contents with a rendered block.
-    $build = [
-      '#theme' => 'block',
-      '#configuration' => $block_instance->getConfiguration(),
-      '#plugin_id' => $block_instance->getPluginId(),
-      '#base_plugin_id' => $block_instance->getBaseId(),
-      '#derivative_plugin_id' => $block_instance->getDerivativeId(),
-    ];
-    $build['content'] = $block_instance->build();
-
-    // Wrap our build so it can be displayed inline.
-    $build['#prefix'] = '<div id="panels-ipe-block-plugin-form-preview">';
-    $build['#suffix'] = '</div>';
-
-    // Add a special element we'll use to preview the potential block.
-    $form['build'] = $build;
-
-    return $form;
   }
 
   /**
