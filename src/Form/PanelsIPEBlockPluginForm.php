@@ -15,6 +15,7 @@ use Drupal\Core\Plugin\Context\ContextHandlerInterface;
 use Drupal\Component\Plugin\ContextAwarePluginInterface;
 use Drupal\Core\Render\RendererInterface;
 use Drupal\page_manager\Entity\PageVariant;
+use Drupal\views\Plugin\Derivative\ViewsBlock;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
@@ -99,35 +100,42 @@ class PanelsIPEBlockPluginForm extends FormBase {
     /** @var \Drupal\Core\Block\BlockBase $block_instance */
     $block_instance = $this->blockManager->createInstance($plugin_id);
 
+    // Check to see if an existing block is present.
+    $input = $form_state->getUserInput();
+    if (isset($input['block'])) {
+      // @todo This should be removed in Backbone.
+      unset($input['block']['html']);
+      unset($input['block']['active']);
+      unset($input['block']['new']);
+      $block_instance->setConfiguration($input['block']);
+      // Add our current UUID to the form to mark this block as existing.
+      $form['uuid'] = [
+        '#type' => 'value',
+        '#value' => $input['block']['uuid']
+      ];
+    }
+
     // Wrap the form so that our AJAX submit can replace its contents.
     $form['#prefix'] = '<div id="panels-ipe-block-plugin-form-wrapper">';
     $form['#suffix'] = '</div>';
 
-    // Wrap the form elements in a container.
-    $form['ipe_form'] = [
-      '#type' => 'container',
-      '#attributes' => [
-        'id' => 'panels-ipe-block-plugin-form-contents'
-      ]
-    ];
-
     // Get the base configuration form for this block.
-    $form['ipe_form']['form'] = $block_instance->buildConfigurationForm($form, $form_state);
+    $form['settings'] = $block_instance->buildConfigurationForm([], $form_state);
 
     // Add the block ID to the form as a hidden field.
-    $form['ipe_form']['plugin_id'] = [
+    $form['plugin_id'] = [
       '#type' => 'hidden',
       '#value' => $plugin_id
     ];
 
     // Add the variant ID for rendering the block HTML with context.
-    $form['ipe_form']['variant_id'] = [
+    $form['variant_id'] = [
       '#type' => 'hidden',
       '#value' => $variant_id
     ];
 
     // Add a select list for region assignment.
-    $form['ipe_form']['region'] = [
+    $form['region'] = [
       '#title' => $this->t('Region'),
       '#type' => 'select',
       '#options' => $regions,
@@ -136,9 +144,9 @@ class PanelsIPEBlockPluginForm extends FormBase {
     ];
 
     // Add an add button, which is only used by our App.
-    $form['ipe_form']['add'] = [
+    $form['submit'] = [
       '#type' => 'button',
-      '#value' => $this->t('Add'),
+      '#value' => $this->t('Submit'),
       '#ajax' => [
         'callback' => '::submitForm',
         'wrapper' => 'panels-ipe-block-plugin-form-wrapper',
@@ -175,7 +183,7 @@ class PanelsIPEBlockPluginForm extends FormBase {
     $configuration = $block_instance->getConfiguration();
 
     // Add block settings to the form so that we can create the new BlockModel.
-    $uuid = \Drupal::service('uuid')->generate();
+    $uuid = $form_state->getValue('uuid') ? $form_state->getValue('uuid') : \Drupal::service('uuid')->generate();
     $elements = [
       '#theme' => 'block',
       '#attributes' => [
@@ -192,10 +200,9 @@ class PanelsIPEBlockPluginForm extends FormBase {
       'uuid' => $uuid,
       'label' => empty($configuration['label']) ? $block_instance->label() : $configuration['label'],
       'id' => $block_instance->getPluginId(),
-      'provider' => $configuration['provider'],
       'region' => $form_state->getValue('region'),
       'html' => $this->renderer->render($elements),
-      'new' => TRUE
+      'new' => $form_state->getValue('uuid') ? FALSE : TRUE
     ];
 
     // Merge in the current configuration.

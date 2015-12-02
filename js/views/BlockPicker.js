@@ -57,9 +57,22 @@
     /**
      * @type {function}
      */
+    template_existing: _.template(
+      '<div class="ipe-block-plugin">' +
+      '  <div class="ipe-block-plugin-info">' +
+      '    <h5><%= block.label %></h5>' +
+      '    <p>Provider: <strong><%= block.provider %></strong></p>' +
+      '  </div>' +
+      '  <a data-existing-region-name="<%= region.name %>" data-existing-block-id="<%= block.uuid %>">Configure</a>' +
+      '</div>'
+    ),
+
+    /**
+     * @type {function}
+     */
     template_plugin_form: _.template(
-      '<h4>Add <strong><%= label %></strong> block</h4>' +
-      '<div class="ipe-block-plugin-form" data-plugin-id="<%= plugin_id %>"><div class="ipe-icon ipe-icon-loading"></div></div>'
+      '<h4>Configure <strong><%= label %></strong> block</h4>' +
+      '<div class="ipe-block-plugin-form"><div class="ipe-icon ipe-icon-loading"></div></div>'
     ),
 
     /**
@@ -74,7 +87,8 @@
      */
     events: {
       'click [data-block-category]': 'toggleCategory',
-      'click .ipe-block-plugin [data-plugin-id]': 'displayBlockPluginForm'
+      'click .ipe-block-plugin [data-plugin-id]': 'displayBlockPluginForm',
+      'click .ipe-block-plugin [data-existing-block-id]': 'displayBlockPluginForm'
     },
 
     /**
@@ -109,6 +123,19 @@
         ++categories_count[category];
       });
 
+      // Render existing blocks as a unique category.
+      var existing_count = 0;
+      Drupal.panels_ipe.app.get('layout').get('regionCollection').each(function(region) {
+        region.get('blockCollection').each(function(block) {
+          ++existing_count;
+        })
+      });
+      this.$('.ipe-block-categories').append(this.template_category({
+        'name': 'On Screen',
+        'count': existing_count,
+        'active': this.activeCategory == 'panels_ipe_blocks'
+      }));
+
       // Render each category.
       for (var i in categories_count) {
         this.$('.ipe-block-categories').append(this.template_category({
@@ -120,12 +147,25 @@
 
       // Check if a category is selected. If so, render the top-tray.
       if (this.activeCategory) {
-        this.$('.ipe-block-picker-top').addClass('active');
-        this.collection.each(function(block_plugin) {
-          if (block_plugin.get('category') == this.activeCategory) {
-            this.$('.ipe-block-picker-top').append(this.template_plugin(block_plugin.toJSON()));
-          }
-        }, this);
+        var $top = this.$('.ipe-block-picker-top');
+        $top.addClass('active');
+        if (this.activeCategory == 'On Screen') {
+          Drupal.panels_ipe.app.get('layout').get('regionCollection').each(function(region) {
+            region.get('blockCollection').each(function(block) {
+              $top.append(this.template_existing({
+                'block': block.toJSON(),
+                'region': region.toJSON()
+              }));
+            }, this);
+          }, this);
+        }
+        else {
+          this.collection.each(function(block_plugin) {
+            if (block_plugin.get('category') == this.activeCategory) {
+              $top.append(this.template_plugin(block_plugin.toJSON()));
+            }
+          }, this);
+        }
       }
     },
 
@@ -174,10 +214,25 @@
      */
     displayBlockPluginForm: function(e) {
       var self = this;
+      var ajax_data = {
+        'js': true
+      };
 
       // Get the current plugin_id.
       var plugin_id = $(e.currentTarget).data('plugin-id');
-      var plugin = this.collection.get(plugin_id);
+      var plugin;
+      if (plugin_id) {
+        plugin = this.collection.get(plugin_id);
+      }
+      // This must be an existing block.
+      else {
+        var block_id = $(e.currentTarget).data('existing-block-id');
+        var region_name = $(e.currentTarget).data('existing-region-name');
+        plugin = Drupal.panels_ipe.app.get('layout').get('regionCollection')
+          .get(region_name).get('blockCollection').get(block_id);
+        plugin_id = plugin.get('id');
+        ajax_data.block = plugin.toJSON();
+      }
 
       // Indicate an AJAX request.
       this.$('.ipe-block-picker-top').fadeOut('fast', function() {
@@ -190,7 +245,11 @@
       var url = Drupal.panels_ipe.urlRoot(drupalSettings) + '/layout/' + layout_id + '/block_plugins/' + plugin_id + '/form';
 
       // Setup the Drupal.Ajax instance.
-      var ajax = Drupal.ajax({'url': url});
+      var ajax = Drupal.ajax({
+        'url': url,
+        'submit': ajax_data
+      });
+
       // Remove our throbber on load.
       ajax.options.complete = function() {
         self.$('.ipe-block-picker-top .ipe-icon-loading').remove();

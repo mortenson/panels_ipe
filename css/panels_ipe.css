@@ -59,6 +59,14 @@
   content: "\e908";
 }
 
+.ipe-icon.ipe-icon-configure:before {
+  content: "\e909";
+}
+
+.ipe-icon.ipe-icon-configure {
+  font-size: 20px;
+}
+
 @keyframes ipe-spin {
   from {transform:rotate(360deg);}
   to {transform:rotate(0deg);}
@@ -195,6 +203,7 @@
 div.ipe-actions {
   display: block;
   height: 20px;
+  border-radius: 5px 5px 0 0;
   background-color: rgb(222, 222, 222);
   padding: 5px;
   margin-top: 1px;
@@ -397,27 +406,27 @@ div.ipe-actions-block {
   display: inline-block;
 }
 
-#panels-ipe-block-plugin-form-contents .form-item {
+#panels-ipe-block-plugin-form-wrapper .form-item {
   margin: 0 0 10px 0;
 }
 
-#panels-ipe-block-plugin-form-contents label {
+#panels-ipe-block-plugin-form-wrapper label {
   display: inline-block;
   text-transform: uppercase;
   margin-right: 5px;
 }
 
-#panels-ipe-block-plugin-form-contents summary {
+#panels-ipe-block-plugin-form-wrapper summary {
   text-transform: uppercase;
   background: transparent;
 }
 
-#panels-ipe-block-plugin-form-contents .ipe-icon-loading {
+#panels-ipe-block-plugin-form-wrapper .ipe-icon-loading {
   text-align: center;
   width: 100%;
 }
 
-#panels-ipe-block-plugin-form-contents input[type="submit"] {
+#panels-ipe-block-plugin-form-wrapper input[type="submit"] {
   text-transform: uppercase;
   margin: 0;
   background: white;
@@ -427,13 +436,13 @@ div.ipe-actions-block {
   transition: .2s;
 }
 
-#panels-ipe-block-plugin-form-contents input[type="submit"]:hover {
+#panels-ipe-block-plugin-form-wrapper input[type="submit"]:hover {
   border-color: rgb(67, 125, 33);
   color: black;
   background: white;
 }
 
-#panels-ipe-block-plugin-form-contents {
+#panels-ipe-block-plugin-form-wrapper {
   max-width: 650px;
   padding-right: 10px;
 }

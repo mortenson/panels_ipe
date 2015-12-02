@@ -228,6 +228,7 @@ class PanelsIPEPageController extends ControllerBase {
         // @todo This should be removed in Backbone.
         unset($block['html']);
         unset($block['active']);
+        unset($block['new']);
 
         // If the block already exists, update it. Otherwise add it.
         if (isset($configuration['blocks'][$block['uuid']])) {

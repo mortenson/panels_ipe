@@ -56,6 +56,7 @@
       'click [data-action-id="up"]': 'moveBlock',
       'click [data-action-id="down"]': 'moveBlock',
       'click [data-action-id="remove"]': 'removeBlock',
+      'click [data-action-id="configure"]': 'configureBlock',
       'drop .ipe-droppable': 'dropBlock'
     },
 
@@ -296,6 +297,21 @@
     },
 
     /**
+     * Configures an existing (on screen) Block.
+     */
+    configureBlock: function(e) {
+      // Get the BlockModel id (uuid).
+      var id = $(e.currentTarget).closest('[data-block-action-id]').data('block-action-id');
+
+      // Grab the model for this region.
+      var region_name = $(e.currentTarget).closest('[data-region-name]').data('region-name');
+      var region = this.model.get('regionCollection').get(region_name);
+
+      // Send a App-level event so our BlockPicker View can respond and display a Form.
+      Drupal.panels_ipe.app.trigger('configureBlock', region.get('blockCollection').get(id));
+    },
+
+    /**
      * Reacts to a block being dropped on a droppable region.
      */
     dropBlock: function(e, ui) {
@@ -326,7 +342,7 @@
     },
 
     /**
-     * Adds a new BlockModel to the layout.
+     * Adds a new BlockModel to the layout, or updates an existing Block model.
      *
      * @var Drupal.panels_ipe.BlockModel block
      *   The new BlockModel
@@ -334,6 +350,13 @@
      *   The region name that the block should be placed in.
      */
     addBlock: function(block, region_name) {
+      // First, check if the Block already exists and remove it if so.
+      this.model.get('regionCollection').each(function(region) {
+        if (region.get('blockCollection').get(block.get('uuid'))) {
+          region.get('blockCollection').remove(block.get('uuid'));
+        }
+      });
+
       // Get the target region.
       var region = this.model.get('regionCollection').get(region_name);
       if (region) {

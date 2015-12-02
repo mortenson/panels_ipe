@@ -30,6 +30,9 @@
       '    <li data-action-id="move">' +
       '      <select><option>Move</option></select>' +
       '    </li>' +
+      '    <li data-action-id="configure">' +
+      '      <a><span class="ipe-icon ipe-icon-configure"></span></a>' +
+      '    </li>' +
       '  </ul>' +
       '</div>'
     ),

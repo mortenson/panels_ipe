@@ -57,13 +57,13 @@ class InPlaceEditorDisplayBuilder extends StandardDisplayBuilder {
 
       /** @var \Drupal\Core\Block\BlockPluginInterface[] $blocks */
       foreach ($blocks as $block_uuid => $block) {
-        $block_config = $block->getConfiguration();
-        $settings['regions'][$region]['blocks'][$block_uuid] = [
+        $configuration = $block->getConfiguration();
+        $setting = [
           'uuid' => $block_uuid,
           'label' => $block->label(),
-          'id' => $block->getPluginId(),
-          'provider' => $block_config['provider']
+          'id' => $block->getPluginId()
         ];
+        $settings['regions'][$region]['blocks'][$block_uuid] = array_merge($configuration, $setting);
       }
     }
 
