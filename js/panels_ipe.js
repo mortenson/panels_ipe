@@ -41,8 +41,11 @@
 
   /**
    * Setups up our initial Collection and Views based on the current settings.
+   *
+   * @param {Object} settings
+   *   The contextual drupalSettings.
    */
-  Drupal.panels_ipe.init = function(settings) {
+  Drupal.panels_ipe.init = function (settings) {
     // Set up our initial tabs.
     var tab_collection = new Drupal.panels_ipe.TabCollection();
     tab_collection.add({title: 'Change Layout', id: 'change_layout'});
@@ -56,22 +59,22 @@
 
     // Create a global(ish) AppModel.
     Drupal.panels_ipe.app = new Drupal.panels_ipe.AppModel({
-      'tabCollection': tab_collection,
-      'editTab': edit_tab,
-      'saveTab': save_tab
+      tabCollection: tab_collection,
+      editTab: edit_tab,
+      saveTab: save_tab
     });
 
     // Set up our initial tab views.
     var tab_views = {
-      'change_layout': new Drupal.panels_ipe.LayoutPicker(),
-      'manage_content': new Drupal.panels_ipe.BlockPicker()
+      change_layout: new Drupal.panels_ipe.LayoutPicker(),
+      manage_content: new Drupal.panels_ipe.BlockPicker()
     };
 
     // Create an AppView instance.
     var app_view = new Drupal.panels_ipe.AppView({
       model: Drupal.panels_ipe.app,
-      'el': '#panels-ipe-tray',
-      'tabContentViews': tab_views
+      el: '#panels-ipe-tray',
+      tabContentViews: tab_views
     });
     $('body').append(app_view.render().$el);
 
@@ -80,39 +83,49 @@
     // Backbone with existing HTML content.
     var region_collection = new Drupal.panels_ipe.RegionCollection();
     for (var i in settings.panels_ipe.regions) {
-      var region = new Drupal.panels_ipe.RegionModel();
-      region.set(settings.panels_ipe.regions[i]);
+      if (settings.panels_ipe.regions.hasOwnProperty(i)) {
+        var region = new Drupal.panels_ipe.RegionModel();
+        region.set(settings.panels_ipe.regions[i]);
 
-      var block_collection = new Drupal.panels_ipe.BlockCollection();
-      for (var j in settings.panels_ipe.regions[i].blocks) {
-        // Add a new block model.
-        var block = new Drupal.panels_ipe.BlockModel();
-        block.set(settings.panels_ipe.regions[i].blocks[j]);
-        block_collection.add(block);
+        var block_collection = new Drupal.panels_ipe.BlockCollection();
+        for (var j in settings.panels_ipe.regions[i].blocks) {
+          if (settings.panels_ipe.regions[i].blocks.hasOwnProperty(j)) {
+            // Add a new block model.
+            var block = new Drupal.panels_ipe.BlockModel();
+            block.set(settings.panels_ipe.regions[i].blocks[j]);
+            block_collection.add(block);
+          }
+        }
+
+        region.set({blockCollection: block_collection});
+
+        region_collection.add(region);
       }
-
-      region.set({'blockCollection': block_collection});
-
-      region_collection.add(region);
     }
 
     // Create the Layout model/view.
     var layout = new Drupal.panels_ipe.LayoutModel(settings.panels_ipe.layout);
-    layout.set({'regionCollection': region_collection});
+    layout.set({regionCollection: region_collection});
     var layout_view = new Drupal.panels_ipe.LayoutView({
-      'model': layout,
-      'el': "#panels-ipe-content"
+      model: layout,
+      el: '#panels-ipe-content'
     });
     layout_view.render();
 
-    Drupal.panels_ipe.app.set({'layout': layout});
+    Drupal.panels_ipe.app.set({layout: layout});
     app_view.layoutView = layout_view;
   };
 
   /**
    * Returns the urlRoot for all callbacks
+   *
+   * @param {Object} settings
+   *   The contextual drupalSettings.
+   *
+   * @return {string}
+   *   A base path for most other URL callbacks in this App.
    */
-  Drupal.panels_ipe.urlRoot = function(settings) {
+  Drupal.panels_ipe.urlRoot = function (settings) {
     return '/admin/panels_ipe/variant/' + settings.panels_ipe.display_variant.id;
   };
 

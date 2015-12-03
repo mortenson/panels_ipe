@@ -59,8 +59,14 @@
      * For Regions, our identifier is the region name.
      *
      * @type {function}
+     *
+     * @param {Object} attrs
+     *   The current RegionModel's attributes.
+     *
+     * @return {string}
+     *   The current RegionModel's name attribute.
      */
-    modelId: function(attrs) {
+    modelId: function (attrs) {
       return attrs.name;
     }
 

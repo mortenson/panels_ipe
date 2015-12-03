@@ -75,6 +75,9 @@
 
     /**
      * Overrides the isNew method to mark if this is the initial layout or not.
+     *
+     * @return {bool}
+     *   A boolean which determines if this Block was on the page on load.
      */
     isNew: function () {
       return !this.get('original');
@@ -84,16 +87,23 @@
      * Overrides the parse method to set our regionCollection dynamically.
      *
      * @param {Object} resp
+     *   The decoded JSON response from the backend server.
      * @param {Object} options
+     *   Additional options passed to parse.
+     *
+     * @return {Object}
+     *   An object representing a LayoutModel's attributes.
      */
-    parse: function(resp, options) {
+    parse: function (resp, options) {
       // If possible, initialize our region collection.
       if (typeof resp.regions != 'undefined') {
         resp.regionCollection = new Drupal.panels_ipe.RegionCollection();
         for (var i in resp.regions) {
-          var region = new Drupal.panels_ipe.RegionModel(resp.regions[i]);
-          region.set({'blockCollection': new Drupal.panels_ipe.BlockCollection()});
-          resp.regionCollection.add(region);
+          if (resp.regions.hasOwnProperty(i)) {
+            var region = new Drupal.panels_ipe.RegionModel(resp.regions[i]);
+            region.set({blockCollection: new Drupal.panels_ipe.BlockCollection()});
+            resp.regionCollection.add(region);
+          }
         }
       }
       return resp;
@@ -101,9 +111,12 @@
 
     /**
      * @type {function}
+     *
+     * @return {string}
+     *   A URL that can be used to refresh this Layout's attributes.
      */
-    url: function() {
-      return Drupal.panels_ipe.urlRoot(drupalSettings) + '/layouts/' + this.get('id')
+    url: function () {
+      return Drupal.panels_ipe.urlRoot(drupalSettings) + '/layouts/' + this.get('id');
     }
 
   });
@@ -122,9 +135,12 @@
 
     /**
      * @type {function}
+     *
+     * @return {string}
+     *   A URL that can be used to refresh this collection's child models.
      */
-    url: function() {
-      return Drupal.panels_ipe.urlRoot(drupalSettings) + '/layouts'
+    url: function () {
+      return Drupal.panels_ipe.urlRoot(drupalSettings) + '/layouts';
     }
 
   });

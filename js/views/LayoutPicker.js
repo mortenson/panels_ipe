@@ -50,16 +50,16 @@
     /**
      * Renders the selection menu for picking Layouts.
      */
-    render: function() {
+    render: function () {
       // If we don't have layouts yet, pull some from the server.
       if (!this.collection) {
         // Indicate an AJAX request.
         this.$el.html(this.template_loading());
 
         // Fetch a list of layouts from the server.
-        this.collection = new Drupal.panels_ipe.LayoutCollection;
+        this.collection = new Drupal.panels_ipe.LayoutCollection();
         var self = this;
-        this.collection.fetch().done(function(){
+        this.collection.fetch().done(function () {
           // We have a collection now, re-render ourselves.
           self.render();
         });
@@ -72,7 +72,7 @@
         this.$el.html(this.template());
 
         // Append each layout option.
-        this.collection.each(function(layout) {
+        this.collection.each(function (layout) {
           if (!layout.get('current')) {
             this.$('.ipe-layouts').append(this.template_layout(layout.toJSON()));
           }
@@ -85,14 +85,17 @@
 
     /**
      * Fires a global Backbone event that the App watches to switch layouts.
+     *
+     * @param {Object} e
+     *   The event object.
      */
-    selectLayout: function(e) {
+    selectLayout: function (e) {
       e.preventDefault();
       var id = $(e.currentTarget).data('layout-id');
 
       // Unset the current tab.
-      this.collection.each(function(layout) {
-        if (id == layout.id) {
+      this.collection.each(function (layout) {
+        if (id === layout.id) {
           layout.set('current', true);
           // Indicate an AJAX request.
           this.$el.html(this.template_loading());

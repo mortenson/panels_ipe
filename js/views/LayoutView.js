@@ -64,9 +64,9 @@
      * @type {object}
      */
     droppable_settings: {
-      'tolerance': 'pointer',
-      'hoverClass': 'hover',
-      'accept': '[data-block-id]'
+      tolerance: 'pointer',
+      hoverClass: 'hover',
+      accept: '[data-block-id]'
     },
 
     /**
@@ -91,11 +91,16 @@
 
     /**
      * Re-renders our blocks, we have no HTML to be re-rendered.
+     *
+     * @return {Drupal.panels_ipe.LayoutView}
+     *   Returns this, for chaining.
      */
-    render: function() {
+    render: function () {
       // Remove all existing BlockViews.
       for (var i in this.blockViews) {
-        this.blockViews[i].remove();
+        if (this.blockViews.hasOwnProperty(i)) {
+          this.blockViews[i].remove();
+        }
       }
       this.blockViews = [];
 
@@ -110,8 +115,8 @@
         // Add an initial droppable area to our region if this is the first render.
         if (this.model.get('active')) {
           this.$(region_selector).prepend($(this.template_region_droppable({
-            'region': region.get('name'),
-            'index': 0
+            region: region.get('name'),
+            index: 0
           })).droppable(this.droppable_settings));
 
           // Prepend the action header for this region.
@@ -123,15 +128,15 @@
           var block_selector = '[data-block-id="' + block.get('uuid') + '"]';
 
           // Attach an empty element for our View to attach itself to.
-          if (this.$(block_selector).length == 0) {
+          if (this.$(block_selector).length === 0) {
             var empty_elem = $('<div data-block-id="' + block.get('uuid') + '">');
             this.$(region_selector).append(empty_elem);
           }
 
           // Attach a View to this empty element.
           var block_view = new Drupal.panels_ipe.BlockView({
-            'model': block,
-            'el': block_selector
+            model: block,
+            el: block_selector
           });
           this.blockViews.push(block_view);
 
@@ -141,8 +146,8 @@
           // Prepend/append droppable regions if the Block is active.
           if (this.model.get('active')) {
             block_view.$el.after($(this.template_region_droppable({
-              'region': region.get('name'),
-              'index': i
+              region: region.get('name'),
+              index: i
             })).droppable(this.droppable_settings));
           }
 
@@ -155,13 +160,20 @@
 
     /**
      * Prepends Regions and Blocks with action items.
+     *
+     * @param {Drupal.panels_ipe.LayoutModel} model
+     *   The target LayoutModel.
+     * @param {bool} value
+     *   The desired active state.
+     * @param {Object} options
+     *   Unused options.
      */
-    changeState: function(model, value, options) {
+    changeState: function (model, value, options) {
       // Sets the active state of child blocks when our state changes.
       this.model.get('regionCollection').each(function (region) {
         // BlockViews handle their own rendering, so just set the active value here.
         region.get('blockCollection').each(function (block) {
-          block.set({'active': value});
+          block.set({active: value});
         }, this);
       }, this);
 
@@ -171,8 +183,11 @@
 
     /**
      * Replaces the "Move" button with a select list of regions.
+     *
+     * @param {Object} e
+     *   The event object.
      */
-    showBlockRegionList: function(e) {
+    showBlockRegionList: function (e) {
       // Get the BlockModel id (uuid).
       var id = $(e.currentTarget).closest('[data-block-action-id]').data('block-action-id');
 
@@ -194,15 +209,21 @@
 
     /**
      * Hides the region selector.
+     *
+     * @param {Object} e
+     *   The event object.
      */
-    hideBlockRegionList: function(e) {
+    hideBlockRegionList: function (e) {
       $(e.currentTarget).html('<option>Move</option>');
     },
 
     /**
      * React to a new region being selected.
+     *
+     * @param {Object} e
+     *   The event object.
      */
-    selectBlockRegionList: function(e) {
+    selectBlockRegionList: function (e) {
       // Get the BlockModel id (uuid).
       var id = $(e.currentTarget).closest('[data-block-action-id]').data('block-action-id');
 
@@ -240,18 +261,22 @@
      * Changes the LayoutModel for this view.
      *
      * @param {Drupal.panels_ipe.LayoutModel} layout
+     *   The new LayoutModel.
      */
     changeLayout: function (layout) {
       // Stop listening to the current model.
       this.stopListening(this.model);
       // Initialize with the new model.
-      this.initialize({'model': layout});
+      this.initialize({model: layout});
     },
 
     /**
      * Moves a block up or down in its RegionModel's BlockCollection.
+     *
+     * @param {Object} e
+     *   The event object.
      */
-    moveBlock: function(e) {
+    moveBlock: function (e) {
       // Get the BlockModel id (uuid).
       var id = $(e.currentTarget).closest('[data-block-action-id]').data('block-action-id');
 
@@ -275,8 +300,11 @@
 
     /**
      * Removes a Block from its region.
+     *
+     * @param {Object} e
+     *   The event object.
      */
-    removeBlock: function(e) {
+    removeBlock: function (e) {
       // Get the BlockModel id (uuid).
       var id = $(e.currentTarget).closest('[data-block-action-id]').data('block-action-id');
 
@@ -298,8 +326,11 @@
 
     /**
      * Configures an existing (on screen) Block.
+     *
+     * @param {Object} e
+     *   The event object.
      */
-    configureBlock: function(e) {
+    configureBlock: function (e) {
       // Get the BlockModel id (uuid).
       var id = $(e.currentTarget).closest('[data-block-action-id]').data('block-action-id');
 
@@ -313,8 +344,13 @@
 
     /**
      * Reacts to a block being dropped on a droppable region.
+     *
+     * @param {Object} e
+     *   The event object.
+     * @param {Object} ui
+     *   The jQuery UI object.
      */
-    dropBlock: function(e, ui) {
+    dropBlock: function (e, ui) {
       // Get the BlockModel id (uuid) and old region name.
       var id = ui.draggable.data('block-id');
       var old_region_name = ui.draggable.closest('[data-region-name]').data('region-name');
@@ -330,7 +366,7 @@
 
       // Add the BlockModel to its new region/index.
       var new_region = this.model.get('regionCollection').get(new_region_name);
-      new_region.get('blockCollection').add(block, {'at': index, 'silent': true});
+      new_region.get('blockCollection').add(block, {at: index, silent: true});
 
       // Re-render ourselves.
       // We do this twice as jQuery UI mucks with the DOM as it lets go of a
@@ -344,15 +380,15 @@
     /**
      * Adds a new BlockModel to the layout, or updates an existing Block model.
      *
-     * @var Drupal.panels_ipe.BlockModel block
+     * @param {Drupal.panels_ipe.BlockModel} block
      *   The new BlockModel
-     * @var string region_name
+     * @param {string} region_name
      *   The region name that the block should be placed in.
      */
-    addBlock: function(block, region_name) {
+    addBlock: function (block, region_name) {
       // First, check if the Block already exists and remove it if so.
       var index = null;
-      this.model.get('regionCollection').each(function(region) {
+      this.model.get('regionCollection').each(function (region) {
         if (region.get('blockCollection').get(block.get('uuid'))) {
           index = region.get('blockCollection').indexOf(block.get('uuid'));
           region.get('blockCollection').remove(block.get('uuid'));
@@ -380,26 +416,26 @@
     /**
      * React to our LayoutModel being saved to the server.
      */
-    modelSync: function() {
+    modelSync: function () {
       var new_blocks = this.model.get('newBlocks');
 
       // Make sure our new BlockModels are no longer "new".
       this.model.get('regionCollection').each(function (region) {
-        region.get('blockCollection').each(function(block) {
-          block.set({'new': false});
+        region.get('blockCollection').each(function (block) {
+          block.set({new: false});
           // Check if this is a new block, in which case our placeholder UUID is replaced with a real one.
           var old_uuid = block.get('uuid');
           if (old_uuid in new_blocks) {
-            block.set({'uuid': new_blocks[old_uuid]});
-            block.set({'html': block.get('html').replace(old_uuid, new_blocks[old_uuid])});
+            block.set({uuid: new_blocks[old_uuid]});
+            block.set({html: block.get('html').replace(old_uuid, new_blocks[old_uuid])});
           }
         }, this);
       }, this);
 
       // Reset special attributes we use to communicate with the backend.
       this.model.set({
-        'deletedBlocks': [],
-        'newBlocks': {}
+        deletedBlocks: [],
+        newBlocks: {}
       });
 
       this.render();

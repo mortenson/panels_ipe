@@ -7,6 +7,8 @@
 
 (function ($, _, Backbone, Drupal, drupalSettings) {
 
+  'use strict';
+
   Drupal.panels_ipe.TabsView = Backbone.View.extend(/** @lends Drupal.panels_ipe.TabsView# */{
 
     /**
@@ -58,8 +60,11 @@
 
     /**
      * Renders our tab collection.
+     *
+     * @return {Drupal.panels_ipe.TabsView}
+     *   Return this, for chaining.
      */
-    render: function() {
+    render: function () {
       // Empty our list.
       this.$el.empty();
 
@@ -68,7 +73,7 @@
       this.$el.append('<div class="ipe-tabs-content"></div>');
 
       // Append each of our tabs and their tab content view.
-      this.collection.each(function(tab) {
+      this.collection.each(function (tab) {
         // Append the tab.
         var id = tab.get('id');
 
@@ -87,27 +92,31 @@
 
     /**
      * Switches the current tab.
+     *
+     * @param {Object} e
+     *   The event object.
      */
-    switchTab: function(e) {
+    switchTab: function (e) {
+      var id;
       if (typeof e === 'string') {
         id = e;
       }
       else {
         e.preventDefault();
-        var id = $(e.currentTarget).parent().data('tab-id');
+        id = $(e.currentTarget).parent().data('tab-id');
       }
 
       // Disable all existing tabs.
       var animation = null;
       var already_open = false;
-      this.collection.each(function(tab) {
+      this.collection.each(function (tab) {
         // If the tab is loading, do nothing.
         if (tab.get('loading')) {
           return;
         }
 
         // Don't repeat comparisons, if possible.
-        var clicked = tab.get('id') == id;
+        var clicked = tab.get('id') === id;
         var active = tab.get('active');
 
         // If the user is clicking the same tab twice, close it.
@@ -134,10 +143,10 @@
       }, this);
 
       // Trigger a re-render, with animation if needed.
-      if (animation == 'close') {
+      if (animation === 'close') {
         this.closeTabContent();
       }
-      else if (animation == 'open' && !already_open) {
+      else if (animation === 'open' && !already_open) {
         this.openTabContent();
       }
       else {
@@ -148,16 +157,16 @@
     /**
      * Closes any currently open tab.
      */
-    closeTabContent: function() {
+    closeTabContent: function () {
       // Close the tab, then re-render.
       var self = this;
-      this.$('.ipe-tabs-content')['slideUp']('fast', function() { self.render(); });
+      this.$('.ipe-tabs-content')['slideUp']('fast', function () { self.render(); });
     },
 
     /**
      * Opens any currently closed tab.
      */
-    openTabContent: function() {
+    openTabContent: function () {
       // We need to render first as hypothetically nothing is open.
       this.render();
       this.$('.ipe-tabs-content').hide();

@@ -78,16 +78,25 @@
      * For Block Plugins, our identifier is the plugin id.
      *
      * @type {function}
+     *
+     * @param {Object} attrs
+     *   The attributes of the current model in the collection.
+     *
+     * @return {string}
+     *   A string representing a BlockPlugin's id.
      */
-    modelId: function(attrs) {
+    modelId: function (attrs) {
       return attrs.plugin_id;
     },
 
     /**
      * @type {function}
+     *
+     * @return {string}
+     *   The URL required to sync this collection with the server.
      */
-    url: function() {
-      return Drupal.panels_ipe.urlRoot(drupalSettings) + '/block_plugins'
+    url: function () {
+      return Drupal.panels_ipe.urlRoot(drupalSettings) + '/block_plugins';
     }
 
   });

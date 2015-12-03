@@ -59,7 +59,7 @@
       // An element already exists and our HTML properly isn't set.
       // This only occurs on initial page load for performance reasons.
       if (options.el && !this.model.get('html')) {
-        this.model.set({'html': this.$el.prop('outerHTML')});
+        this.model.set({html: this.$el.prop('outerHTML')});
       }
       this.listenTo(this.model, 'reset', this.render);
       this.listenTo(this.model, 'change:active', this.render);
@@ -67,8 +67,11 @@
 
     /**
      * Renders the wrapping elements and refreshes a block model.
+     *
+     * @return {Drupal.panels_ipe.BlockView}
+     *   Return this, for chaining.
      */
-    render: function() {
+    render: function () {
       // Replace our current HTML.
       this.$el.replaceWith(this.model.get('html'));
       this.setElement("[data-block-id='" + this.model.get('uuid') + "']");
@@ -80,23 +83,23 @@
 
         // Make ourselves draggable.
         this.$el.draggable({
-          'handle': '.ipe-actions',
-          'scroll': true,
-          'scrollSpeed': 20,
+          handle: '.ipe-actions',
+          scroll: true,
+          scrollSpeed: 20,
           // Maintain our original width when dragging.
-          'helper': function(e) {
-            var original = $(e.target).hasClass("ui-draggable") ? $(e.target) :  $(e.target).closest(".ui-draggable");
+          helper: function (e) {
+            var original = $(e.target).hasClass('ui-draggable') ? $(e.target) : $(e.target).closest('.ui-draggable');
             return original.clone().css({
               width: original.width()
             });
           },
-          'start': function(e, ui) {
+          start: function (e, ui) {
             $('.ipe-droppable').addClass('active');
           },
-          'stop': function(e, ui) {
+          stop: function (e, ui) {
             $('.ipe-droppable').removeClass('active');
           },
-          'opacity': .5
+          opacity: .5
         });
       }
 

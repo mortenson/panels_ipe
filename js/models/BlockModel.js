@@ -86,8 +86,14 @@
      * For Blocks, our identifier is the UUID, not the ID.
      *
      * @type {function}
+     *
+     * @param {Object} attrs
+     *   The attributes of the current model in the collection.
+     *
+     * @return {string}
+     *   The value of a BlockModel's UUID.
      */
-    modelId: function(attrs) {
+    modelId: function (attrs) {
       return attrs.uuid;
     },
 
@@ -101,12 +107,12 @@
      * @param {string} direction
      *  The string name of the direction (either "up" or "down").
      */
-    shift: function(block, direction) {
+    shift: function (block, direction) {
       var index = this.indexOf(block);
-      if ((direction == 'up' && index > 0) || (direction == 'down' && index < this.models.length)) {
-        this.remove(block, {'silent': true});
-        var new_index = direction == 'up' ? index-1 : index+1;
-        this.add(block, {'at': new_index, 'silent': true});
+      if ((direction === 'up' && index > 0) || (direction === 'down' && index < this.models.length)) {
+        this.remove(block, {silent: true});
+        var new_index = direction === 'up' ? index - 1 : index + 1;
+        this.add(block, {at: new_index, silent: true});
       }
     }
 
