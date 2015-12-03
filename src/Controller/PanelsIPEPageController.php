@@ -8,6 +8,7 @@
 namespace Drupal\panels_ipe\Controller;
 
 use Drupal\Component\Serialization\Json;
+use Drupal\Component\Utility\NestedArray;
 use Drupal\Core\Ajax\AjaxResponse;
 use Drupal\Core\Ajax\AppendCommand;
 use Drupal\Core\Block\BlockManagerInterface;
@@ -232,7 +233,7 @@ class PanelsIPEPageController extends ControllerBase {
 
         // If the block already exists, update it. Otherwise add it.
         if (isset($configuration['blocks'][$block['uuid']])) {
-          $variant_plugin->updateBlock($block['uuid'], array_merge($configuration['blocks'][$block['uuid']], $block));
+          $variant_plugin->updateBlock($block['uuid'], NestedArray::mergeDeep($configuration['blocks'][$block['uuid']], $block));
         }
         else {
           $new_uuid = $variant_plugin->addBlock($block);

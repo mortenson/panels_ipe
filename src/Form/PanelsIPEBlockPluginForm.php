@@ -9,6 +9,7 @@ namespace Drupal\panels_ipe\Form;
 
 use Drupal\Component\Plugin\PluginManagerInterface;
 use Drupal\Component\Serialization\Json;
+use Drupal\Component\Utility\NestedArray;
 use Drupal\Core\Form\FormBase;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Plugin\Context\ContextHandlerInterface;
@@ -200,7 +201,7 @@ class PanelsIPEBlockPluginForm extends FormBase {
     ];
 
     // Merge in the current configuration.
-    $settings = array_merge($configuration, $settings);
+    $settings = NestedArray::mergeDeep($configuration, $settings);
 
     $form = [
       '#type' => 'container',
@@ -216,10 +217,13 @@ class PanelsIPEBlockPluginForm extends FormBase {
   /**
    * Creates a Block Plugin instance suitable for rendering or testing.
    *
-   * @param string $variant_id The Variant ID.
-   * @param string $plugin_id The Block Plugin ID.
+   * @param string $variant_id
+   *   The Variant ID.
+   * @param string $plugin_id
+   *   The Block Plugin ID.
    *
-   * @return \Drupal\Core\Block\BlockBase The Block Plugin instance.
+   * @return \Drupal\Core\Block\BlockBase
+   *   The Block Plugin instance.
    */
   protected function getBlockInstance($variant_id, $plugin_id) {
     // Create an instance of this Block plugin.

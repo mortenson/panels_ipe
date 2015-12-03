@@ -8,6 +8,7 @@
 namespace Drupal\panels_ipe\Plugin\DisplayBuilder;
 
 use Drupal\Component\Utility\Html;
+use Drupal\Component\Utility\NestedArray;
 use Drupal\layout_plugin\Plugin\Layout\LayoutInterface;
 use Drupal\panels\Plugin\DisplayBuilder\StandardDisplayBuilder;
 
@@ -63,7 +64,7 @@ class InPlaceEditorDisplayBuilder extends StandardDisplayBuilder {
           'label' => $block->label(),
           'id' => $block->getPluginId()
         ];
-        $settings['regions'][$region]['blocks'][$block_uuid] = array_merge($configuration, $setting);
+        $settings['regions'][$region]['blocks'][$block_uuid] = NestedArray::mergeDeep($configuration, $setting);
       }
     }
 
