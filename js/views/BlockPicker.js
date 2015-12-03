@@ -153,7 +153,7 @@
       this.$('.ipe-block-categories').append(this.template_category({
         'name': 'On Screen',
         'count': existing_count,
-        'active': this.activeCategory == 'panels_ipe_blocks'
+        'active': this.activeCategory == 'On Screen'
       }));
 
       // Render each category.
