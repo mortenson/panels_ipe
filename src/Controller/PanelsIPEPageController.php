@@ -346,7 +346,7 @@ class PanelsIPEPageController extends ControllerBase {
   }
 
   /**
-   * Drupal AJAX compatible route for rending a given Block Plugin's form.
+   * Drupal AJAX compatible route for rendering a given Block Plugin's form.
    *
    * @param string $variant_id
    *   The PageVariant ID.
@@ -354,12 +354,14 @@ class PanelsIPEPageController extends ControllerBase {
    *   The requested Layout ID.
    * @param string $plugin_id
    *   The requested Block Plugin ID.
+   * @param string $block_uuid
+   *   The Block UUID, if this is an existing Block.
    *
    * @return Response
    *
    * @throws NotFoundHttpException
    */
-  public function getBlockPluginForm($variant_id, $layout_id, $plugin_id) {
+  public function getBlockPluginForm($variant_id, $layout_id, $plugin_id, $block_uuid = NULL) {
     // Check if the variant exists.
     /** @var \Drupal\page_manager\PageVariantInterface $variant */
     if (!$variant = PageVariant::load($variant_id)) {
@@ -374,13 +376,21 @@ class PanelsIPEPageController extends ControllerBase {
       throw new NotFoundHttpException();
     }
 
+    // If $block_uuid is passed, check if it already exists in the Variant Plugin.
+    $new = TRUE;
+    if ($block_uuid) {
+      /** @var \Drupal\panels\Plugin\DisplayVariant\PanelsDisplayVariant $variant_plugin */
+      $plugin = $variant->getVariantPlugin();
+      $new = isset($plugin->getConfiguration()['blocks'][$block_uuid]);
+    }
+
     // Grab the current layout's regions.
     /** @var \Drupal\layout_plugin\Plugin\Layout\LayoutBase $layout */
     $layout = $this->layoutPluginManager->createInstance($layout_id, []);
     $regions = $layout->getRegionNames();
 
     // Build a Block Plugin configuration form.
-    $form = \Drupal::formBuilder()->getForm('Drupal\panels_ipe\Form\PanelsIPEBlockPluginForm', $plugin_id, $variant_id, $regions);
+    $form = \Drupal::formBuilder()->getForm('Drupal\panels_ipe\Form\PanelsIPEBlockPluginForm', $plugin_id, $variant_id, $regions, $block_uuid, $new);
 
     // Return the rendered form as a proper Drupal AJAX response.
     // This is needed as forms often have custom JS and CSS that need added,

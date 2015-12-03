@@ -351,8 +351,10 @@
      */
     addBlock: function(block, region_name) {
       // First, check if the Block already exists and remove it if so.
+      var index = null;
       this.model.get('regionCollection').each(function(region) {
         if (region.get('blockCollection').get(block.get('uuid'))) {
+          index = region.get('blockCollection').indexOf(block.get('uuid'));
           region.get('blockCollection').remove(block.get('uuid'));
         }
       });
@@ -360,8 +362,12 @@
       // Get the target region.
       var region = this.model.get('regionCollection').get(region_name);
       if (region) {
-        // Add the block.
-        region.get('blockCollection').add(block);
+        // Add the block, at its previous index if necessary.
+        var options = {};
+        if (index) {
+          options.at = index;
+        }
+        region.get('blockCollection').add(block, options);
 
         // Re-render ourselves.
         this.render();

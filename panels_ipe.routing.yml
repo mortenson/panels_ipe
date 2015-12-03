@@ -13,6 +13,13 @@ panels_ipe.block_plugin.form:
   requirements:
     _permission: 'access panels in-place editing'
 
+panels_ipe.block_plugin_existing.form:
+  path: '/admin/panels_ipe/variant/{variant_id}/layout/{layout_id}/block_plugins/{plugin_id}/block/{block_uuid}/form'
+  defaults:
+      _controller: '\Drupal\panels_ipe\Controller\PanelsIPEPageController::getBlockPluginForm'
+  requirements:
+    _permission: 'access panels in-place editing'
+
 panels_ipe.layouts:
   path: '/admin/panels_ipe/variant/{variant_id}/layouts'
   defaults:

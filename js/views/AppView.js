@@ -56,6 +56,7 @@
       // Listen to important global events throughout the app.
       this.listenTo(this.model, 'changeLayout', this.changeLayout);
       this.listenTo(this.model, 'addBlockPlugin', this.addBlockPlugin);
+      this.listenTo(this.model, 'configureBlock', this.configureBlock);
 
       // Listen to tabs that don't have associated BackboneViews.
       this.listenTo(this.model.get('editTab'), 'change:active', this.clickEditTab);
@@ -193,6 +194,17 @@
       });
 
       this.tabsView.closeTabContent();
+    },
+
+    /**
+     * Opens the Manage Content tray when configuring an existing Block.
+     *
+     * @var {Drupal.panels_ipe.BlockModel} configureBlock
+     */
+    configureBlock: function(block) {
+      this.tabsView.tabViews['manage_content'].activeCategory = 'On Screen';
+      this.tabsView.tabViews['manage_content'].autoClick = '[data-existing-block-id=' + block.get('uuid') + ']';
+      this.tabsView.switchTab('manage_content');
     }
 
   });

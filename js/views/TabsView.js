@@ -89,8 +89,13 @@
      * Switches the current tab.
      */
     switchTab: function(e) {
-      e.preventDefault();
-      var id = $(e.currentTarget).parent().data('tab-id');
+      if (typeof e === 'string') {
+        id = e;
+      }
+      else {
+        e.preventDefault();
+        var id = $(e.currentTarget).parent().data('tab-id');
+      }
 
       // Disable all existing tabs.
       var animation = null;

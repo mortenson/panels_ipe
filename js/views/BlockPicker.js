@@ -25,6 +25,13 @@
     activeCategory: null,
 
     /**
+     * A Block Plugin selector to automatically click on render.
+     *
+     * @type {string}
+     */
+    autoClick: null,
+
+    /**
      * @type {function}
      */
     template: _.template(
@@ -92,7 +99,20 @@
     },
 
     /**
+     * @constructs
+     *
+     * @augments Backbone.View
+     *
+     */
+    initialize: function (options) {
+      if (options && options.collection) {
+        this.collection = options.collection;
+      }
+    },
+
+    /**
      * Renders the selection menu for picking Blocks.
+     *
      */
     render: function() {
       // Initialize our BlockPluginCollection if it doesn't already exist.
@@ -149,6 +169,7 @@
       if (this.activeCategory) {
         var $top = this.$('.ipe-block-picker-top');
         $top.addClass('active');
+        // The "On Screen" category is special, and requires special rendering.
         if (this.activeCategory == 'On Screen') {
           Drupal.panels_ipe.app.get('layout').get('regionCollection').each(function(region) {
             region.get('blockCollection').each(function(block) {
@@ -165,6 +186,12 @@
               $top.append(this.template_plugin(block_plugin.toJSON()));
             }
           }, this);
+        }
+
+        // Check if we need to automatically select one Block Plugin.
+        if (this.autoClick) {
+          this.$(this.autoClick).click();
+          this.autoClick = null;
         }
       }
     },
@@ -220,18 +247,33 @@
 
       // Get the current plugin_id.
       var plugin_id = $(e.currentTarget).data('plugin-id');
+
+      // Generate a base URL for the form.
+      var layout_id = Drupal.panels_ipe.app.get('layout').get('id');
+      var url = Drupal.panels_ipe.urlRoot(drupalSettings) + '/layout/' + layout_id + '/block_plugins/';
+
       var plugin;
+
+      // This is a new block.
       if (plugin_id) {
         plugin = this.collection.get(plugin_id);
+        url += plugin_id + '/form';
       }
-      // This must be an existing block.
+      // This is an existing block.
       else {
+        // Get the Block UUID and Region Name
         var block_id = $(e.currentTarget).data('existing-block-id');
         var region_name = $(e.currentTarget).data('existing-region-name');
+
+        // Get the Block plugin
         plugin = Drupal.panels_ipe.app.get('layout').get('regionCollection')
           .get(region_name).get('blockCollection').get(block_id);
         plugin_id = plugin.get('id');
+
+        // Send the BlockModel to the server when requesting the form.
         ajax_data.block = plugin.toJSON();
+
+        url += plugin_id + '/block/' + block_id + '/form';
       }
 
       // Indicate an AJAX request.
@@ -239,10 +281,6 @@
         self.$('.ipe-block-picker-top').html(self.template_plugin_form(plugin.toJSON()));
         self.$('.ipe-block-picker-top').fadeIn('fast');
       });
-
-      // Get the dynamic URL of our Block Plugin form.
-      var layout_id = Drupal.panels_ipe.app.get('layout').get('id');
-      var url = Drupal.panels_ipe.urlRoot(drupalSettings) + '/layout/' + layout_id + '/block_plugins/' + plugin_id + '/form';
 
       // Setup the Drupal.Ajax instance.
       var ajax = Drupal.ajax({

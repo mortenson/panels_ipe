@@ -15,7 +15,6 @@ use Drupal\Core\Plugin\Context\ContextHandlerInterface;
 use Drupal\Component\Plugin\ContextAwarePluginInterface;
 use Drupal\Core\Render\RendererInterface;
 use Drupal\page_manager\Entity\PageVariant;
-use Drupal\views\Plugin\Derivative\ViewsBlock;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
@@ -85,12 +84,16 @@ class PanelsIPEBlockPluginForm extends FormBase {
    *   The current PageVariant ID.
    * @param array $regions
    *   An array of region definitions.
+   * @param string $uuid
+   *   An optional Block UUID, if this is an existing Block.
+   * @param bool $new
+   *   Whether or not the Block is new (to the Variant Plugin).
    *
    * @return array
    *   The form structure.
    *
    */
-  public function buildForm(array $form, FormStateInterface $form_state, $plugin_id = NULL, $variant_id = NULL, $regions = NULL) {
+  public function buildForm(array $form, FormStateInterface $form_state, $plugin_id = NULL, $variant_id = NULL, $regions = NULL, $uuid = NULL, $new = TRUE) {
     // We require these defaults arguments.
     if (!$plugin_id || !$variant_id || !$regions) {
       return FALSE;
@@ -108,11 +111,6 @@ class PanelsIPEBlockPluginForm extends FormBase {
       unset($input['block']['active']);
       unset($input['block']['new']);
       $block_instance->setConfiguration($input['block']);
-      // Add our current UUID to the form to mark this block as existing.
-      $form['uuid'] = [
-        '#type' => 'value',
-        '#value' => $input['block']['uuid']
-      ];
     }
 
     // Wrap the form so that our AJAX submit can replace its contents.
@@ -122,17 +120,13 @@ class PanelsIPEBlockPluginForm extends FormBase {
     // Get the base configuration form for this block.
     $form['settings'] = $block_instance->buildConfigurationForm([], $form_state);
 
-    // Add the block ID to the form as a hidden field.
-    $form['plugin_id'] = [
-      '#type' => 'hidden',
-      '#value' => $plugin_id
-    ];
+    // Add the block and variant ID to the form as a temporary value.
+    $form_state->setTemporaryValue('plugin_id', $plugin_id);
+    $form_state->setTemporaryValue('variant_id', $variant_id);
 
-    // Add the variant ID for rendering the block HTML with context.
-    $form['variant_id'] = [
-      '#type' => 'hidden',
-      '#value' => $variant_id
-    ];
+    // Add our current UUID and new status to the form to mark this block as existing.
+    $form_state->setTemporaryValue('uuid', $uuid);
+    $form_state->setTemporaryValue('new', $new);
 
     // Add a select list for region assignment.
     $form['region'] = [
@@ -165,7 +159,7 @@ class PanelsIPEBlockPluginForm extends FormBase {
    * {@inheritdoc}
    */
   public function validateForm(array &$form, FormStateInterface $form_state) {
-    $block_instance = $this->getBlockInstance($form_state->getValue('variant_id'), $form_state->getValue('plugin_id'));
+    $block_instance = $this->getBlockInstance($form_state->getTemporaryValue('variant_id'), $form_state->getTemporaryValue('plugin_id'));
 
     $block_instance->validateConfigurationForm($form, $form_state);
   }
@@ -174,7 +168,7 @@ class PanelsIPEBlockPluginForm extends FormBase {
    * {@inheritdoc}
    */
   public function submitForm(array &$form, FormStateInterface $form_state) {
-    $block_instance = $this->getBlockInstance($form_state->getValue('variant_id'), $form_state->getValue('plugin_id'));
+    $block_instance = $this->getBlockInstance($form_state->getTemporaryValue('variant_id'), $form_state->getTemporaryValue('plugin_id'));
 
     // Submit the configuration form.
     $block_instance->submitConfigurationForm($form, $form_state);
@@ -183,7 +177,7 @@ class PanelsIPEBlockPluginForm extends FormBase {
     $configuration = $block_instance->getConfiguration();
 
     // Add block settings to the form so that we can create the new BlockModel.
-    $uuid = $form_state->getValue('uuid') ? $form_state->getValue('uuid') : \Drupal::service('uuid')->generate();
+    $uuid = $form_state->getTemporaryValue('uuid') ? $form_state->getTemporaryValue('uuid') : \Drupal::service('uuid')->generate();
     $elements = [
       '#theme' => 'block',
       '#attributes' => [
@@ -202,7 +196,7 @@ class PanelsIPEBlockPluginForm extends FormBase {
       'id' => $block_instance->getPluginId(),
       'region' => $form_state->getValue('region'),
       'html' => $this->renderer->render($elements),
-      'new' => $form_state->getValue('uuid') ? FALSE : TRUE
+      'new' => $form_state->getTemporaryValue('new') ? $form_state->getTemporaryValue('new') : TRUE
     ];
 
     // Merge in the current configuration.
