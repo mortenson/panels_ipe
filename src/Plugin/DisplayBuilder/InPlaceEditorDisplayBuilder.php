@@ -85,7 +85,7 @@ class InPlaceEditorDisplayBuilder extends StandardDisplayBuilder {
       ];
     }
 
-    return ['panels_ipe' => $settings];
+    return $settings;
   }
 
   /**
@@ -109,10 +109,8 @@ class InPlaceEditorDisplayBuilder extends StandardDisplayBuilder {
       }
 
       // Attach the required settings and IPE.
-      $build['#attached'] = [
-        'library' => ['panels_ipe/panels_ipe'],
-        'drupalSettings' => $this->getDrupalSettings($regions, $layout)
-      ];
+      $build['#attached']['library'][] = 'panels_ipe/panels_ipe';
+      $build['#attached']['drupalSettings']['panels_ipe'] = $this->getDrupalSettings($regions, $layout);
 
       // Add our custom elements to the build.
       $build['#prefix'] = '<div id="panels-ipe-content">';
