@@ -203,8 +203,15 @@ class PanelsIPEPageController extends ControllerBase {
    *   The decoded LayoutModel from our App.
    *
    * @return JsonResponse
+   *
+   * @throws AccessDeniedHttpException
    */
   protected function updateVariant($variant, $layout) {
+    // Check variant access.
+    if (!$variant->access('update')) {
+      throw new AccessDeniedHttpException();
+    }
+
     // Load the current variant plugin.
     /** @var \Drupal\panels\Plugin\DisplayVariant\PanelsDisplayVariant $variant_plugin */
     $variant_plugin = $variant->getVariantPlugin();
@@ -315,12 +322,19 @@ class PanelsIPEPageController extends ControllerBase {
    *   The PageVariant ID.
    *
    * @return JsonResponse
+   *
+   * @throws AccessDeniedHttpException
    */
   public function getBlockPlugins($variant_id) {
     // Check if the variant exists.
     /** @var \Drupal\page_manager\PageVariantInterface $variant */
     if (!$variant = PageVariant::load($variant_id)) {
       throw new NotFoundHttpException();
+    }
+
+    // Check variant access.
+    if (!$variant->access('read')) {
+      throw new AccessDeniedHttpException();
     }
 
     // Get block plugin definitions from the server.
@@ -360,13 +374,18 @@ class PanelsIPEPageController extends ControllerBase {
    *
    * @return Response
    *
-   * @throws NotFoundHttpException
+   * @throws AccessDeniedHttpException|NotFoundHttpException
    */
   public function getBlockPluginForm($variant_id, $layout_id, $plugin_id, $block_uuid = NULL) {
     // Check if the variant exists.
     /** @var \Drupal\page_manager\PageVariantInterface $variant */
     if (!$variant = PageVariant::load($variant_id)) {
       throw new NotFoundHttpException();
+    }
+
+    // Check variant access.
+    if (!$variant->access('read')) {
+      throw new AccessDeniedHttpException();
     }
 
     // Get the configuration in the block plugin definition.
