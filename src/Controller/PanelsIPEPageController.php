@@ -102,7 +102,7 @@ class PanelsIPEPageController extends ControllerBase {
     $variant_plugin = $variant->getVariantPlugin();
 
     // Get the current layout.
-    $layout = $variant_plugin->getConfiguration()['layout'];
+    $layout = $variant_plugin->getLayout()->getPluginId();
 
     // Get a list of all available layouts.
     $layouts = $this->layoutPluginManager->getLayoutOptions();
