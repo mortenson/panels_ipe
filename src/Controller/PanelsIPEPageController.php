@@ -8,6 +8,7 @@
 namespace Drupal\panels_ipe\Controller;
 
 use Drupal\Component\Serialization\Json;
+use Drupal\Component\Utility\Html;
 use Drupal\Component\Utility\NestedArray;
 use Drupal\Core\Ajax\AjaxResponse;
 use Drupal\Core\Ajax\AppendCommand;
@@ -154,16 +155,18 @@ class PanelsIPEPageController extends ControllerBase {
     // Inherit our PageVariant's contexts before rendering.
     $variant_plugin->setContexts($variant->getContexts());
 
-    $build = $variant_plugin->build();
-
-    // Remove all blocks from the build.
     $regions = $variant_plugin->getRegionNames();
     $region_data = [];
+    $region_content = [];
+
+    // Compile region content and metadata.
     foreach ($regions as $id => $label) {
-      // Get all block/random keys.
-      $children = Element::getVisibleChildren($build[$id]);
-      // Unset those keys, retaining the theme variables for the region.
-      $build[$id] = array_diff_key($build[$id], array_flip($children));
+      // Wrap the region with a class/data attribute that our app can use.
+      $region_name = Html::getClass("block-region-$id");
+      $region_content[$id] = [
+        '#prefix' =>'<div class="' . $region_name . '" data-region-name="' . $id . '">',
+        '#suffix' => '</div>'
+      ];
 
       // Format region metadata.
       $region_data[] = [
@@ -171,13 +174,10 @@ class PanelsIPEPageController extends ControllerBase {
         'label' => $label
       ];
     }
-
-    // Remove the wrapping elements, which our builder adds to every build.
-    unset($build['#suffix']);
-    unset($build['#prefix']);
+    $build = $variant_plugin->getLayout()->build($region_content);
 
     // Get the current layout.
-    $current_layout = $variant_plugin->getConfiguration()['layout'];
+    $current_layout = $variant_plugin->getLayout()->getPluginId();
 
     // Get a list of all available layouts.
     $layouts = $this->layoutPluginManager->getLayoutOptions();
