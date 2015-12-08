@@ -202,14 +202,7 @@ class PanelsIPEBlockPluginForm extends FormBase {
 
     // Merge in the current configuration.
     $settings = NestedArray::mergeDeep($configuration, $settings);
-
-    $form = [
-      '#type' => 'container',
-      '#attributes' => [
-        'id' => 'panels-ipe-block-plugin-form-json'
-      ],
-      ['#markup' => Json::encode($settings)]
-    ];
+    $form['#attached']['drupalSettings']['panels_ipe']['updated_block'] = $settings;
 
     return $form;
   }

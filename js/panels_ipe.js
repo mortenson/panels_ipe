@@ -21,15 +21,14 @@
       // If new block plugin JSON is present, it means we need to add a
       // new BlockModel somewhere. Inform the App that this has occurred.
       var json_wrapper = $('#panels-ipe-block-plugin-form-json', context);
-      if (json_wrapper.length > 0) {
-        // Decode the JSON
-        var data = JSON.parse(json_wrapper.html());
+      if (settings['panels_ipe']['updated_block']) {
+        var data = settings['panels_ipe']['updated_block'];
         // Create a BlockModel.
         var block = new Drupal.panels_ipe.BlockModel(data);
         // Trigger the event.
         Drupal.panels_ipe.app.trigger('addBlockPlugin', block, data.region);
-        // Remove the wrapper.
-        json_wrapper.remove();
+        // Remove the setting.
+        delete settings['panels_ipe']['updated_block'];
       }
     }
   };
