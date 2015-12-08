@@ -388,6 +388,14 @@ class PanelsIPEPageController extends ControllerBase {
       throw new AccessDeniedHttpException();
     }
 
+    /** @var \Drupal\panels\Plugin\DisplayVariant\PanelsDisplayVariant $variant_plugin */
+    $variant_plugin = $variant->getVariantPlugin();
+
+    // Set our configuration to match the current, possibly unsaved layout.
+    $configuration = $variant_plugin->getConfiguration();
+    $configuration['layout'] = $layout_id;
+    $variant_plugin->setConfiguration($configuration);
+
     // Get the configuration in the block plugin definition.
     $definitions = $this->blockManager->getDefinitionsForContexts($variant->getContexts());
 
@@ -399,15 +407,11 @@ class PanelsIPEPageController extends ControllerBase {
     // If $block_uuid is passed, check if it already exists in the Variant Plugin.
     $new = TRUE;
     if ($block_uuid) {
-      /** @var \Drupal\panels\Plugin\DisplayVariant\PanelsDisplayVariant $variant_plugin */
-      $plugin = $variant->getVariantPlugin();
-      $new = isset($plugin->getConfiguration()['blocks'][$block_uuid]);
+      $new = isset($configuration['blocks'][$block_uuid]);
     }
 
     // Grab the current layout's regions.
-    /** @var \Drupal\layout_plugin\Plugin\Layout\LayoutBase $layout */
-    $layout = $this->layoutPluginManager->createInstance($layout_id, []);
-    $regions = $layout->getRegionNames();
+    $regions = $variant_plugin->getRegionNames();
 
     // Build a Block Plugin configuration form.
     $form = \Drupal::formBuilder()->getForm('Drupal\panels_ipe\Form\PanelsIPEBlockPluginForm', $plugin_id, $variant_id, $regions, $block_uuid, $new);
