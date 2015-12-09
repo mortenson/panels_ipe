@@ -18,9 +18,8 @@
       // Perform initial setup of our app.
       $('body').once('panels-ipe-init').each(Drupal.panels_ipe.init, [settings]);
 
-      // If new block plugin JSON is present, it means we need to add a
-      // new BlockModel somewhere. Inform the App that this has occurred.
-      var json_wrapper = $('#panels-ipe-block-plugin-form-json', context);
+      // If this setting is present, it means we need to add/update a new
+      // BlockModel somewhere. Inform the App that this has occurred.
       if (settings['panels_ipe']['updated_block']) {
         var data = settings['panels_ipe']['updated_block'];
         // Create a BlockModel.
