@@ -16,7 +16,10 @@
      */
     template_tab: _.template(
       '<li class="ipe-tab<% if (active) { %> active<% } %>" data-tab-id="<%= id %>">' +
-      '  <a title="<%= title %>"><span class="ipe-icon ipe-icon-<% if (loading) { %>loading<% } else { print(id) } %>"></span><%= title %></a>' +
+      '  <a title="<%= title %>">' +
+      '    <span class="ipe-icon ipe-icon-<% if (loading) { %>loading<% } else { print(id) } %>"></span>' +
+      '    <span class="ipe-tab-title"><%= title %></span>' +
+      '  </a>' +
       '</li>'
     ),
 

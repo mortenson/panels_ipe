@@ -99,10 +99,17 @@
   overflow: hidden;
   display: inline-block;
   vertical-align: bottom;
-  padding: 10px 5px 10px 5px;
+  padding: 10px 5px 12px 5px;
+  margin-bottom: -1px;
   background-color: white;
   border-top: 1px solid darkgray;
-  margin-bottom: -1px;
+  border-bottom: 1px solid darkgray;
+  transition: border-color .2s;
+}
+
+.ipe-tab:hover, .ipe-tab.active {
+  border-bottom: 3px solid rgb(67, 125, 33);
+  padding-bottom: 10px;
 }
 
 .ipe-tab:first-child {
@@ -113,10 +120,6 @@
 .ipe-tab:last-child {
   border-right: 1px solid darkgray;
   border-top-right-radius: 5px;
-}
-
-.ipe-tab.active a {
-  color: darkgray;
 }
 
 .ipe-tab a {
@@ -130,8 +133,8 @@
   transition: .2s;
 }
 
-.ipe-tab a:hover {
-  color: darkgray;
+.ipe-tab.active a, .ipe-tab a:hover {
+  color: rgb(67, 125, 33);
   border: none;
 }
 
@@ -143,7 +146,7 @@
 .ipe-tab-content {
   display: none;
   min-height: 100px;
-  padding: 5px 5px 10px 5px;
+  padding: 20px 5px 10px 5px;
   background-color: white;
   border-top: 1px solid darkgray;
 }
@@ -153,9 +156,8 @@
 }
 
 /* Don't show text for these tabs */
-[data-tab-id="save"], [data-tab-id="edit"] {
-  overflow: hidden;
-  width: 24px;
+[data-tab-id="save"] .ipe-tab-title, [data-tab-id="edit"] .ipe-tab-title {
+  display: none;
 }
 
 /* Styles for the Layout selector. */
@@ -188,10 +190,6 @@
 .ipe-layout-title {
   font-weight: bold;
   text-transform: uppercase;
-}
-
-.ipe-layout-title a {
-
 }
 
 /* Hide the tray for the edit and save tabs. */
@@ -303,7 +301,7 @@ div.ipe-actions-block {
   overflow-x: scroll;
   white-space: nowrap;
   margin: auto;
-  padding: 20px;
+  padding: 20px 20px 0 20px;
   min-height: 70px;
 }
 
@@ -313,16 +311,20 @@ div.ipe-actions-block {
 
 .ipe-block-picker-top.active {
   display: block;
-  padding: 20px;
+  padding: 0 20px 20px 20px;
   max-height: 100%;
   border-bottom: 1px solid darkgray;
 }
 
+#panels-ipe-tray .ipe-block-category {
+  margin-right: 5px;
+}
+
 .ipe-block-category {
+  position: relative;
   color: black;
   display: inline-block;
   padding: 10px;
-  margin-right: 10px;
   text-transform: uppercase;
   font-size: 15px;
   font-weight: bold;
@@ -335,6 +337,25 @@ div.ipe-actions-block {
 .ipe-block-category:hover,.ipe-block-category.active {
   border-color: rgb(67, 125, 33);
   color: inherit;
+}
+
+/* Indicate an active block category with an arrow. */
+.ipe-block-category.active:after {
+  bottom: 100%;
+  left: 50%;
+  border: solid transparent;
+  content: " ";
+  height: 0;
+  width: 0;
+  position: absolute;
+  pointer-events: none;
+}
+
+.ipe-block-category.active:after {
+  border-color: transparent;
+  border-bottom-color: rgb(67, 125, 33);
+  border-width: 10px;
+  margin-left: -10px;
 }
 
 .ipe-block-category-count {
@@ -404,10 +425,6 @@ div.ipe-actions-block {
   text-align: left;
   margin: 0 auto;
   display: inline-block;
-}
-
-#panels-ipe-block-plugin-form-wrapper .form-item {
-  margin: 0 0 10px 0;
 }
 
 #panels-ipe-block-plugin-form-wrapper label {
