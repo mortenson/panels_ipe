@@ -464,9 +464,39 @@ div.ipe-actions-block {
   padding-right: 10px;
 }
 
-#panels-ipe-block-plugin-form-preview {
-  vertical-align: top;
-  margin-top: 10px;
-  border: 1px dashed darkgray;
-  padding: 5px;
+/* Styles required to do the card-flip affect. */
+/* Credit to https://davidwalsh.name/css-flip for the original CSS. */
+.ipe-block-plugin-form .flip-container {
+  perspective: 1000;
+}
+/* flip the pane when hovered */
+.ipe-block-plugin-form.flipped .flipper, .ipe-block-plugin-form.flipped .flipper {
+  transform: rotateY(180deg);
+}
+
+/* flip speed goes here */
+.ipe-block-plugin-form .flipper {
+  transition: 0.6s;
+  transform-style: preserve-3d;
+  position: relative;
+}
+
+/* hide back of pane during swap */
+.ipe-block-plugin-form .front, .ipe-block-plugin-form .back {
+  backface-visibility: hidden;
+}
+
+/* front pane, placed above back */
+.ipe-block-plugin-form .front {
+  z-index: 2;
+  /* for firefox 31 */
+  transform: rotateY(0deg);
+}
+
+/* back, initially hidden pane */
+.ipe-block-plugin-form .back {
+  transform: rotateY(180deg);
+  position: absolute;
+  top: 0;
+  right: 0;
 }

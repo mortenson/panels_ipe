@@ -29,6 +29,14 @@
         // Remove the setting.
         delete settings['panels_ipe']['updated_block'];
       }
+      // If this setting is present, it means we need to toggle the preview.
+      // We need to do this with drupalSettings as the animation won't work
+      // if triggered by a form submit. It must occur after the form is rendered.
+      if (context.className == 'panels-ipe-block-plugin-form flip-container'
+        && settings['panels_ipe']['toggle_preview']) {
+        $('.ipe-block-plugin-form').toggleClass('flipped');
+        delete settings['panels_ipe']['toggle_preview'];
+      }
     }
   };
 
