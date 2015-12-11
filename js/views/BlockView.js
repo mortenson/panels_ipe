@@ -15,8 +15,8 @@
      * @type {function}
      */
     template_actions: _.template(
-      '<div class="ipe-actions-block ipe-actions" data-block-action-id="<%= uuid %>">' +
-      '  <h5>Block: <%= label %></h5>' +
+      '<div class="ipe-actions-block ipe-actions" data-block-action-id="<%- uuid %>">' +
+      '  <h5>Block: <%- label %></h5>' +
       '  <ul class="ipe-action-list">' +
       '    <li data-action-id="remove">' +
       '      <a><span class="ipe-icon ipe-icon-remove"></span></a>' +

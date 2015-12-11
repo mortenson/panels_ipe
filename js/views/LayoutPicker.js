@@ -14,12 +14,12 @@
     /**
      * @type {function}
      */
-    template_layout: _.template('<li class="ipe-layout" data-layout-id="<%= id %>"><h5 class="ipe-layout-title"><a><%= label %></a></h5></li>'),
+    template_layout: _.template('<li class="ipe-layout" data-layout-id="<%- id %>"><h5 class="ipe-layout-title"><a><%- label %></a></h5></li>'),
 
     /**
      * @type {function}
      */
-    template_current: _.template('<p>Current Layout: </p><h5 class="ipe-layout-title"><%= label %></h5>'),
+    template_current: _.template('<p>Current Layout: </p><h5 class="ipe-layout-title"><%- label %></h5>'),
 
     /**
      * @type {function}

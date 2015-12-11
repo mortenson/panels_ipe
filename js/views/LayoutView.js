@@ -15,8 +15,8 @@
      * @type {function}
      */
     template_region_actions: _.template(
-      '<div class="ipe-actions" data-region-action-id="<%= name %>">' +
-      '  <h5>Region: <%= name %></h5>' +
+      '<div class="ipe-actions" data-region-action-id="<%- name %>">' +
+      '  <h5>Region: <%- name %></h5>' +
       '  <ul class="ipe-action-list"></ul>' +
       '</div>'
     ),
@@ -25,14 +25,14 @@
      * @type {function}
      */
     template_region_option: _.template(
-      '<option data-region-option-name="<%= name %>"><%= name %></option>'
+      '<option data-region-option-name="<%- name %>"><%- name %></option>'
     ),
 
     /**
      * @type {function}
      */
     template_region_droppable: _.template(
-      '<div class="ipe-droppable" data-droppable-region-name="<%= region %>" data-droppable-index="<%= index %>"></div>'
+      '<div class="ipe-droppable" data-droppable-region-name="<%- region %>" data-droppable-index="<%- index %>"></div>'
     ),
 
     /**

@@ -42,9 +42,9 @@
      * @type {function}
      */
     template_category: _.template(
-      '<a class="ipe-block-category<% if (active) { %> active<% } %>" data-block-category="<%= name %>">' +
-      '  <%= name %>' +
-      '  <div class="ipe-block-category-count"><%= count %></div>' +
+      '<a class="ipe-block-category<% if (active) { %> active<% } %>" data-block-category="<%- name %>">' +
+      '  <%- name %>' +
+      '  <div class="ipe-block-category-count"><%- count %></div>' +
       '</a>'
     ),
 
@@ -54,10 +54,10 @@
     template_plugin: _.template(
       '<div class="ipe-block-plugin">' +
       '  <div class="ipe-block-plugin-info">' +
-      '    <h5><%= label %></h5>' +
-      '    <p>Provider: <strong><%= provider %></strong></p>' +
+      '    <h5><%- label %></h5>' +
+      '    <p>Provider: <strong><%- provider %></strong></p>' +
       '  </div>' +
-      '  <a data-plugin-id="<%= plugin_id %>">Add</a>' +
+      '  <a data-plugin-id="<%- plugin_id %>">Add</a>' +
       '</div>'
     ),
 
@@ -67,10 +67,10 @@
     template_existing: _.template(
       '<div class="ipe-block-plugin">' +
       '  <div class="ipe-block-plugin-info">' +
-      '    <h5><%= block.label %></h5>' +
-      '    <p>Provider: <strong><%= block.provider %></strong></p>' +
+      '    <h5><%- block.label %></h5>' +
+      '    <p>Provider: <strong><%- block.provider %></strong></p>' +
       '  </div>' +
-      '  <a data-existing-region-name="<%= region.name %>" data-existing-block-id="<%= block.uuid %>">Configure</a>' +
+      '  <a data-existing-region-name="<%- region.name %>" data-existing-block-id="<%- block.uuid %>">Configure</a>' +
       '</div>'
     ),
 
@@ -78,7 +78,7 @@
      * @type {function}
      */
     template_plugin_form: _.template(
-      '<h4>Configure <strong><%= label %></strong> block</h4>' +
+      '<h4>Configure <strong><%- label %></strong> block</h4>' +
       '<div class="ipe-block-plugin-form"><div class="ipe-icon ipe-icon-loading"></div></div>'
     ),
 
