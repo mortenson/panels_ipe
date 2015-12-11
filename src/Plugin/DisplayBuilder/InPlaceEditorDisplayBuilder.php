@@ -17,7 +17,7 @@ use Drupal\panels\Plugin\DisplayBuilder\StandardDisplayBuilder;
  * PanelsDisplayVariant in the same place.
  *
  * @DisplayBuilder(
- *   id = "in_place_editor",
+ *   id = "ipe",
  *   label = @Translation("In-place editor")
  * )
  */
