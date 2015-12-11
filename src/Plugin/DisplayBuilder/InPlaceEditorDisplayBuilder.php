@@ -13,7 +13,7 @@ use Drupal\layout_plugin\Plugin\Layout\LayoutInterface;
 use Drupal\panels\Plugin\DisplayBuilder\StandardDisplayBuilder;
 
 /**
- * The In-place editor display builder for viewing and editing a 
+ * The In-place editor display builder for viewing and editing a
  * PanelsDisplayVariant in the same place.
  *
  * @DisplayBuilder(
