@@ -199,8 +199,9 @@
 
 /* Style the block/region headers. */
 div.ipe-actions {
-  display: block;
-  height: 20px;
+  display: flex;
+  justify-content: space-between;
+  min-height: 20px;
   border-radius: 5px 5px 0 0;
   background-color: rgb(222, 222, 222);
   padding: 5px;
@@ -215,7 +216,6 @@ div.ipe-actions-block {
 }
 
 .ipe-actions ul.ipe-action-list {
-  float: right;
   list-style: none;
   margin: 0;
   padding: 0;
@@ -227,10 +227,6 @@ div.ipe-actions-block {
   text-transform: uppercase;
   font-weight: bold;
   margin: 0;
-}
-
-.ipe-actions h5 {
-  float: left;
 }
 
 .ipe-actions a {
