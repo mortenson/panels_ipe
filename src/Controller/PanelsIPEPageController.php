@@ -17,11 +17,10 @@ use Drupal\Core\Controller\ControllerBase;
 use Drupal\Core\Render\Element;
 use Drupal\Core\Render\RendererInterface;
 use Drupal\layout_plugin\Plugin\Layout\LayoutPluginManagerInterface;
-use Drupal\page_manager\Entity\PageVariant;
+use Drupal\page_manager\PageVariantInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\HttpFoundation\JsonResponse;
 
@@ -72,27 +71,14 @@ class PanelsIPEPageController extends ControllerBase {
   /**
    * Gets a list of available Layouts, without wrapping HTML.
    *
-   * @param string $variant_id
-   *   The machine name of the current display variant.
+   * @param \Drupal\page_manager\PageVariantInterface $page_variant
+   *   The page variant entity.
    *
-   * @return JsonResponse
-   *
-   * @throws AccessDeniedHttpException|NotFoundHttpException
+   * @return \Symfony\Component\HttpFoundation\JsonResponse
    */
-  public function getLayouts($variant_id) {
-    // Check if the variant exists.
-    /** @var \Drupal\page_manager\PageVariantInterface $variant */
-    if (!$variant = PageVariant::load($variant_id)) {
-      throw new NotFoundHttpException();
-    }
-
-    // Check variant access.
-    if (!$variant->access('read')) {
-      throw new AccessDeniedHttpException();
-    }
-
+  public function getLayouts(PageVariantInterface $page_variant) {
     /** @var \Drupal\panels\Plugin\DisplayVariant\PanelsDisplayVariant $variant_plugin */
-    $variant_plugin = $variant->getVariantPlugin();
+    $variant_plugin = $page_variant->getVariantPlugin();
 
     // Get the current layout.
     $layout = $variant_plugin->getLayout()->getPluginId();
@@ -115,29 +101,16 @@ class PanelsIPEPageController extends ControllerBase {
   /**
    * Gets a given layout with empty regions and relevant metadata.
    *
-   * @param string $variant_id
-   *   The machine name of the current display variant.
+   * @param \Drupal\page_manager\PageVariantInterface $page_variant
+   *   The page variant entity.
    * @param string $layout_id
    *   The machine name of the requested layout.
    *
-   * @return JsonResponse
-   *
-   * @throws AccessDeniedHttpException|NotFoundHttpException
+   * @return \Symfony\Component\HttpFoundation\JsonResponse
    */
-  public function getLayout($variant_id, $layout_id) {
-    // Check if the variant exists.
-    /** @var \Drupal\page_manager\PageVariantInterface $variant */
-    if (!$variant = PageVariant::load($variant_id)) {
-      throw new NotFoundHttpException();
-    }
-
-    // Check variant access.
-    if (!$variant->access('read')) {
-      throw new AccessDeniedHttpException();
-    }
-
+  public function getLayout(PageVariantInterface $page_variant, $layout_id) {
     /** @var \Drupal\panels\Plugin\DisplayVariant\PanelsDisplayVariant $variant_plugin */
-    $variant_plugin = $variant->getVariantPlugin();
+    $variant_plugin = $page_variant->getVariantPlugin();
 
     // Build the requested layout.
     $configuration = $variant_plugin->getConfiguration();
@@ -145,7 +118,7 @@ class PanelsIPEPageController extends ControllerBase {
     $variant_plugin->setConfiguration($configuration);
 
     // Inherit our PageVariant's contexts before rendering.
-    $variant_plugin->setContexts($variant->getContexts());
+    $variant_plugin->setContexts($page_variant->getContexts());
 
     $regions = $variant_plugin->getRegionNames();
     $region_data = [];
@@ -189,24 +162,17 @@ class PanelsIPEPageController extends ControllerBase {
   /**
    * Updates the current PageVariant based on the changes done in our app.
    *
-   * @param \Drupal\page_manager\PageVariantInterface $variant
+   * @param \Drupal\page_manager\PageVariantInterface $page_variant
    *   The current variant.
    * @param array $layout
    *   The decoded LayoutModel from our App.
    *
-   * @return JsonResponse
-   *
-   * @throws AccessDeniedHttpException
+   * @return \Symfony\Component\HttpFoundation\JsonResponse
    */
-  protected function updateVariant($variant, $layout) {
-    // Check variant access.
-    if (!$variant->access('update')) {
-      throw new AccessDeniedHttpException();
-    }
-
+  protected function updateVariant(PageVariantInterface $page_variant, $layout) {
     // Load the current variant plugin.
     /** @var \Drupal\panels\Plugin\DisplayVariant\PanelsDisplayVariant $variant_plugin */
-    $variant_plugin = $variant->getVariantPlugin();
+    $variant_plugin = $page_variant->getVariantPlugin();
 
     // Change the layout.
     $configuration = $variant_plugin->getConfiguration();
@@ -247,7 +213,7 @@ class PanelsIPEPageController extends ControllerBase {
     }
 
     // Save the plugin.
-    $variant->save();
+    $page_variant->save();
 
     return new JsonResponse($return_data);
   }
@@ -255,33 +221,20 @@ class PanelsIPEPageController extends ControllerBase {
   /**
    * Updates (PUT) an existing Layout in this Variant.
    *
-   * @param string $variant_id
-   *   The machine name of the current display variant.
+   * @param \Drupal\page_manager\PageVariantInterface $page_variant
+   *   The current variant.
    * @param string $layout_id
    *   The machine name of the requested layout.
    * @param \Symfony\Component\HttpFoundation\Request $request
    *   The current request.
    *
-   * @return JsonResponse
-   *
-   * @throws AccessDeniedHttpException|NotFoundHttpException
+   * @return \Symfony\Component\HttpFoundation\JsonResponse
    */
-  public function updateLayout($variant_id, $layout_id, Request $request) {
-    // Check if the variant exists.
-    /** @var \Drupal\page_manager\PageVariantInterface $variant */
-    if (!$variant = PageVariant::load($variant_id)) {
-      throw new NotFoundHttpException();
-    }
-
-    // Check variant access.
-    if (!$variant->access('update')) {
-      throw new AccessDeniedHttpException();
-    }
-
+  public function updateLayout(PageVariantInterface $page_variant, $layout_id, Request $request) {
     // Decode the request.
     $content = $request->getContent();
     if (!empty($content) && $layout = Json::decode($content)) {
-      return $this->updateVariant($variant, $layout);
+      return $this->updateVariant($page_variant, $layout);
     }
     else {
       return new JsonResponse(['success' => false], 400);
@@ -291,46 +244,31 @@ class PanelsIPEPageController extends ControllerBase {
   /**
    * Creates (POST) a new Layout for this Variant.
    *
-   * @param string $variant_id
-   *   The machine name of the current display variant.
+   * @param \Drupal\page_manager\PageVariantInterface $page_variant
+   *   The current variant.
    * @param string $layout_id
    *   The machine name of the new layout.
    * @param \Symfony\Component\HttpFoundation\Request $request
    *   The current request.
    *
-   * @return JsonResponse
-   *
-   * @throws AccessDeniedHttpException|NotFoundHttpException
+   * @return \Symfony\Component\HttpFoundation\JsonResponse
    */
-  public function createLayout($variant_id, $layout_id, Request $request) {
+  public function createLayout(PageVariantInterface $page_variant, $layout_id, Request $request) {
     // For now, creating and updating a layout is the same thing.
-    return $this->updateLayout($variant_id, $layout_id, $request);
+    return $this->updateLayout($page_variant, $layout_id, $request);
   }
 
   /**
    * Gets a list of Block Plugins from the server.
    *
-   * @param string $variant_id
-   *   The PageVariant ID.
+   * @param \Drupal\page_manager\PageVariantInterface $page_variant
+   *   The current variant.
    *
-   * @return JsonResponse
-   *
-   * @throws AccessDeniedHttpException
+   * @return \Symfony\Component\HttpFoundation\JsonResponse
    */
-  public function getBlockPlugins($variant_id) {
-    // Check if the variant exists.
-    /** @var \Drupal\page_manager\PageVariantInterface $variant */
-    if (!$variant = PageVariant::load($variant_id)) {
-      throw new NotFoundHttpException();
-    }
-
-    // Check variant access.
-    if (!$variant->access('read')) {
-      throw new AccessDeniedHttpException();
-    }
-
+  public function getBlockPlugins(PageVariantInterface $page_variant) {
     // Get block plugin definitions from the server.
-    $definitions = $this->blockManager->getDefinitionsForContexts($variant->getContexts());
+    $definitions = $this->blockManager->getDefinitionsForContexts($page_variant->getContexts());
 
     // Assemble our relevant data.
     $data = [];
@@ -355,8 +293,8 @@ class PanelsIPEPageController extends ControllerBase {
   /**
    * Drupal AJAX compatible route for rendering a given Block Plugin's form.
    *
-   * @param string $variant_id
-   *   The PageVariant ID.
+   * @param \Drupal\page_manager\PageVariantInterface $page_variant
+   *   The current variant.
    * @param string $layout_id
    *   The requested Layout ID.
    * @param string $plugin_id
@@ -365,23 +303,10 @@ class PanelsIPEPageController extends ControllerBase {
    *   The Block UUID, if this is an existing Block.
    *
    * @return Response
-   *
-   * @throws AccessDeniedHttpException|NotFoundHttpException
    */
-  public function getBlockPluginForm($variant_id, $layout_id, $plugin_id, $block_uuid = NULL) {
-    // Check if the variant exists.
-    /** @var \Drupal\page_manager\PageVariantInterface $variant */
-    if (!$variant = PageVariant::load($variant_id)) {
-      throw new NotFoundHttpException();
-    }
-
-    // Check variant access.
-    if (!$variant->access('read')) {
-      throw new AccessDeniedHttpException();
-    }
-
+  public function getBlockPluginForm(PageVariantInterface $page_variant, $layout_id, $plugin_id, $block_uuid = NULL) {
     /** @var \Drupal\panels\Plugin\DisplayVariant\PanelsDisplayVariant $variant_plugin */
-    $variant_plugin = $variant->getVariantPlugin();
+    $variant_plugin = $page_variant->getVariantPlugin();
 
     // Set our configuration to match the current, possibly unsaved layout.
     $configuration = $variant_plugin->getConfiguration();
@@ -389,7 +314,7 @@ class PanelsIPEPageController extends ControllerBase {
     $variant_plugin->setConfiguration($configuration);
 
     // Get the configuration in the block plugin definition.
-    $definitions = $this->blockManager->getDefinitionsForContexts($variant->getContexts());
+    $definitions = $this->blockManager->getDefinitionsForContexts($page_variant->getContexts());
 
     // Check if the block plugin is defined.
     if (!isset($definitions[$plugin_id])) {
@@ -406,7 +331,7 @@ class PanelsIPEPageController extends ControllerBase {
     $regions = $variant_plugin->getRegionNames();
 
     // Build a Block Plugin configuration form.
-    $form = \Drupal::formBuilder()->getForm('Drupal\panels_ipe\Form\PanelsIPEBlockPluginForm', $plugin_id, $variant_id, $regions, $block_uuid, $new);
+    $form = $this->formBuilder()->getForm('Drupal\panels_ipe\Form\PanelsIPEBlockPluginForm', $plugin_id, $page_variant->id(), $regions, $block_uuid, $new);
 
     // Return the rendered form as a proper Drupal AJAX response.
     // This is needed as forms often have custom JS and CSS that need added,
