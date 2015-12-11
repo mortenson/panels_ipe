@@ -14,7 +14,6 @@ use Drupal\Core\Ajax\AjaxResponse;
 use Drupal\Core\Ajax\AppendCommand;
 use Drupal\Core\Block\BlockManagerInterface;
 use Drupal\Core\Controller\ControllerBase;
-use Drupal\Core\Plugin\Context\ContextHandlerInterface;
 use Drupal\Core\Render\Element;
 use Drupal\Core\Render\RendererInterface;
 use Drupal\layout_plugin\Plugin\Layout\LayoutPluginManagerInterface;
@@ -24,7 +23,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
-use Zend\Diactoros\Response\JsonResponse;
+use Symfony\Component\HttpFoundation\JsonResponse;
 
 /**
  * Contains all JSON endpoints required for Panels IPE + Page Manager.
@@ -35,11 +34,6 @@ class PanelsIPEPageController extends ControllerBase {
    * @var \Drupal\Core\Block\BlockManagerInterface
    */
   protected $blockManager;
-
-  /**
-   * @var \Drupal\Core\Plugin\Context\ContextHandlerInterface $contextHandler
-   */
-  protected $contextHandler;
 
   /**
    * @var \Drupal\Core\Render\RendererInterface
@@ -57,9 +51,8 @@ class PanelsIPEPageController extends ControllerBase {
    * @param \Drupal\Core\Block\BlockManagerInterface $block_manager
    * @param \Drupal\Core\Render\RendererInterface $renderer
    * @param \Drupal\layout_plugin\Plugin\Layout\LayoutPluginManagerInterface $layout_plugin_manager
-   * @param \Drupal\Core\Plugin\Context\ContextHandlerInterface $context_handler
    */
-  public function __construct(BlockManagerInterface $block_manager, RendererInterface $renderer, LayoutPluginManagerInterface $layout_plugin_manager, ContextHandlerInterface $context_handler) {
+  public function __construct(BlockManagerInterface $block_manager, RendererInterface $renderer, LayoutPluginManagerInterface $layout_plugin_manager) {
     $this->blockManager = $block_manager;
     $this->renderer = $renderer;
     $this->layoutPluginManager = $layout_plugin_manager;
@@ -72,8 +65,7 @@ class PanelsIPEPageController extends ControllerBase {
     return new static(
       $container->get('plugin.manager.block'),
       $container->get('renderer'),
-      $container->get('plugin.manager.layout_plugin'),
-      $container->get('context.handler')
+      $container->get('plugin.manager.layout_plugin')
     );
   }
 
