@@ -90,7 +90,7 @@ class PanelsIPEPageController extends ControllerBase {
       $data[] = [
         'id' => $id,
         'label' => $label,
-        'current' => $layout == $id
+        'current' => $layout == $id,
       ];
     }
 
@@ -130,13 +130,13 @@ class PanelsIPEPageController extends ControllerBase {
       $region_name = Html::getClass("block-region-$id");
       $region_content[$id] = [
         '#prefix' =>'<div class="' . $region_name . '" data-region-name="' . $id . '">',
-        '#suffix' => '</div>'
+        '#suffix' => '</div>',
       ];
 
       // Format region metadata.
       $region_data[] = [
         'name' => $id,
-        'label' => $label
+        'label' => $label,
       ];
     }
     $build = $variant_plugin->getLayout()->build($region_content);
@@ -152,7 +152,7 @@ class PanelsIPEPageController extends ControllerBase {
       'label' => $layouts[$layout_id],
       'current' => $current_layout == $layout_id,
       'html' => $this->renderer->render($build),
-      'regions' => $region_data
+      'regions' => $region_data,
     ];
 
     // Return a structured JSON response for our Backbone App.
@@ -282,7 +282,7 @@ class PanelsIPEPageController extends ControllerBase {
         'label' => $definition['admin_label'],
         'category' => $definition['category'],
         'id' => $definition['id'],
-        'provider' => $definition['provider']
+        'provider' => $definition['provider'],
       ];
     }
 

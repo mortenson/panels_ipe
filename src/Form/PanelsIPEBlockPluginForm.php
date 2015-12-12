@@ -121,22 +121,22 @@ class PanelsIPEBlockPluginForm extends FormBase {
     $form['flipper'] = [
       '#type' => 'container',
       '#attributes' => [
-        'class' => 'flipper'
-      ]
+        'class' => 'flipper',
+      ],
     ];
 
     $form['flipper']['front'] = [
       '#type' => 'container',
       '#attributes' => [
-        'class' => 'front'
-      ]
+        'class' => 'front',
+      ],
     ];
 
     $form['flipper']['back'] = [
       '#type' => 'container',
       '#attributes' => [
-        'class' => 'back'
-      ]
+        'class' => 'back',
+      ],
     ];
 
     $form['#attributes']['class'][] = 'flip-container';
@@ -156,7 +156,7 @@ class PanelsIPEBlockPluginForm extends FormBase {
       '#type' => 'select',
       '#options' => $regions,
       '#required' => TRUE,
-      '#default_value' => isset($input['block']) ? $input['block']['region'] : reset($regions)
+      '#default_value' => isset($input['block']) ? $input['block']['region'] : reset($regions),
     ];
 
     // Add an add button, which is only used by our App.
@@ -169,9 +169,9 @@ class PanelsIPEBlockPluginForm extends FormBase {
         'method' => 'replace',
         'progress' => [
           'type' => 'throbber',
-          'message' => ''
-        ]
-      ]
+          'message' => '',
+        ],
+      ],
     ];
 
     // Add a preview button.
@@ -184,9 +184,9 @@ class PanelsIPEBlockPluginForm extends FormBase {
         'method' => 'replace',
         'progress' => [
           'type' => 'throbber',
-          'message' => ''
-        ]
-      ]
+          'message' => '',
+        ],
+      ],
     ];
 
     return $form;
@@ -222,7 +222,7 @@ class PanelsIPEBlockPluginForm extends FormBase {
       'id' => $block_instance->getPluginId(),
       'region' => $form_state->getValue('region'),
       'html' => $this->renderer->render($build),
-      'new' => $form_state->getValue('new') ? $form_state->getValue('new') : TRUE
+      'new' => $form_state->getValue('new') ? $form_state->getValue('new') : TRUE,
     ];
 
     // Merge in the current configuration.
@@ -311,7 +311,7 @@ class PanelsIPEBlockPluginForm extends FormBase {
       '#plugin_id' => $block_instance->getPluginId(),
       '#base_plugin_id' => $block_instance->getBaseId(),
       '#derivative_plugin_id' => $block_instance->getDerivativeId(),
-      'content' => $block_instance->build()
+      'content' => $block_instance->build(),
     ];
 
     return $build;

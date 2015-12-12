@@ -49,7 +49,7 @@ class InPlaceEditorDisplayBuilder extends StandardDisplayBuilder {
       $settings['regions'][$region]  = [
         'name' => $region,
         'label' => '',
-        'blocks' => []
+        'blocks' => [],
       ];
 
       if (!$blocks) {
@@ -62,7 +62,7 @@ class InPlaceEditorDisplayBuilder extends StandardDisplayBuilder {
         $setting = [
           'uuid' => $block_uuid,
           'label' => $block->label(),
-          'id' => $block->getPluginId()
+          'id' => $block->getPluginId(),
         ];
         $settings['regions'][$region]['blocks'][$block_uuid] = NestedArray::mergeDeep($configuration, $setting);
       }
@@ -73,7 +73,7 @@ class InPlaceEditorDisplayBuilder extends StandardDisplayBuilder {
     $settings['layout'] = [
       'id' => $layout->getPluginId(),
       'label' => $layout_definition['label'],
-      'original' => true
+      'original' => true,
     ];
 
     // Add the display variant's config.
