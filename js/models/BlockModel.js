@@ -22,13 +22,6 @@
       active: false,
 
       /**
-       * Whether of not this Block is new.
-       *
-       * @type {bool}
-       */
-      new: false,
-
-      /**
        * The ID of the block.
        *
        * @type {string}

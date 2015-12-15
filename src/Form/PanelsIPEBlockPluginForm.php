@@ -8,13 +8,14 @@
 namespace Drupal\panels_ipe\Form;
 
 use Drupal\Component\Plugin\PluginManagerInterface;
-use Drupal\Component\Utility\NestedArray;
 use Drupal\Core\Form\FormBase;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Plugin\Context\ContextHandlerInterface;
 use Drupal\Component\Plugin\ContextAwarePluginInterface;
 use Drupal\Core\Render\RendererInterface;
 use Drupal\page_manager\Entity\PageVariant;
+use Drupal\page_manager\PageVariantInterface;
+use Drupal\user\SharedTempStoreFactory;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
@@ -41,16 +42,23 @@ class PanelsIPEBlockPluginForm extends FormBase {
   protected $renderer;
 
   /**
+   * @var \Drupal\user\SharedTempStore
+   */
+  protected $tempStore;
+
+  /**
    * Constructs a new PanelsIPEBlockPluginForm.
    *
    * @param \Drupal\Component\Plugin\PluginManagerInterface $block_manager
    * @param \Drupal\Core\Plugin\Context\ContextHandlerInterface $context_handler
    * @param \Drupal\Core\Render\RendererInterface $renderer
+   * @param \Drupal\user\SharedTempStoreFactory $temp_store_factory
    */
-  public function __construct(PluginManagerInterface $block_manager, ContextHandlerInterface $context_handler, RendererInterface $renderer) {
+  public function __construct(PluginManagerInterface $block_manager, ContextHandlerInterface $context_handler, RendererInterface $renderer, SharedTempStoreFactory $temp_store_factory) {
     $this->blockManager = $block_manager;
     $this->contextHandler = $context_handler;
     $this->renderer = $renderer;
+    $this->tempStore = $temp_store_factory->get('panels_ipe');
   }
 
   /**
@@ -60,7 +68,8 @@ class PanelsIPEBlockPluginForm extends FormBase {
     return new static(
       $container->get('plugin.manager.block'),
       $container->get('context.handler'),
-      $container->get('renderer')
+      $container->get('renderer'),
+      $container->get('user.shared_tempstore')
     );
   }
 
@@ -80,37 +89,44 @@ class PanelsIPEBlockPluginForm extends FormBase {
    *   The current state of the form.
    * @param string $plugin_id
    *   The requested Block Plugin ID.
-   * @param string $variant_id
+   * @param \Drupal\page_manager\PageVariantInterface $page_variant
    *   The current PageVariant ID.
-   * @param array $regions
-   *   An array of region definitions.
    * @param string $uuid
    *   An optional Block UUID, if this is an existing Block.
-   * @param bool $new
-   *   Whether or not the Block is new (to the Variant Plugin).
    *
    * @return array
    *   The form structure.
-   *
    */
-  public function buildForm(array $form, FormStateInterface $form_state, $plugin_id = NULL, $variant_id = NULL, $regions = NULL, $uuid = NULL, $new = TRUE) {
-    // We require these defaults arguments.
-    if (!$plugin_id || !$variant_id || !$regions) {
+  public function buildForm(array $form, FormStateInterface $form_state, $plugin_id = NULL, PageVariantInterface $page_variant = NULL, $uuid = NULL) {
+    // We require these default arguments.
+    if (!$plugin_id || !$page_variant) {
       return FALSE;
     }
 
-    // Create an instance of this Block plugin.
-    /** @var \Drupal\Core\Block\BlockBase $block_instance */
-    $block_instance = $this->blockManager->createInstance($plugin_id);
+    /** @var \Drupal\panels\Plugin\DisplayVariant\PanelsDisplayVariant $variant_plugin */
+    $variant_plugin = $page_variant->getVariantPlugin();
 
-    // Check to see if an existing block is present.
-    $input = $form_state->getUserInput();
-    if (isset($input['block'])) {
-      // @todo This should be removed in Backbone.
-      unset($input['block']['html']);
-      unset($input['block']['active']);
-      unset($input['block']['new']);
-      $block_instance->setConfiguration($input['block']);
+    // Grab the current layout's regions.
+    $regions = $variant_plugin->getRegionNames();
+
+    // If $uuid is present, a block should exist.
+    if ($uuid) {
+      /** @var \Drupal\Core\Block\BlockBase $block_instance */
+      $block_instance = $variant_plugin->getBlock($uuid);
+    }
+    else {
+      // Create an instance of this Block plugin.
+      /** @var \Drupal\Core\Block\BlockBase $block_instance */
+      $block_instance = $this->blockManager->createInstance($plugin_id);
+    }
+
+    // Determine the current region.
+    $block_config = $block_instance->getConfiguration();
+    if (isset($block_config['region']) && isset($regions[$block_config['region']])) {
+      $region = $block_config['region'];
+    }
+    else {
+      $region = reset($regions);
     }
 
     // Wrap the form so that our AJAX submit can replace its contents.
@@ -146,9 +162,8 @@ class PanelsIPEBlockPluginForm extends FormBase {
 
     // Add the block ID, variant ID to the form as values.
     $form['plugin_id'] = ['#type' => 'value', '#value' => $plugin_id];
-    $form['variant_id'] = ['#type' => 'value', '#value' => $variant_id];
+    $form['variant_id'] = ['#type' => 'value', '#value' => $page_variant->id()];
     $form['uuid'] = ['#type' => 'value', '#value' => $uuid];
-    $form['new'] = ['#type' => 'value', '#value' => $new];
 
     // Add a select list for region assignment.
     $form['flipper']['front']['settings']['region'] = [
@@ -156,7 +171,7 @@ class PanelsIPEBlockPluginForm extends FormBase {
       '#type' => 'select',
       '#options' => $regions,
       '#required' => TRUE,
-      '#default_value' => isset($input['block']) ? $input['block']['region'] : reset($regions),
+      '#default_value' => $region
     ];
 
     // Add an add button, which is only used by our App.
@@ -196,7 +211,7 @@ class PanelsIPEBlockPluginForm extends FormBase {
    * {@inheritdoc}
    */
   public function validateForm(array &$form, FormStateInterface $form_state) {
-    $block_instance = $this->getBlockInstance($form_state->getValue('variant_id'), $form_state->getValue('plugin_id'));
+    $block_instance = $this->getBlockInstance($form_state);
 
     $block_instance->validateConfigurationForm($form, $form_state);
   }
@@ -205,28 +220,55 @@ class PanelsIPEBlockPluginForm extends FormBase {
    * {@inheritdoc}
    */
   public function submitForm(array &$form, FormStateInterface $form_state) {
-    $block_instance = $this->getBlockInstance($form_state->getValue('variant_id'), $form_state->getValue('plugin_id'));
+    $block_instance = $this->getBlockInstance($form_state);
 
-    $build = $this->buildBlockInstance($block_instance, $form, $form_state);
+    // Submit the block form.
+    $block_instance->submitConfigurationForm($form, $form_state);
+
+    // Save the block instance to our temporary configuration.
+    /** @var \Drupal\page_manager\PageVariantInterface $page_variant */
+    $page_variant = PageVariant::load($form_state->getValue('variant_id'));
+    /** @var \Drupal\panels\Plugin\DisplayVariant\PanelsDisplayVariant $variant_plugin */
+    $variant_plugin = $page_variant->getVariantPlugin();
+
+    // If a temporary configuration for this variant exists, use it.
+    $temp_store_key = 'variant.' . $page_variant->id();
+    if ($variant_config = $this->tempStore->get($temp_store_key)) {
+      $variant_plugin->setConfiguration($variant_config);
+    }
+
+    // Set the block region appropriately.
+    $block_config = $block_instance->getConfiguration();
+    $block_config['region'] = $form_state->getValue('region');
+
+    // Determine if we need to update or add this block.
+    if ($uuid = $form_state->getValue('uuid')) {
+      $variant_plugin->updateBlock($uuid, $block_config);
+    }
+    else {
+      $uuid = $variant_plugin->addBlock($block_config);
+    }
+
+    // Set the tempstore value.
+    $variant_config = $variant_plugin->getConfiguration();
+    $this->tempStore->set('variant.' . $page_variant->id(), $variant_config);
+
+    // Assemble data required for our App.
+    $build = $this->buildBlockInstance($block_instance);
 
     // Add our data attribute for the Backbone app.
-    $uuid = $form_state->getValue('uuid') ? $form_state->getValue('uuid') : \Drupal::service('uuid')->generate();
     $build['#attributes']['data-block-id'] = $uuid;
-
-    // Grab the Block configuration for convenience.
-    $configuration = $build['#configuration'];
 
     $settings = [
       'uuid' => $uuid,
-      'label' => empty($configuration['label']) ? $block_instance->label() : $configuration['label'],
+      'label' => $block_instance->label(),
       'id' => $block_instance->getPluginId(),
       'region' => $form_state->getValue('region'),
-      'html' => $this->renderer->render($build),
-      'new' => $form_state->getValue('new') ? $form_state->getValue('new') : TRUE,
+      'html' => $this->renderer->render($build)
     ];
 
-    // Merge in the current configuration.
-    $settings = NestedArray::mergeDeep($configuration, $settings);
+    // Add Block metadata and HTML as a drupalSetting.
+    // @todo How do we handle #attachments in the $build this way?
     $form['#attached']['drupalSettings']['panels_ipe']['updated_block'] = $settings;
 
     return $form;
@@ -245,10 +287,11 @@ class PanelsIPEBlockPluginForm extends FormBase {
    */
   public function submitPreview(array &$form, FormStateInterface $form_state) {
     // Get the Block instance.
-    $block_instance = $this->getBlockInstance($form_state->getValue('variant_id'), $form_state->getValue('plugin_id'));
+    $block_instance = $this->getBlockInstance($form_state);
+    $block_instance->submitConfigurationForm($form, $form_state);
 
     // Gather a render array for the block.
-    $build = $this->buildBlockInstance($block_instance, $form, $form_state);
+    $build = $this->buildBlockInstance($block_instance);
 
     // Add the preview to the backside of the card and inform JS that we need to
     // be flipped.
@@ -259,26 +302,40 @@ class PanelsIPEBlockPluginForm extends FormBase {
   }
 
   /**
-   * Creates a Block Plugin instance suitable for rendering or testing.
+   * Loads or creates a Block Plugin instance suitable for rendering or testing.
    *
-   * @param string $variant_id
-   *   The Variant ID.
-   * @param string $plugin_id
-   *   The Block Plugin ID.
+   * @param \Drupal\Core\Form\FormStateInterface $form_state
+   *   The current state of the form.
    *
    * @return \Drupal\Core\Block\BlockBase
    *   The Block Plugin instance.
    */
-  protected function getBlockInstance($variant_id, $plugin_id) {
-    // Create an instance of this Block plugin.
-    /** @var \Drupal\Core\Block\BlockBase $block_instance */
-    $block_instance = $this->blockManager->createInstance($plugin_id);
+  protected function getBlockInstance($form_state) {
+    /** @var \Drupal\page_manager\PageVariantInterface $page_variant */
+    $page_variant = PageVariant::load($form_state->getValue('variant_id'));
+    /** @var \Drupal\panels\Plugin\DisplayVariant\PanelsDisplayVariant $variant_plugin */
+    $variant_plugin = $page_variant->getVariantPlugin();
+
+    // If a UUID is provided, the Block should already exist.
+    if ($uuid = $form_state->getValue('uuid')) {
+      // If a temporary configuration for this variant exists, use it.
+      $temp_store_key = 'variant.' . $page_variant->id();
+      if ($variant_config = $this->tempStore->get($temp_store_key)) {
+        $variant_plugin->setConfiguration($variant_config);
+      }
+
+      // Load the existing Block instance.
+      $block_instance = $variant_plugin->getBlock($uuid);
+    }
+    else {
+      // Create an instance of this Block plugin.
+      /** @var \Drupal\Core\Block\BlockBase $block_instance */
+      $block_instance = $this->blockManager->createInstance($form_state->getValue('plugin_id'));
+    }
 
     // Add context to the block.
     if ($block_instance instanceof ContextAwarePluginInterface) {
-      /** @var \Drupal\page_manager\PageVariantInterface $variant */
-      $variant = PageVariant::load($variant_id);
-      $this->contextHandler->applyContextMapping($block_instance, $variant->getContexts());
+      $this->contextHandler->applyContextMapping($block_instance, $page_variant->getContexts());
     }
 
     return $block_instance;
@@ -289,18 +346,11 @@ class PanelsIPEBlockPluginForm extends FormBase {
    *
    * @param \Drupal\Core\Block\BlockBase $block_instance
    *   The Block instance you want to render.
-   * @param array $form
-   *   An associative array containing the structure of the form.
-   * @param \Drupal\Core\Form\FormStateInterface $form_state
-   *   The current state of the form.
    *
    * @return array $build
    *   The Block render array.
    */
-  protected function buildBlockInstance($block_instance, $form, $form_state) {
-    // Submit the configuration form.
-    $block_instance->submitConfigurationForm($form, $form_state);
-
+  protected function buildBlockInstance($block_instance) {
     // Get the new block configuration.
     $configuration = $block_instance->getConfiguration();
 

@@ -9,8 +9,13 @@ namespace Drupal\panels_ipe\Plugin\DisplayBuilder;
 
 use Drupal\Component\Utility\Html;
 use Drupal\Component\Utility\NestedArray;
+use Drupal\page_manager\PageVariantInterface;
+use Drupal\Core\Plugin\Context\ContextHandlerInterface;
+use Drupal\Core\Session\AccountInterface;
 use Drupal\layout_plugin\Plugin\Layout\LayoutInterface;
 use Drupal\panels\Plugin\DisplayBuilder\StandardDisplayBuilder;
+use Drupal\user\SharedTempStoreFactory;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
  * The In-place editor display builder for viewing and editing a
@@ -24,22 +29,61 @@ use Drupal\panels\Plugin\DisplayBuilder\StandardDisplayBuilder;
 class InPlaceEditorDisplayBuilder extends StandardDisplayBuilder {
 
   /**
+   * @var \Drupal\user\SharedTempStore
+   */
+  protected $tempStore;
+
+  /**
+   * Constructs a new InPlaceEditorDisplayBuilder.
+   *
+   * @param array $configuration
+   *   A configuration array containing information about the plugin instance.
+   * @param string $plugin_id
+   *   The plugin ID for the plugin instance.
+   * @param mixed $plugin_definition
+   *   The plugin definition.
+   * @param \Drupal\Core\Plugin\Context\ContextHandlerInterface $context_handler
+   *   The context handler.
+   * @param \Drupal\Core\Session\AccountInterface $account
+   *   The current user.
+   * @param \Drupal\user\SharedTempStoreFactory $temp_store_factory
+   *   The factory for the temp store object.
+   */
+  public function __construct(array $configuration, $plugin_id, $plugin_definition, ContextHandlerInterface $context_handler, AccountInterface $account, SharedTempStoreFactory $temp_store_factory) {
+    parent::__construct($configuration, $plugin_id, $plugin_definition, $context_handler, $account);
+
+    $this->tempStore = $temp_store_factory->get('panels_ipe');
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function create(ContainerInterface $container, array $configuration, $plugin_id, $plugin_definition) {
+    return new static(
+      $configuration,
+      $plugin_id,
+      $plugin_definition,
+      $container->get('context.handler'),
+      $container->get('current_user'),
+      $container->get('user.shared_tempstore')
+    );
+  }
+
+  /**
    * Compiles settings needed for the IPE to function.
    *
    * @param array $regions
    *   The render array representing regions.
    * @param \Drupal\layout_plugin\Plugin\Layout\LayoutInterface $layout
    *   The current layout.
+   * @param \Drupal\page_manager\PageVariantInterface $page_variant
+   *   The current path's page variant.
    *
-   * @return array
-   *   An associative array representing the contents of drupalSettings.
+   * @return array|bool
+   *   An associative array representing the contents of drupalSettings, or
+   *   FALSE if there was an error.
    */
-  protected function getDrupalSettings(array $regions, LayoutInterface $layout) {
-    // Explicitly support Page Manger, as we need to have a reference for where
-    // to save the display.
-    /** @var \Drupal\page_manager\PageVariantInterface $variant */
-    $variant = \Drupal::request()->attributes->get('page_manager_page_variant');
-
+  protected function getDrupalSettings(array $regions, LayoutInterface $layout, PageVariantInterface $page_variant) {
     $settings = [
       'regions' => [],
     ];
@@ -77,13 +121,11 @@ class InPlaceEditorDisplayBuilder extends StandardDisplayBuilder {
     ];
 
     // Add the display variant's config.
-    if ($variant) {
-      $settings['display_variant'] = [
-        'label' => $variant->label(),
-        'id' => $variant->id(),
-        'uuid' => $variant->uuid(),
-      ];
-    }
+    $settings['display_variant'] = [
+      'label' => $page_variant->label(),
+      'id' => $page_variant->id(),
+      'uuid' => $page_variant->uuid(),
+    ];
 
     return $settings;
   }
@@ -93,8 +135,33 @@ class InPlaceEditorDisplayBuilder extends StandardDisplayBuilder {
    */
   public function build(array $regions, array $contexts, LayoutInterface $layout = NULL) {
     $build = parent::build($regions, $contexts, $layout);
+
+    // Load our PageVariant.
+    /** @var \Drupal\page_manager\PageVariantInterface $page_variant */
+    $page_variant = \Drupal::request()->attributes->get('page_manager_page_variant');
+
+    // If we can't grab the PageVariant, we can't do any IPE actions later on.
+    if (!$page_variant) {
+      return $build;
+    }
+
     // Attach the Panels In-place editor library based on permissions.
     if ($this->account->hasPermission('access panels in-place editing')) {
+      // If a temporary configuration for this variant exists, use it.
+      $temp_store_key = 'variant.' . $page_variant->id();
+      if ($variant_config = $this->tempStore->get($temp_store_key)) {
+        /** @var \Drupal\panels\Plugin\DisplayVariant\PanelsDisplayVariant $variant_plugin */
+        $variant_plugin = $page_variant->getVariantPlugin();
+        $variant_plugin->setConfiguration($variant_config);
+
+        // Override our initial values with what's in TempStore.
+        $layout = $variant_plugin->getLayout();
+        $regions = $variant_plugin->getRegionAssignments();
+      }
+
+      // Build again as regions and layout may have changed.
+      $build = parent::build($regions, $contexts, $layout);
+
       foreach ($regions as $region => $blocks) {
         // Wrap each region with a unique class and data attribute.
         $region_name = Html::getClass("block-region-$region");
@@ -110,7 +177,7 @@ class InPlaceEditorDisplayBuilder extends StandardDisplayBuilder {
 
       // Attach the required settings and IPE.
       $build['#attached']['library'][] = 'panels_ipe/panels_ipe';
-      $build['#attached']['drupalSettings']['panels_ipe'] = $this->getDrupalSettings($regions, $layout);
+      $build['#attached']['drupalSettings']['panels_ipe'] = $this->getDrupalSettings($regions, $layout, $page_variant);
 
       // Add our custom elements to the build.
       $build['#prefix'] = '<div id="panels-ipe-content">';

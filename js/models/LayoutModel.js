@@ -61,14 +61,7 @@
        *
        * @type {Array}
        */
-      deletedBlocks: [],
-
-      /**
-       * An object mapping previous Block UUIDs to new Block UUIDs.
-       *
-       * @type {Object}
-       */
-      newBlocks: {}
+      deletedBlocks: []
 
 
     },

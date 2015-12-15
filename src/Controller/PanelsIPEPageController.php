@@ -23,6 +23,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\HttpFoundation\JsonResponse;
+use Drupal\user\SharedTempStoreFactory;
 
 /**
  * Contains all JSON endpoints required for Panels IPE + Page Manager.
@@ -45,16 +46,23 @@ class PanelsIPEPageController extends ControllerBase {
   protected $layoutPluginManager;
 
   /**
+   * @var \Drupal\user\SharedTempStore
+   */
+  protected $tempStore;
+
+  /**
    * Constructs a new PanelsIPEController.
    *
    * @param \Drupal\Core\Block\BlockManagerInterface $block_manager
    * @param \Drupal\Core\Render\RendererInterface $renderer
    * @param \Drupal\layout_plugin\Plugin\Layout\LayoutPluginManagerInterface $layout_plugin_manager
+   * @param \Drupal\user\SharedTempStoreFactory $temp_store_factory
    */
-  public function __construct(BlockManagerInterface $block_manager, RendererInterface $renderer, LayoutPluginManagerInterface $layout_plugin_manager) {
+  public function __construct(BlockManagerInterface $block_manager, RendererInterface $renderer, LayoutPluginManagerInterface $layout_plugin_manager, SharedTempStoreFactory $temp_store_factory) {
     $this->blockManager = $block_manager;
     $this->renderer = $renderer;
     $this->layoutPluginManager = $layout_plugin_manager;
+    $this->tempStore = $temp_store_factory->get('panels_ipe');
   }
 
   /**
@@ -64,8 +72,61 @@ class PanelsIPEPageController extends ControllerBase {
     return new static(
       $container->get('plugin.manager.block'),
       $container->get('renderer'),
-      $container->get('plugin.manager.layout_plugin')
+      $container->get('plugin.manager.layout_plugin'),
+      $container->get('user.shared_tempstore')
     );
+  }
+
+  /**
+   * Takes the current Page Variant and returns a possibly modified Page Variant
+   * based on what's in TempStore for this user.
+   *
+   * @param \Drupal\page_manager\PageVariantInterface $page_variant
+   *   The current Page Variant.
+   *
+   * @return \Drupal\page_manager\PageVariantInterface
+   */
+  protected function loadPageVariant(PageVariantInterface $page_variant) {
+    // If a temporary configuration for this variant exists, use it.
+    $temp_store_key = 'variant.' . $page_variant->id();
+    if ($variant_config = $this->tempStore->get($temp_store_key)) {
+      /** @var \Drupal\panels\Plugin\DisplayVariant\PanelsDisplayVariant $variant_plugin */
+      $variant_plugin = $page_variant->getVariantPlugin();
+      $variant_plugin->setConfiguration($variant_config);
+    }
+
+    return $page_variant;
+  }
+
+  /**
+   * Takes the current Page Variant and saves it, optionally deleting anything
+   * that may be in temp store.
+   *
+   * @param \Drupal\page_manager\PageVariantInterface $page_variant
+   *   The current Page Variant.
+   * @param bool $temp
+   *   Whether or not to save to temp store.
+   *
+   * @return \Drupal\page_manager\PageVariantInterface
+   */
+  protected function savePageVariant(PageVariantInterface $page_variant, $temp = FALSE) {
+    $temp_store_key = 'variant.' . $page_variant->id();
+    // Save configuration to temp store.
+    if ($temp) {
+      /** @var \Drupal\panels\Plugin\DisplayVariant\PanelsDisplayVariant $variant_plugin */
+      $variant_plugin = $page_variant->getVariantPlugin();
+      $this->tempStore->set($temp_store_key, $variant_plugin->getConfiguration());
+      return SAVED_UPDATED;
+    }
+    else {
+      // Check to see if temp store has configuration saved.
+      if ($variant_config = $this->tempStore->get($temp_store_key)) {
+        // Delete the existing temp store value.
+        $this->tempStore->delete($temp_store_key);
+      }
+      // Save the real entity.
+      return $page_variant->save();
+    }
   }
 
   /**
@@ -77,6 +138,8 @@ class PanelsIPEPageController extends ControllerBase {
    * @return \Symfony\Component\HttpFoundation\JsonResponse
    */
   public function getLayouts(PageVariantInterface $page_variant) {
+    $page_variant = $this->loadPageVariant($page_variant);
+
     /** @var \Drupal\panels\Plugin\DisplayVariant\PanelsDisplayVariant $variant_plugin */
     $variant_plugin = $page_variant->getVariantPlugin();
 
@@ -155,6 +218,9 @@ class PanelsIPEPageController extends ControllerBase {
       'regions' => $region_data,
     ];
 
+    // Update temp store.
+    $this->savePageVariant($page_variant, TRUE);
+
     // Return a structured JSON response for our Backbone App.
     return new JsonResponse($data);
   }
@@ -170,52 +236,37 @@ class PanelsIPEPageController extends ControllerBase {
    * @return \Symfony\Component\HttpFoundation\JsonResponse
    */
   protected function updateVariant(PageVariantInterface $page_variant, $layout) {
+    // Load the variant.
+    $page_variant = $this->loadPageVariant($page_variant);
+
     // Load the current variant plugin.
     /** @var \Drupal\panels\Plugin\DisplayVariant\PanelsDisplayVariant $variant_plugin */
     $variant_plugin = $page_variant->getVariantPlugin();
 
-    // Change the layout.
-    $configuration = $variant_plugin->getConfiguration();
-    $configuration['layout'] = $layout['id'];
-    $variant_plugin->setConfiguration($configuration);
-    $variant_plugin->getLayout();
-
-    // Edit our blocks.
-    $return_data = ['newBlocks' => []];
+    // Set our weight and region based on the metadata in our Backbone app.
     foreach ($layout['regionCollection'] as $region) {
       $weight = 0;
       foreach ($region['blockCollection'] as $block) {
-        // Our Backbone app models Blocks to abstract their region.
-        $block['region'] = $region['name'];
+        /** @var \Drupal\Core\Block\BlockBase $block_instance */
+        $block_instance = $variant_plugin->getBlock($block['uuid']);
 
-        // Weight is based by order in the collection.
-        $block['weight'] = ++$weight;
+        $block_instance->setConfigurationValue('region', $region['name']);
+        $block_instance->setConfigurationValue('weight', ++$weight);
 
-        // @todo This should be removed in Backbone.
-        unset($block['html']);
-        unset($block['active']);
-        unset($block['new']);
-
-        // If the block already exists, update it. Otherwise add it.
-        if (isset($configuration['blocks'][$block['uuid']])) {
-          $variant_plugin->updateBlock($block['uuid'], NestedArray::mergeDeep($configuration['blocks'][$block['uuid']], $block));
-        }
-        else {
-          $new_uuid = $variant_plugin->addBlock($block);
-          $return_data['newBlocks'][$block['uuid']] = $new_uuid;
-        }
+        $variant_plugin->updateBlock($block['uuid'], $block_instance->getConfiguration());
       }
     }
 
-    // Remove blocks if needed.
+    // Remove blocks that need removing.
+    // @todo We should do this on the fly instead of at on save.
     foreach ($layout['deletedBlocks'] as $uuid) {
       $variant_plugin->removeBlock($uuid);
     }
 
-    // Save the plugin.
-    $page_variant->save();
+    // Save the variant and remove temp storage.
+    $this->savePageVariant($page_variant);
 
-    return new JsonResponse($return_data);
+    return new JsonResponse(['deletedBlocks' => []]);
   }
 
   /**
@@ -223,14 +274,12 @@ class PanelsIPEPageController extends ControllerBase {
    *
    * @param \Drupal\page_manager\PageVariantInterface $page_variant
    *   The current variant.
-   * @param string $layout_id
-   *   The machine name of the requested layout.
    * @param \Symfony\Component\HttpFoundation\Request $request
    *   The current request.
    *
    * @return \Symfony\Component\HttpFoundation\JsonResponse
    */
-  public function updateLayout(PageVariantInterface $page_variant, $layout_id, Request $request) {
+  public function updateLayout(PageVariantInterface $page_variant, Request $request) {
     // Decode the request.
     $content = $request->getContent();
     if (!empty($content) && $layout = Json::decode($content)) {
@@ -246,16 +295,14 @@ class PanelsIPEPageController extends ControllerBase {
    *
    * @param \Drupal\page_manager\PageVariantInterface $page_variant
    *   The current variant.
-   * @param string $layout_id
-   *   The machine name of the new layout.
    * @param \Symfony\Component\HttpFoundation\Request $request
    *   The current request.
    *
    * @return \Symfony\Component\HttpFoundation\JsonResponse
    */
-  public function createLayout(PageVariantInterface $page_variant, $layout_id, Request $request) {
+  public function createLayout(PageVariantInterface $page_variant, Request $request) {
     // For now, creating and updating a layout is the same thing.
-    return $this->updateLayout($page_variant, $layout_id, $request);
+    return $this->updateLayout($page_variant, $request);
   }
 
   /**
@@ -267,6 +314,8 @@ class PanelsIPEPageController extends ControllerBase {
    * @return \Symfony\Component\HttpFoundation\JsonResponse
    */
   public function getBlockPlugins(PageVariantInterface $page_variant) {
+    $page_variant = $this->loadPageVariant($page_variant);
+
     // Get block plugin definitions from the server.
     $definitions = $this->blockManager->getDefinitionsForContexts($page_variant->getContexts());
 
@@ -295,8 +344,6 @@ class PanelsIPEPageController extends ControllerBase {
    *
    * @param \Drupal\page_manager\PageVariantInterface $page_variant
    *   The current variant.
-   * @param string $layout_id
-   *   The requested Layout ID.
    * @param string $plugin_id
    *   The requested Block Plugin ID.
    * @param string $block_uuid
@@ -304,14 +351,8 @@ class PanelsIPEPageController extends ControllerBase {
    *
    * @return Response
    */
-  public function getBlockPluginForm(PageVariantInterface $page_variant, $layout_id, $plugin_id, $block_uuid = NULL) {
-    /** @var \Drupal\panels\Plugin\DisplayVariant\PanelsDisplayVariant $variant_plugin */
-    $variant_plugin = $page_variant->getVariantPlugin();
-
-    // Set our configuration to match the current, possibly unsaved layout.
-    $configuration = $variant_plugin->getConfiguration();
-    $configuration['layout'] = $layout_id;
-    $variant_plugin->setConfiguration($configuration);
+  public function getBlockPluginForm(PageVariantInterface $page_variant, $plugin_id, $block_uuid = NULL) {
+    $page_variant = $this->loadPageVariant($page_variant);
 
     // Get the configuration in the block plugin definition.
     $definitions = $this->blockManager->getDefinitionsForContexts($page_variant->getContexts());
@@ -321,17 +362,8 @@ class PanelsIPEPageController extends ControllerBase {
       throw new NotFoundHttpException();
     }
 
-    // If $block_uuid is passed, check if it already exists in the Variant Plugin.
-    $new = TRUE;
-    if ($block_uuid) {
-      $new = isset($configuration['blocks'][$block_uuid]);
-    }
-
-    // Grab the current layout's regions.
-    $regions = $variant_plugin->getRegionNames();
-
     // Build a Block Plugin configuration form.
-    $form = $this->formBuilder()->getForm('Drupal\panels_ipe\Form\PanelsIPEBlockPluginForm', $plugin_id, $page_variant->id(), $regions, $block_uuid, $new);
+    $form = $this->formBuilder()->getForm('Drupal\panels_ipe\Form\PanelsIPEBlockPluginForm', $plugin_id, $page_variant, $block_uuid);
 
     // Return the rendered form as a proper Drupal AJAX response.
     // This is needed as forms often have custom JS and CSS that need added,

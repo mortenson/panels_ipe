@@ -86,7 +86,6 @@
         this.$el.html(this.model.get('html'));
       }
       this.listenTo(this.model, 'change:active', this.changeState);
-      this.listenTo(this.model, 'sync', this.modelSync);
     },
 
     /**
@@ -312,13 +311,11 @@
       var region_name = $(e.currentTarget).closest('[data-region-name]').data('region-name');
       var region = this.model.get('regionCollection').get(region_name);
 
-      // Add the block to a collection of blocks to remove, if it isn't new.
-      if (!region.get('blockCollection').get(id).get('new')) {
-        this.model.get('deletedBlocks').push(id);
-      }
-
       // Remove the block.
       region.get('blockCollection').remove(id);
+
+      // Add the UUID to an array our backend will later consume.
+      this.model.get('deletedBlocks').push(id);
 
       // Re-render ourselves.
       this.render();
@@ -411,34 +408,6 @@
         // Highlight the block.
         this.$('[data-block-id="' + block.get('uuid') + '"]').addClass('ipe-highlight');
       }
-    },
-
-    /**
-     * React to our LayoutModel being saved to the server.
-     */
-    modelSync: function () {
-      var new_blocks = this.model.get('newBlocks');
-
-      // Make sure our new BlockModels are no longer "new".
-      this.model.get('regionCollection').each(function (region) {
-        region.get('blockCollection').each(function (block) {
-          block.set({new: false});
-          // Check if this is a new block, in which case our placeholder UUID is replaced with a real one.
-          var old_uuid = block.get('uuid');
-          if (old_uuid in new_blocks) {
-            block.set({uuid: new_blocks[old_uuid]});
-            block.set({html: block.get('html').replace(old_uuid, new_blocks[old_uuid])});
-          }
-        }, this);
-      }, this);
-
-      // Reset special attributes we use to communicate with the backend.
-      this.model.set({
-        deletedBlocks: [],
-        newBlocks: {}
-      });
-
-      this.render();
     }
 
   });
