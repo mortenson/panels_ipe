@@ -6,7 +6,7 @@
  * see Drupal.panels_ipe.AppModel
  */
 
-(function ($, _, Backbone, Drupal) {
+(function ($, _, Backbone, Drupal, drupalSettings) {
 
   'use strict';
 
@@ -61,6 +61,7 @@
       // Listen to tabs that don't have associated BackboneViews.
       this.listenTo(this.model.get('editTab'), 'change:active', this.clickEditTab);
       this.listenTo(this.model.get('saveTab'), 'change:active', this.clickSaveTab);
+      this.listenTo(this.model.get('cancelTab'), 'change:active', this.clickCancelTab);
     },
 
     /**
@@ -184,6 +185,21 @@
     },
 
     /**
+     * Cancels our temporary changes and refreshes the page.
+     */
+    clickCancelTab: function () {
+      var cancel_tab = this.model.get('cancelTab');
+      if (cancel_tab.get('active') && !cancel_tab.get('loading')) {
+        // Remove our changes and refresh the page.
+        cancel_tab.set({loading: true});
+        $.ajax(Drupal.panels_ipe.urlRoot(drupalSettings) + '/cancel')
+          .done(function (data) {
+            location.reload();
+          });
+      }
+    },
+
+    /**
      * Adds a new BlockPlugin to the screen.
      *
      * @param {Drupal.panels_ipe.BlockModel} block
@@ -216,4 +232,4 @@
 
   });
 
-}(jQuery, _, Backbone, Drupal));
+}(jQuery, _, Backbone, Drupal, drupalSettings));

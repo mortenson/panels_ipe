@@ -6,7 +6,7 @@
  *
  */
 
-(function ($, _, Backbone, Drupal) {
+(function ($, _, Backbone, Drupal, drupalSettings) {
 
   'use strict';
 
@@ -252,9 +252,6 @@
      */
     displayBlockPluginForm: function (e) {
       var self = this;
-      var ajax_data = {
-        js: true
-      };
 
       // Get the current plugin_id.
       var plugin_id = $(e.currentTarget).data('plugin-id');
@@ -281,9 +278,6 @@
           .get(region_name).get('blockCollection').get(block_id);
         plugin_id = plugin.get('id');
 
-        // Send the BlockModel to the server when requesting the form.
-        ajax_data.block = plugin.toJSON();
-
         url += plugin_id + '/block/' + block_id + '/form';
       }
 
@@ -296,7 +290,7 @@
       // Setup the Drupal.Ajax instance.
       var ajax = Drupal.ajax({
         url: url,
-        submit: ajax_data
+        submit: { js: true }
       });
 
       // Remove our throbber on load.
@@ -311,4 +305,4 @@
 
   });
 
-}(jQuery, _, Backbone, Drupal));
+}(jQuery, _, Backbone, Drupal, drupalSettings));

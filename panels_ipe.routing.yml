@@ -1,3 +1,11 @@
+panels_ipe.cancel:
+  path: '/admin/panels_ipe/variant/{page_variant}/cancel'
+  defaults:
+      _controller: '\Drupal\panels_ipe\Controller\PanelsIPEPageController::cancelPageVariant'
+  requirements:
+    _entity_access: page_variant.update
+    _permission: 'access panels in-place editing'
+
 panels_ipe.block_plugins:
   path: '/admin/panels_ipe/variant/{page_variant}/block_plugins'
   defaults:

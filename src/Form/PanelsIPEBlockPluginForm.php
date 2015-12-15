@@ -177,7 +177,7 @@ class PanelsIPEBlockPluginForm extends FormBase {
     // Add an add button, which is only used by our App.
     $form['submit'] = [
       '#type' => 'button',
-      '#value' => isset($input['block']) ? $this->t('Update') : $this->t('Add'),
+      '#value' => $uuid ? $this->t('Update') : $this->t('Add'),
       '#ajax' => [
         'callback' => '::submitForm',
         'wrapper' => 'panels-ipe-block-plugin-form-wrapper',

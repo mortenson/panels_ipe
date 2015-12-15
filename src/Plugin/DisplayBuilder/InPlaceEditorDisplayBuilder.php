@@ -9,6 +9,7 @@ namespace Drupal\panels_ipe\Plugin\DisplayBuilder;
 
 use Drupal\Component\Utility\Html;
 use Drupal\Component\Utility\NestedArray;
+use Drupal\page_manager\Entity\PageVariant;
 use Drupal\page_manager\PageVariantInterface;
 use Drupal\Core\Plugin\Context\ContextHandlerInterface;
 use Drupal\Core\Session\AccountInterface;
@@ -150,6 +151,10 @@ class InPlaceEditorDisplayBuilder extends StandardDisplayBuilder {
       // If a temporary configuration for this variant exists, use it.
       $temp_store_key = 'variant.' . $page_variant->id();
       if ($variant_config = $this->tempStore->get($temp_store_key)) {
+        // Reload the PageVariant. This is required to set variant plugin
+        // configuration correctly.
+        $page_variant = PageVariant::load($page_variant->id());
+
         /** @var \Drupal\panels\Plugin\DisplayVariant\PanelsDisplayVariant $variant_plugin */
         $variant_plugin = $page_variant->getVariantPlugin();
         $variant_plugin->setConfiguration($variant_config);

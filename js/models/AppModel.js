@@ -59,7 +59,14 @@
        *
        * @type {Drupal.panels_ipe.TabModel}
        */
-      saveTab: null
+      saveTab: null,
+
+      /**
+       * The "Cancel" tab.
+       *
+       * @type {Drupal.panels_ipe.TabModel}
+       */
+      cancelTab: null
     }
 
   });

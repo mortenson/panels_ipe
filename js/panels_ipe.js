@@ -58,17 +58,20 @@
     tab_collection.add({title: 'Change Layout', id: 'change_layout'});
     tab_collection.add({title: 'Manage Content', id: 'manage_content'});
 
-    // The edit and save tabs are special, and are tracked by our app.
+    // The edit/save/cancel tabs are special, and are tracked by our app.
     var edit_tab = new Drupal.panels_ipe.TabModel({title: 'Edit', id: 'edit'});
     var save_tab = new Drupal.panels_ipe.TabModel({title: 'Save', id: 'save'});
+    var cancel_tab = new Drupal.panels_ipe.TabModel({title: 'Cancel', id: 'cancel'});
     tab_collection.add(edit_tab);
     tab_collection.add(save_tab);
+    tab_collection.add(cancel_tab);
 
     // Create a global(ish) AppModel.
     Drupal.panels_ipe.app = new Drupal.panels_ipe.AppModel({
       tabCollection: tab_collection,
       editTab: edit_tab,
-      saveTab: save_tab
+      saveTab: save_tab,
+      cancelTab: cancel_tab
     });
 
     // Set up our initial tab views.

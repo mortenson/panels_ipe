@@ -9,7 +9,6 @@ namespace Drupal\panels_ipe\Controller;
 
 use Drupal\Component\Serialization\Json;
 use Drupal\Component\Utility\Html;
-use Drupal\Component\Utility\NestedArray;
 use Drupal\Core\Ajax\AjaxResponse;
 use Drupal\Core\Ajax\AppendCommand;
 use Drupal\Core\Block\BlockManagerInterface;
@@ -78,14 +77,14 @@ class PanelsIPEPageController extends ControllerBase {
   }
 
   /**
-   * Takes the current Page Variant and returns a possibly modified Page Variant
-   * based on what's in TempStore for this user.
-   *
-   * @param \Drupal\page_manager\PageVariantInterface $page_variant
-   *   The current Page Variant.
-   *
-   * @return \Drupal\page_manager\PageVariantInterface
-   */
+ * Takes the current Page Variant and returns a possibly modified Page Variant
+ * based on what's in TempStore for this user.
+ *
+ * @param \Drupal\page_manager\PageVariantInterface $page_variant
+ *   The current Page Variant.
+ *
+ * @return \Drupal\page_manager\PageVariantInterface
+ */
   protected function loadPageVariant(PageVariantInterface $page_variant) {
     // If a temporary configuration for this variant exists, use it.
     $temp_store_key = 'variant.' . $page_variant->id();
@@ -127,6 +126,25 @@ class PanelsIPEPageController extends ControllerBase {
       // Save the real entity.
       return $page_variant->save();
     }
+  }
+
+  /**
+   * Removes any temporary changes to the variant.
+   *
+   * @param \Drupal\page_manager\PageVariantInterface $page_variant
+   *   The current Page Variant.
+   *
+   * @return \Symfony\Component\HttpFoundation\JsonResponse
+   */
+  public function cancelPageVariant(PageVariantInterface $page_variant) {
+    // If a temporary configuration for this variant exists, use it.
+    $temp_store_key = 'variant.' . $page_variant->id();
+    if ($variant_config = $this->tempStore->get($temp_store_key)) {
+      $this->tempStore->delete($temp_store_key);
+    }
+
+    // Return an empty JSON response.
+    return new JsonResponse();
   }
 
   /**
