@@ -180,6 +180,7 @@
         this.model.get('layout').save().done(function () {
           self.model.get('saveTab').set({loading: false, active: false});
           self.tabsView.render();
+          self.$el.removeClass('unsaved');
         });
       }
     },

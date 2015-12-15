@@ -147,6 +147,7 @@ class InPlaceEditorDisplayBuilder extends StandardDisplayBuilder {
     }
 
     // Attach the Panels In-place editor library based on permissions.
+    $unsaved = FALSE;
     if ($this->account->hasPermission('access panels in-place editing')) {
       // If a temporary configuration for this variant exists, use it.
       $temp_store_key = 'variant.' . $page_variant->id();
@@ -162,6 +163,9 @@ class InPlaceEditorDisplayBuilder extends StandardDisplayBuilder {
         // Override our initial values with what's in TempStore.
         $layout = $variant_plugin->getLayout();
         $regions = $variant_plugin->getRegionAssignments();
+
+        // Indicate that the user is viewing un-saved changes.
+        $unsaved = TRUE;
       }
 
       // Build again as regions and layout may have changed.
@@ -186,8 +190,15 @@ class InPlaceEditorDisplayBuilder extends StandardDisplayBuilder {
 
       // Add our custom elements to the build.
       $build['#prefix'] = '<div id="panels-ipe-content">';
-      $build['#suffix'] = '</div><div id="panels-ipe-tray"></div>';
+      // Indicate unsaved elements.
+      if ($unsaved) {
+        $build['#suffix'] = '</div><div id="panels-ipe-tray" class="unsaved"></div>';
+      }
+      else {
+        $build['#suffix'] = '</div><div id="panels-ipe-tray"></div>';
+      }
     }
+
     return $build;
   }
 
