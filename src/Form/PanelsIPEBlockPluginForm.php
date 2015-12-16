@@ -313,11 +313,12 @@ class PanelsIPEBlockPluginForm extends FormBase {
   protected function getBlockInstance($form_state) {
     /** @var \Drupal\page_manager\PageVariantInterface $page_variant */
     $page_variant = PageVariant::load($form_state->getValue('variant_id'));
-    /** @var \Drupal\panels\Plugin\DisplayVariant\PanelsDisplayVariant $variant_plugin */
-    $variant_plugin = $page_variant->getVariantPlugin();
 
     // If a UUID is provided, the Block should already exist.
     if ($uuid = $form_state->getValue('uuid')) {
+      /** @var \Drupal\panels\Plugin\DisplayVariant\PanelsDisplayVariant $variant_plugin */
+      $variant_plugin = $page_variant->getVariantPlugin();
+
       // If a temporary configuration for this variant exists, use it.
       $temp_store_key = 'variant.' . $page_variant->id();
       if ($variant_config = $this->tempStore->get($temp_store_key)) {

@@ -77,14 +77,14 @@ class PanelsIPEPageController extends ControllerBase {
   }
 
   /**
- * Takes the current Page Variant and returns a possibly modified Page Variant
- * based on what's in TempStore for this user.
- *
- * @param \Drupal\page_manager\PageVariantInterface $page_variant
- *   The current Page Variant.
- *
- * @return \Drupal\page_manager\PageVariantInterface
- */
+   * Takes the current Page Variant and returns a possibly modified Page Variant
+   * based on what's in TempStore for this user.
+   *
+   * @param \Drupal\page_manager\PageVariantInterface $page_variant
+   *   The current Page Variant.
+   *
+   * @return \Drupal\page_manager\PageVariantInterface
+   */
   protected function loadPageVariant(PageVariantInterface $page_variant) {
     // If a temporary configuration for this variant exists, use it.
     $temp_store_key = 'variant.' . $page_variant->id();
@@ -108,14 +108,14 @@ class PanelsIPEPageController extends ControllerBase {
    *
    * @return \Drupal\page_manager\PageVariantInterface
    */
-  protected function savePageVariant(PageVariantInterface $page_variant, $temp = FALSE) {
+  protected function savePageVariant(PageVariantInterface $page_variant, $temp = TRUE) {
     $temp_store_key = 'variant.' . $page_variant->id();
+
     // Save configuration to temp store.
     if ($temp) {
       /** @var \Drupal\panels\Plugin\DisplayVariant\PanelsDisplayVariant $variant_plugin */
       $variant_plugin = $page_variant->getVariantPlugin();
       $this->tempStore->set($temp_store_key, $variant_plugin->getConfiguration());
-      return SAVED_UPDATED;
     }
     else {
       // Check to see if temp store has configuration saved.
@@ -123,9 +123,12 @@ class PanelsIPEPageController extends ControllerBase {
         // Delete the existing temp store value.
         $this->tempStore->delete($temp_store_key);
       }
+
       // Save the real entity.
-      return $page_variant->save();
+      $page_variant->save();
     }
+
+    return $page_variant;
   }
 
   /**
@@ -237,7 +240,7 @@ class PanelsIPEPageController extends ControllerBase {
     ];
 
     // Update temp store.
-    $this->savePageVariant($page_variant, TRUE);
+    $this->savePageVariant($page_variant);
 
     // Return a structured JSON response for our Backbone App.
     return new JsonResponse($data);
@@ -282,7 +285,7 @@ class PanelsIPEPageController extends ControllerBase {
     }
 
     // Save the variant and remove temp storage.
-    $this->savePageVariant($page_variant);
+    $this->savePageVariant($page_variant, FALSE);
 
     return new JsonResponse(['deletedBlocks' => []]);
   }

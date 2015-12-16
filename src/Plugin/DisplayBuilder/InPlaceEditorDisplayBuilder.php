@@ -135,20 +135,18 @@ class InPlaceEditorDisplayBuilder extends StandardDisplayBuilder {
    * {@inheritdoc}
    */
   public function build(array $regions, array $contexts, LayoutInterface $layout = NULL) {
-    $build = parent::build($regions, $contexts, $layout);
-
     // Load our PageVariant.
     /** @var \Drupal\page_manager\PageVariantInterface $page_variant */
     $page_variant = \Drupal::request()->attributes->get('page_manager_page_variant');
 
-    // If we can't grab the PageVariant, we can't do any IPE actions later on.
-    if (!$page_variant) {
-      return $build;
-    }
+    // Check to see if the current user has permissions to use the IPE.
+    $has_permission = $this->account->hasPermission('access panels in-place editing');
 
-    // Attach the Panels In-place editor library based on permissions.
-    $unsaved = FALSE;
-    if ($this->account->hasPermission('access panels in-place editing')) {
+    // Attach the Panels In-place editor library based on permissions and whether
+    if ($page_variant && $has_permission) {
+      // This flag tracks whether or not there are unsaved changes.
+      $unsaved = FALSE;
+
       // If a temporary configuration for this variant exists, use it.
       $temp_store_key = 'variant.' . $page_variant->id();
       if ($variant_config = $this->tempStore->get($temp_store_key)) {
@@ -168,7 +166,6 @@ class InPlaceEditorDisplayBuilder extends StandardDisplayBuilder {
         $unsaved = TRUE;
       }
 
-      // Build again as regions and layout may have changed.
       $build = parent::build($regions, $contexts, $layout);
 
       foreach ($regions as $region => $blocks) {
@@ -190,13 +187,15 @@ class InPlaceEditorDisplayBuilder extends StandardDisplayBuilder {
 
       // Add our custom elements to the build.
       $build['#prefix'] = '<div id="panels-ipe-content">';
-      // Indicate unsaved elements.
-      if ($unsaved) {
-        $build['#suffix'] = '</div><div id="panels-ipe-tray" class="unsaved"></div>';
-      }
-      else {
-        $build['#suffix'] = '</div><div id="panels-ipe-tray"></div>';
-      }
+
+      // Indicate if the current user is viewing temp store.
+      $tray_classes = $unsaved ? 'unsaved' : '';
+
+      $build['#suffix'] = '</div><div id="panels-ipe-tray" class="' . $tray_classes . '"></div>';
+    }
+    // Use a standard build if the user can't use IPE.
+    else {
+      $build = parent::build($regions, $contexts, $layout);
     }
 
     return $build;
