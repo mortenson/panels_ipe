@@ -142,7 +142,7 @@ class InPlaceEditorDisplayBuilder extends StandardDisplayBuilder {
     // Check to see if the current user has permissions to use the IPE.
     $has_permission = $this->account->hasPermission('access panels in-place editing');
 
-    // Attach the Panels In-place editor library based on permissions and whether
+    // Attach the Panels In-place editor library based on permissions.
     if ($page_variant && $has_permission) {
       // This flag tracks whether or not there are unsaved changes.
       $unsaved = FALSE;
