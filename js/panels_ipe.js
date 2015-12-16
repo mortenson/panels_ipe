@@ -136,7 +136,7 @@
    *   A base path for most other URL callbacks in this App.
    */
   Drupal.panels_ipe.urlRoot = function (settings) {
-    return '/admin/panels_ipe/variant/' + settings.panels_ipe.display_variant.id;
+    return settings.path.baseUrl + 'admin/panels_ipe/variant/' + settings.panels_ipe.display_variant.id;
   };
 
 }(jQuery, _, Backbone, Drupal));
